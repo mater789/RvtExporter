@@ -3,9 +3,37 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Autodesk.Revit.DB;
+using VectorDraw.Geometry;
+using VectorDraw.Professional.vdPrimaries;
 
 namespace Exporter
 {
+    class CompareMethod : IComparer<vdFigure>
+    {
+        //重写int比较器，|x|>|y|返回正数，|x|=|y|返回0，|x|<|y|返回负数   
+        public int Compare(vdFigure x, vdFigure y)
+        {
+
+            double x1 = getfigurevolume(x);
+            double y1 = getfigurevolume(y);
+
+            if (x1 > y1)
+                return -1;
+            else
+            {
+                return 1;
+            }
+        }
+
+        double getfigurevolume(vdFigure vdf)
+        {
+            Box b = vdf.BoundingBox;
+
+            return (b.Max.z - b.Min.z) + (b.Max.y - b.Min.y) + (b.Max.x - b.Min.x);
+
+        }
+    }
+
     public static class Tools
     {
         public static double Ft2MmScale = 304.8;

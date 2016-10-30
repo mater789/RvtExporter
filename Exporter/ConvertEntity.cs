@@ -136,7 +136,9 @@ namespace Exporter
                 replaceNumber.Setting = this.ExportSetting.ParkingExportSetting;
                 replaceNumber.ReplaceText();
             }
-            
+
+            vDraw.ActiveDocument.ActiveLayOut.Entities.Sort(new CompareMethod());
+
             m_formProgress.Text = "正在保存";
             bool bResult = vDraw.ActiveDocument.SaveAs(fileName);
             m_formProgress.Close();
