@@ -40,7 +40,7 @@ namespace Exporter
         /// <summary>
         /// 所使用的块列表
         /// </summary>
-        private Dictionary<string, BlockData> m_dictBlock = new Dictionary<string, BlockData>(); 
+        private Dictionary<string, BlockData> m_dictBlock = new Dictionary<string, BlockData>();
 
         /// <summary>
         /// 整个模型涉及到的材质列表
@@ -183,7 +183,7 @@ namespace Exporter
         private MaterialData m_curElementMaterialData = null;
 
         public Dictionary<string, LocationData> InstanceLocation { get; set; }
-      
+
         #endregion
 
 
@@ -207,7 +207,7 @@ namespace Exporter
             List<TriangleData> listTri = new List<TriangleData>();
 
             XYZ point;
-            for (int i = 0; i < polyMesh.NumberOfFacets; i++ )
+            for (int i = 0; i < polyMesh.NumberOfFacets; i++)
             {
                 point = polyMesh.GetPoint(polyMesh.GetFacet(i).V1);
                 if (!bIsOrignPosition)
@@ -238,7 +238,7 @@ namespace Exporter
         private List<TriangleIndexData> GetTriangleIndexFromPolymesh(PolymeshTopology polymesh)
         {
             List<TriangleIndexData> listIndex = new List<TriangleIndexData>();
-            for (int i = 0; i < polymesh.NumberOfFacets; i++ )
+            for (int i = 0; i < polymesh.NumberOfFacets; i++)
                 listIndex.Add(new TriangleIndexData(polymesh.GetFacet(i).V1, polymesh.GetFacet(i).V2, polymesh.GetFacet(i).V3));
 
             return listIndex;
@@ -270,7 +270,7 @@ namespace Exporter
                     fname = (elem as FamilyInstance).Symbol.Family.Name;
             }
             catch
-            {}
+            { }
 
             return fname;
         }
@@ -294,7 +294,7 @@ namespace Exporter
             internalProps.Add(new PropertyData { GroupName = "#Internal", Name = "#guid", Value = CurrentElement.UniqueId });
             var fname = GetFamilyName(elem);
             if (!string.IsNullOrEmpty(fname) && !(CurrentElement is MEPCurve))
-                internalProps.Add(new PropertyData {GroupName = "#Internal", Name = "#family", Value = fname});
+                internalProps.Add(new PropertyData { GroupName = "#Internal", Name = "#family", Value = fname });
             dictProperties["#Internal"] = internalProps;
 
             // 读取位置信息
@@ -331,7 +331,7 @@ namespace Exporter
                 var faceV = new PointData(fi.FacingOrientation.X, fi.FacingOrientation.Y, fi.FacingOrientation.Z);
                 var handV = new PointData(fi.HandOrientation.X, fi.HandOrientation.Y, fi.HandOrientation.Z);
 
-                InstanceLocation[CurrentElement.UniqueId] = new LocationData {LocationCurve = curvedata, FaceVec = faceV, HandVec = handV};
+                InstanceLocation[CurrentElement.UniqueId] = new LocationData { LocationCurve = curvedata, FaceVec = faceV, HandVec = handV };
             }
 
 
@@ -464,7 +464,7 @@ namespace Exporter
 
             LocationCurve locationCurve = curve.Location as LocationCurve;
             if (locationCurve == null)
-                return false;           
+                return false;
 
             double diameter = 0.0;
             try
@@ -473,7 +473,7 @@ namespace Exporter
             }
             catch (System.Exception ex)
             {
-            	return false;
+                return false;
             }
 
             Line line = locationCurve.Curve as Line;
@@ -616,9 +616,9 @@ namespace Exporter
                 m_curOriginMaterialData.Color.Green = node.Color.Green;
                 m_curOriginMaterialData.Color.Blue = node.Color.Blue;
                 m_curOriginMaterialData.Transparency = (int)(255 * node.Transparency);
-                m_curOriginMaterialData.Name = "Color_" + node.Color.Red.ToString() + "-" + 
-                    node.Color.Green.ToString() + "-" + 
-                    node.Color.Blue.ToString() + "-"  + 
+                m_curOriginMaterialData.Name = "Color_" + node.Color.Red.ToString() + "-" +
+                    node.Color.Green.ToString() + "-" +
+                    node.Color.Blue.ToString() + "-" +
                     m_curOriginMaterialData.Transparency.ToString();
             }
         }
@@ -651,23 +651,23 @@ namespace Exporter
             mesh.Vertexes = GetVertexesFromPolymesh(polyMesh);
 
             // 以下的材质获取，优先选用 m_curElementMaterialData，再者选用m_curMaterialId指代的material，最后选用m_curOriginMaterialData，如果再为空则使用“NoMaterial”
-            string materialName = string.Empty;     
-            if (m_curElementMaterialData != null)                      
+            string materialName = string.Empty;
+            if (m_curElementMaterialData != null)
             {
                 AddMaterial(m_curElementMaterialData);
                 materialName = m_curElementMaterialData.Name;
             }
-            else                                            
+            else
             {
                 Material material = m_doc.GetElement(m_curMaterialId) as Material;
-                if (material != null)           
+                if (material != null)
                 {
                     AddMaterial(material);
                     materialName = material.Name;
                 }
-                else                                                   
+                else
                 {
-                    if (m_curOriginMaterialData != null)               
+                    if (m_curOriginMaterialData != null)
                     {
                         AddMaterial(m_curOriginMaterialData);
                         materialName = m_curOriginMaterialData.Name;
@@ -699,12 +699,12 @@ namespace Exporter
 
         public void OnDaylightPortal(DaylightPortalNode node)
         {
-            
+
         }
 
         public void OnRPC(RPCNode node)
         {
-            
+
         }
 
         public RenderNodeAction OnViewBegin(ViewNode node)
@@ -730,7 +730,7 @@ namespace Exporter
                 if (ExtraElementColorSetting.ContainsKey(elementId))
                     m_curElementMaterialData = ExtraMaterial.Find(mat => mat.Name == ExtraElementColorSetting[elementId]);
             }
-       
+
             return RenderNodeAction.Proceed;
         }
 
@@ -739,6 +739,8 @@ namespace Exporter
             m_curElementMaterialData = null;
             m_stackElement.Pop();
         }
+
+        private Stack<InsertData> _insertStack = new Stack<InsertData>();
 
         public RenderNodeAction OnInstanceBegin(InstanceNode node)
         {
@@ -758,6 +760,12 @@ namespace Exporter
                 blk.Name = blockName;
                 m_dictBlock.Add(blk.Name, blk);
             }
+            else
+            {
+                blk = new BlockData();
+                blk.Name = blockName + "__tmpBlk__";
+                m_dictBlock.Add(blk.Name, blk);
+            }
 
             InsertData insertData = new InsertData();
             insertData.BlockBeloneTo = CurrentBlockData;
@@ -767,15 +775,50 @@ namespace Exporter
                 insertData.DictProperties = GetPropertiesAndLocationFromElement(CurrentElement);
             CurrentBlockData.Inserts.Add(insertData);
 
+            _insertStack.Push(insertData);
+
             m_stackBlock.Push(blk);
 
-             return bBlkAlreadyExist ? RenderNodeAction.Skip : RenderNodeAction.Proceed;
+            return RenderNodeAction.Proceed;
+
+            if (!bBlkAlreadyExist)
+                return RenderNodeAction.Proceed;
+
+            //if (blk.Meshs.Count < 1 && blk.Inserts.Count < 1 && !blk.IsPipe)
+            //    return RenderNodeAction.Proceed;
+
+            return RenderNodeAction.Skip;
         }
 
         public void OnInstanceEnd(InstanceNode node)
         {
+            var curIns = _insertStack.Peek();
+
             m_stackTrans.Pop();
             m_stackBlock.Pop();
+
+            if (curIns.BlockRef.Meshs.Count < 1 && curIns.BlockRef.Inserts.Count < 1 && !curIns.BlockRef.IsPipe)
+            {
+                var has = CurrentBlockData.Inserts.Remove(curIns);
+                m_dictBlock.Remove(curIns.BlockRef.Name);
+            }
+            else if (curIns.BlockRef.Name.EndsWith("__tmpBlk__"))
+            {
+                m_dictBlock.Remove(curIns.BlockRef.Name);
+
+                var extName = curIns.BlockRef.Name.Substring(0, curIns.BlockRef.Name.Length - 10);
+                BlockData blk;
+                if (m_dictBlock.TryGetValue(extName, out blk))
+                {
+                    curIns.BlockRef = blk;
+                }
+            }
+
+            //var ins = _insertStack.Peek();
+            //if (ins.BlockRef.Meshs.Count < 1 && ins.BlockRef.Inserts.Count < 1 && !ins.BlockRef.IsPipe)
+            //    CurrentBlockData.Inserts.Remove(ins);
+
+            //_insertStack.Pop();
         }
 
         public RenderNodeAction OnFaceBegin(FaceNode node)
@@ -840,7 +883,7 @@ namespace Exporter
 
         public void OnLight(LightNode node)
         {
-            
+
         }
 
         #endregion
