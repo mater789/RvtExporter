@@ -1,15 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+using System.Diagnostics;
+using System.IO;
 using System.Windows.Forms;
-
-using Autodesk.Revit.ApplicationServices;
 using Autodesk.Revit.Attributes;
 using Autodesk.Revit.DB;
 using Autodesk.Revit.UI;
-using Autodesk.Revit.UI.Selection;
-using System.Diagnostics;
+using Autodesk.Revit.Utility;
 
 namespace Exporter
 {
@@ -36,8 +33,8 @@ namespace Exporter
             Process process = Process.GetCurrentProcess();
             IntPtr h = process.MainWindowHandle;
 
-            string filePath = System.IO.Path.GetDirectoryName(doc.PathName);
-            string fileName = System.IO.Path.GetFileNameWithoutExtension(doc.PathName);
+            string filePath = Path.GetDirectoryName(doc.PathName);
+            string fileName = Path.GetFileNameWithoutExtension(doc.PathName);
 
             FormSettings dlg = new FormSettings();
             dlg.ExportSetting.SystemSetting.ExportFilePath = filePath + "\\" + fileName + ".vdcl";
@@ -82,7 +79,197 @@ namespace Exporter
         }
     }
 
-    public class WindowHandle : System.Windows.Forms.IWin32Window
+    [Transaction(TransactionMode.Manual)]
+    public class TextureCommand : IExternalCommand
+    {
+        private string _priexFix = string.Empty;
+
+        public void ReadAsset(Asset asset, StreamWriter objWriter)
+        {
+            _priexFix += "\t";
+            for (int idx = 0; idx < asset.Size; idx++)
+            {
+                AssetProperty prop = asset[idx];
+                ReadAssetProperty(prop, objWriter);
+            }
+            _priexFix = _priexFix.Substring(0, _priexFix.Length - 1);
+        }
+
+        public void ReadAssetProperty(AssetProperty prop, StreamWriter objWriter)
+        {
+            if (prop.Name != "description" && prop.Name != "BaseSchema")
+                return;
+
+            switch (prop.Type)
+            {
+                // Retrieve the value from simple type property is easy.
+                // for example, retrieve bool property value.
+                case AssetPropertyType.APT_Integer:
+                    var AssetPropertyInt = prop as AssetPropertyInteger;
+                    objWriter.WriteLine(_priexFix + AssetPropertyInt.Name + "= " + AssetPropertyInt.Value);
+                    break;
+
+                case AssetPropertyType.APT_Distance:
+                    var AssetPropertyDistance = prop as AssetPropertyDistance;
+                    objWriter.WriteLine(_priexFix + AssetPropertyDistance.Name + "= " + AssetPropertyDistance.Value);
+                    break;
+                case AssetPropertyType.APT_Float:
+                    var assFlot = prop as AssetPropertyFloat;
+                    objWriter.WriteLine(_priexFix + assFlot.Name + "= " + assFlot.Value);
+                    break;
+                case AssetPropertyType.APT_Double:
+                    var AssetPropertyDouble = prop as AssetPropertyDouble;
+                    objWriter.WriteLine(_priexFix + AssetPropertyDouble.Name + "= " + AssetPropertyDouble.Value);
+                    break;
+
+                case AssetPropertyType.APT_DoubleArray2d:
+                    var AssetPropertyDoubleArray2d = prop as AssetPropertyDoubleArray2d;
+                    objWriter.WriteLine(_priexFix + AssetPropertyDoubleArray2d.Name + "= " + AssetPropertyDoubleArray2d.Value);
+                    break;
+                case AssetPropertyType.APT_DoubleArray3d:
+                    var arr3d = prop as AssetPropertyDoubleArray3d;
+                    objWriter.WriteLine(_priexFix + arr3d.Name + "= " + arr3d.Value);
+                    break;
+                case AssetPropertyType.APT_DoubleArray4d:
+                    var AssetPropertyDoubleArray4d = prop as AssetPropertyDoubleArray4d;
+                    objWriter.WriteLine(_priexFix + AssetPropertyDoubleArray4d.Name + "= " + AssetPropertyDoubleArray4d.Value);
+                    break;
+
+                case AssetPropertyType.APT_String:
+                    AssetPropertyString val = prop as AssetPropertyString;
+
+                    objWriter.WriteLine(_priexFix + val.Name + "= " + val.Value);
+                    break;
+                case AssetPropertyType.APT_Boolean:
+                    AssetPropertyBoolean boolProp = prop as AssetPropertyBoolean;
+                    objWriter.WriteLine(_priexFix + boolProp.Name + "= " + boolProp.Value);
+                    break;
+
+                // When you retrieve the value from the data array property,
+                // you may need to get which value the property stands for.
+                // for example, the APT_Double44 may be a transform data.
+                case AssetPropertyType.APT_Double44:
+                    AssetPropertyDoubleArray4d transformProp = prop as AssetPropertyDoubleArray4d;
+                    objWriter.WriteLine(_priexFix + transformProp.Name + "= " + transformProp.Value);
+                    break;
+
+                // The APT_List contains a list of sub asset properties with same type.
+                case AssetPropertyType.APT_List:
+                    AssetPropertyList propList = prop as AssetPropertyList;
+                    IList<AssetProperty> subProps = propList.GetValue();
+                    if (subProps.Count == 0)
+                        break;
+                    objWriter.WriteLine(_priexFix + propList.Name + " as propList");
+
+                    _priexFix += "\t";
+                    foreach (var ap in subProps)
+                    {
+                        ReadAssetProperty(ap, objWriter);
+                    }
+                    _priexFix = _priexFix.Substring(0, _priexFix.Length - 1);
+
+                    break;
+
+                case AssetPropertyType.APT_Asset:
+                    Asset propAsset = prop as Asset;
+                    ReadAsset(propAsset, objWriter);
+                    break;
+                case AssetPropertyType.APT_Enum:
+                    var propEnum = prop as AssetPropertyEnum;
+                    objWriter.WriteLine(_priexFix + propEnum.Name + "= " + propEnum.Value);
+                    break;
+
+                case AssetPropertyType.APT_Reference:
+                    var propRef = prop as AssetPropertyReference;
+                    objWriter.WriteLine(_priexFix + prop.Name + " as propReference");
+                    break;
+                default:
+                    objWriter.WriteLine(_priexFix + "居然有啥都不是类型的" + prop.Type);
+                    break;
+
+            }
+
+            // Get the connected properties.
+            // please notice that the information of many texture stores here.
+            if (prop.NumberOfConnectedProperties == 0)
+                return;
+
+            objWriter.WriteLine(_priexFix + "Connected Property: ");
+            _priexFix += "\t";
+            foreach (AssetProperty connectedProp in prop.GetAllConnectedProperties())
+            {
+                // Note: Usually, the connected property is an Asset.
+                ReadAssetProperty(connectedProp, objWriter);
+            }
+            _priexFix = _priexFix.Substring(0, _priexFix.Length - 1);
+        }
+
+        private void ExportMaterialInfo(ExternalCommandData commandData)
+        {
+            var objDoc = commandData.Application.ActiveUIDocument.Document;
+            var objApp = commandData.Application.Application;
+            var collector = new FilteredElementCollector(objDoc);
+            var classfilter = new ElementClassFilter(typeof (Material));
+            collector.WherePasses(classfilter);
+            var beamList = collector.ToElements();
+
+            // 读取revit标准材质库
+            var objlibraryAsset = objApp.get_Assets(AssetType.Appearance);
+
+            //写入临时文件
+            using (var objWriter = new StreamWriter(@"D:\aaa.txt"))
+            {
+
+                foreach (var objLoopItem in beamList)
+                {
+                    var objMaterial = objLoopItem as Material;
+                    if (objMaterial != null)
+                    {
+                        var assetElementId = objMaterial.AppearanceAssetId;
+                        if (assetElementId != ElementId.InvalidElementId)
+                        {
+                            objWriter.WriteLine(_priexFix + "材质：" + objMaterial.Name);
+
+                            var objassetElement = objDoc.GetElement(assetElementId) as AppearanceAssetElement;
+                            if (objassetElement != null)
+                            {
+                                var currentAsset = objassetElement.GetRenderingAsset();
+
+                                // 检索不到材质外观时，为欧特克材质库材质
+                                if (currentAsset.Size == 0)
+                                {
+                                    foreach (Asset objCurrentAsset in objlibraryAsset)
+                                    {
+                                        if (objCurrentAsset.Name == currentAsset.Name &&
+                                            objCurrentAsset.LibraryName == currentAsset.LibraryName)
+                                        {
+                                            objWriter.WriteLine(_priexFix + "读取标准材质库...");
+                                            ReadAsset(objCurrentAsset, objWriter);
+                                        }
+                                    }
+                                }
+                                else
+                                {
+                                    objWriter.WriteLine(_priexFix + "读取自定义材质...");
+                                    ReadAsset(currentAsset, objWriter);
+                                    
+                                }
+                            }
+                        }
+                    }
+                }
+                objWriter.Close();
+            }
+        }
+
+        public Result Execute(ExternalCommandData commandData, ref string message, ElementSet elements)
+        {
+            ExportMaterialInfo(commandData);
+            return Result.Succeeded;
+        }
+    }
+
+    public class WindowHandle : IWin32Window
     {
         IntPtr _hwnd;
 
