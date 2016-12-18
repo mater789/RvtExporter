@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Autodesk.Revit.DB;
+using Autodesk.Revit.Utility;
 using VectorDraw.Geometry;
 using VectorDraw.Professional.vdPrimaries;
 
@@ -38,92 +39,144 @@ namespace Exporter
     {
         public static double Ft2MmScale = 304.8;
 
-        public static PointData ToPointData(this XYZ pt)
+        public static List<string> TextureLibPaths = new List<string>
+        {
+            @"C:\Program Files (x86)\Common Files\Autodesk Shared\Materials\Textures\3\Mats",
+            @"C:\Program Files (x86)\Common Files\Autodesk Shared\Materials\Textures\2\Mats",
+            @"C:\Program Files (x86)\Common Files\Autodesk Shared\Materials\Textures\1\Mats"
+        };
+
+    public static PointData ToPointData(this XYZ pt)
         {
             return new PointData(pt.X, pt.Y, pt.Z);
         }
 
-        public static CurveData ToCurveData(this Curve curve)
+        public static void GetMaterialTexture(Material mtl, AssetSet builtinLibrary, out string diffuseTexture, out string bumpTexture, out double scaleX, out double scaleY)
         {
-            CurveData cd = new CurveData();
+            diffuseTexture = string.Empty;
+            bumpTexture = string.Empty;
+            scaleX = 1.0;
+            scaleY = 1.0;
 
-            cd.Points.Add(curve.GetEndPoint(0).ToPointData());
-            cd.Points.Add(curve.GetEndPoint(1).ToPointData());
-            cd.StartParameter = curve.GetEndParameter(0);
-            cd.EndParameter = curve.GetEndParameter(1);
+            var assetElementId = mtl.AppearanceAssetId;
+            if (assetElementId == ElementId.InvalidElementId)
+                return;
 
-            var arc = curve as Arc;
-            cd.IsArc = arc != null;
+            var objassetElement = mtl.Document.GetElement(assetElementId) as AppearanceAssetElement;
+            if (objassetElement == null)
+                return;
 
-            if (cd.IsArc)
+            var curAsset = objassetElement.GetRenderingAsset();
+            if (curAsset.Size == 0)
             {
-                cd.Normal = arc.Normal.ToPointData();
-                cd.Center = arc.Center.ToPointData();
-                cd.Radius = arc.Radius;
+                curAsset = (from Asset asset in builtinLibrary
+                    where asset.Name == curAsset.Name && asset.LibraryName == curAsset.LibraryName
+                    select asset).FirstOrDefault();
             }
 
-            return cd;
+            if (curAsset != null)
+                ReadTextureFromAsset(curAsset, out diffuseTexture, out bumpTexture, out scaleX, out scaleY);
         }
 
-        public static Dictionary<string, List<PropertyData>> GetPropertyFromElement(Element elem)
+        public static void ReadTextureFromAsset(Asset asset, out string diffuseTexture, out string bumpTexture, out double scaleX, out double scaleY)
         {
-            var dictProperties = new Dictionary<string, List<PropertyData>>();
+            diffuseTexture = string.Empty;
+            bumpTexture = string.Empty;
+            scaleX = 1.0;
+            scaleY = 1.0;
 
-            // 属性中添加族和类型信息
-            var internalProps = new List<PropertyData>();
-            internalProps.Add(new PropertyData { GroupName = "#Internal", Name = "#name", Value = elem.Name });
-            if (elem.Category != null)
-                internalProps.Add(new PropertyData { GroupName = "#Internal", Name = "#category", Value = elem.Category.Name });
-            internalProps.Add(new PropertyData { GroupName = "#Internal", Name = "#guid", Value = elem.UniqueId });
-            var fname = GetFamilyName(elem);
-            if (!string.IsNullOrEmpty(fname))
-                internalProps.Add(new PropertyData { GroupName = "#Internal", Name = "#family", Value = fname });
-            dictProperties["#Internal"] = internalProps;
+            var description = (asset["description"] as AssetPropertyString)?.Value;
+            if (string.IsNullOrEmpty(description))
+                return;
 
-            if (elem.Parameters != null)
+            double tmpx, tmpy;
+
+            switch (description)
             {
-                foreach (Parameter param in elem.Parameters)
-                {
-                    string groupName = LabelUtils.GetLabelFor(param.Definition.ParameterGroup);
-                    if (string.IsNullOrEmpty(groupName))
-                        groupName = param.Definition.ParameterGroup.ToString();
-
-                    PropertyData proData = new PropertyData();
-                    proData.Name = param.Definition.Name;
-                    proData.GroupName = groupName;
-                    proData.Value = param.StorageType == StorageType.String ? param.AsString() : param.AsValueString();
-
-                    if (dictProperties.ContainsKey(groupName))
-                    {
-                        dictProperties[groupName].Add(proData);
-                    }
-                    else
-                    {
-                        List<PropertyData> listTmp = new List<PropertyData>();
-                        listTmp.Add(proData);
-                        dictProperties.Add(groupName, listTmp);
-                    }
-                }
+                case "Generic material.":
+                case "heavy cardboard used for mounting and architectural model-building":
+                case "Medium gray and rippled edge roofing shingles":
+                    diffuseTexture = GetStringValueFromAsset(asset["generic_diffuse"], out scaleX, out scaleY);
+                    bumpTexture = GetStringValueFromAsset(asset["generic_bump_map"], out tmpx, out tmpy);
+                    break;
+                case "Hardwood material.":
+                    diffuseTexture = GetStringValueFromAsset(asset["hardwood_color"], out scaleX, out scaleY);
+                    bumpTexture = GetStringValueFromAsset(asset["hardwood_imperfections_shader"],out tmpx, out tmpy);
+                    break;
+                case "Masonry and CMU material.":
+                    diffuseTexture = GetStringValueFromAsset(asset["masonrycmu_color"], out scaleX, out scaleY);
+                    bumpTexture = GetStringValueFromAsset(asset["masonrycmu_pattern_map"], out tmpx, out tmpy);
+                    break;
+                case "Plastic and vinyl material.":
+                    diffuseTexture = GetStringValueFromAsset(asset["plasticvinyl_color"], out scaleX, out scaleY);
+                    bumpTexture = GetStringValueFromAsset(asset["plasticvinyl_bump_map"], out tmpx, out tmpy);
+                    break;
+                case "Stone material.":
+                    diffuseTexture = GetStringValueFromAsset(asset["stone_color"], out scaleX, out scaleY);
+                    bumpTexture = GetStringValueFromAsset(asset["stone_bump_map"], out tmpx, out tmpy);
+                    break;
+                default:
+                    break;
             }
-
-            return dictProperties;
         }
 
-        private static string GetFamilyName(Element elem)
+        public static string GetStringValueFromAsset(AssetProperty assetProp, out double scaleX, out double scaleY)
         {
-            if (elem == null)
+            scaleX = 1.0;
+            scaleY = 1.0;
+
+            if (assetProp == null)
                 return string.Empty;
 
-            var fname = string.Empty;
-            try
-            {
-                if (elem is FamilyInstance)
-                    fname = (elem as FamilyInstance).Symbol.Family.Name;
-            }
-            catch
-            { }
+            if (assetProp.NumberOfConnectedProperties < 1)
+                return string.Empty;
 
-            return fname;
+            var connectedAsset = assetProp.GetConnectedProperty(0) as Asset;
+            if (connectedAsset == null)
+                return string.Empty;
+
+            double x, y;
+            string res = string.Empty;
+            GetMapNameAndScale(connectedAsset, out res, out x, out y);
+            if (string.IsNullOrEmpty(res))
+                return string.Empty;
+
+            scaleX = x;
+            scaleY = y;
+
+            return res;
+        }
+
+        public static void GetMapNameAndScale(Asset asset, out string mapName, out double scaleX, out double scaleY)
+        {
+            mapName = string.Empty;
+            scaleX = 1.0;
+            scaleY = 1.0;
+
+            var strAsset = asset["unifiedbitmap_Bitmap"] as AssetPropertyString;
+            if (strAsset == null)
+                return;
+
+            mapName = strAsset.Value;
+
+            scaleX = GetScaleValueX(asset);
+            scaleY = GetScaleValueY(asset);
+        }
+
+        public static double GetScaleValueX(Asset asset)
+        {
+            var dstAsset = asset["unifiedbitmap_RealWorldScaleX"] as AssetPropertyDistance ??
+                           asset["texture_RealWorldScaleX"] as AssetPropertyDistance;
+
+            return dstAsset == null ? 1.0 : dstAsset.Value;
+        }
+
+        public static double GetScaleValueY(Asset asset)
+        {
+            var dstAsset = asset["unifiedbitmap_RealWorldScaleY"] as AssetPropertyDistance ??
+                           asset["texture_RealWorldScaleY"] as AssetPropertyDistance;
+
+            return dstAsset == null ? 1.0 : dstAsset.Value;
         }
     }
 }

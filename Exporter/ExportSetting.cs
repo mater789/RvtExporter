@@ -65,6 +65,7 @@ namespace Exporter
             this.IsExportGrid = false;
             this.IsOptimizeCylinderFace = true;
             this.IsOriginMaterial = false;
+            this.IsUserDefineFormat = false;
             this.ExportFilePath = string.Empty;
             this.DefaultLayerName = string.Empty;
         }
@@ -103,6 +104,11 @@ namespace Exporter
         {
             get;
             set;
+        }
+
+        public bool IsUserDefineFormat
+        {
+            get;set;
         }
 
         public string DefaultLayerName

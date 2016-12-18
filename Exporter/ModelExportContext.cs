@@ -6,6 +6,8 @@ using System.Windows.Forms;
 using Autodesk.Revit.DB;
 using System.IO;
 using Autodesk.Revit.DB.Plumbing;
+using Autodesk.Revit.UI;
+using Autodesk.Revit.Utility;
 
 namespace Exporter
 {
@@ -28,6 +30,8 @@ namespace Exporter
             set;
         }
 
+        public AssetSet BuiltInMaterialLibraryAsset { get; set; }
+
         /// <summary>
         /// 额外的实体颜色设置
         /// </summary>
@@ -41,6 +45,8 @@ namespace Exporter
         /// 所使用的块列表
         /// </summary>
         private Dictionary<string, BlockData> m_dictBlock = new Dictionary<string, BlockData>();
+
+        public Dictionary<string, BlockData> DictBlocks { get { return m_dictBlock; } }
 
         /// <summary>
         /// 整个模型涉及到的材质列表
@@ -161,11 +167,6 @@ namespace Exporter
         /// </summary>
         private bool m_bIsNewElementBegin = false;
 
-        /// <summary>
-        /// 这个block用来特殊处理直接在modelspace块中的面片
-        /// </summary>
-        private BlockData m_userCreateBlock = null;
-
 
         private bool m_bIsExportLinkModel = false;
         /// <summary>
@@ -256,6 +257,46 @@ namespace Exporter
                 listPoint.Add(new PointData(polymesh.GetPoint(i).X, polymesh.GetPoint(i).Y, polymesh.GetPoint(i).Z));
 
             return listPoint;
+        }
+
+        private MeshData GetMeshDataFromPolymesh(PolymeshTopology polymesh)
+        {
+            var mesh = new MeshData();
+            mesh.TriangleIndexes = new List<TriangleIndexData>();
+            mesh.Vertexes = new List<PointData>();
+            mesh.Normals = new List<PointData>();
+            mesh.TextureUVs = new List<TextureUV>();
+
+            for (int i = 0; i < polymesh.NumberOfFacets; i++)
+            {
+                var facet = polymesh.GetFacet(i);
+                mesh.TriangleIndexes.Add(new TriangleIndexData(facet.V1, facet.V2, facet.V3));
+            }
+
+            var oneNormalPerpoint = polymesh.DistributionOfNormals == DistributionOfNormals.AtEachPoint;
+            for (int i = 0; i < polymesh.NumberOfPoints; i++)
+            {
+                mesh.Vertexes.Add(new PointData(polymesh.GetPoint(i).X, polymesh.GetPoint(i).Y, polymesh.GetPoint(i).Z));
+                if (oneNormalPerpoint)
+                {
+                    var normal = polymesh.GetNormal(i);
+                    //mesh.Normals.Add(new PointData(normal.X, normal.Y, normal.Z));
+                }
+            }
+
+            if (polymesh.DistributionOfNormals == DistributionOfNormals.OnePerFace)
+            {
+                var normal = polymesh.GetNormal(0);
+                //mesh.Normals.Add(new PointData(normal.X, normal.Y, normal.Z));
+            }
+
+            for (int i = 0; i < polymesh.NumberOfUVs; i++)
+            {
+                var tmpuv = polymesh.GetUV(i);
+                mesh.TextureUVs.Add(new TextureUV(tmpuv.U, tmpuv.V));
+            }
+
+            return mesh;
         }
 
         private string GetFamilyName(Element elem)
@@ -416,16 +457,30 @@ namespace Exporter
             }
             else
             {
-                AddMaterial(material.Name, material.Color, material.Transparency);
-                //AddMaterial(material.Name, material.SurfacePatternColor, )
+                if (m_listMaterial.Any(mtl => mtl.Name == material.Name))
+                    return;
+
+                var diffuserMap = string.Empty;
+                var bumpMap = string.Empty;
+                double scaleX, scaleY;
+                Tools.GetMaterialTexture(material, BuiltInMaterialLibraryAsset, out diffuserMap, out bumpMap, out scaleX, out scaleY);
+                AddMaterial(material.Name, material.Color, material.Transparency, diffuserMap, bumpMap, scaleX, scaleY);
             }
         }
 
-        private void AddMaterial(string name, Color color, int transparency = 0)
+        private void AddMaterial(string name, Color color, int transparency = 0, string diffuseMap = "", string bumpMap = "", double scaleX = 1.0, double scaleY = 1.0)
         {
+            if (m_listMaterial.Any(mtl => mtl.Name == name))
+                return;
+
             MaterialData matdata = new MaterialData();
             matdata.Transparency = transparency;
             matdata.Name = name;
+            matdata.DiffuseMap = diffuseMap;
+            matdata.BumpMap = bumpMap;
+            matdata.TextureScaleX = scaleX;
+            matdata.TextureScaleY = scaleY;
+
 
             if (color.IsValid)
             {
@@ -439,14 +494,22 @@ namespace Exporter
 
         private void AddMaterial(MaterialData materialData)
         {
-            if (CurrentElementId.IntegerValue == 1809686)
-                MessageBox.Show(materialData.Name + materialData.Color.Green.ToString());
-
             MaterialData matData = m_listMaterial.Find(mat => mat.Name == materialData.Name);
             if (matData != null)
                 return;
 
             m_listMaterial.Add(materialData);
+        }
+
+        private TransformData GetTransData(Transform trans)
+        {
+            return new TransformData
+            {
+                BasisX = new PointData(trans.BasisX.X, trans.BasisX.Y, trans.BasisX.Z),
+                BasisY = new PointData(trans.BasisY.X, trans.BasisY.Y, trans.BasisY.Z),
+                BasisZ = new PointData(trans.BasisZ.X, trans.BasisZ.Y, trans.BasisZ.Z),
+                Origin = new PointData(trans.Origin.X, trans.Origin.Y, trans.Origin.Z)
+            };
         }
 
         /// <summary>
@@ -623,6 +686,11 @@ namespace Exporter
             }
         }
 
+        /// <summary>
+        /// 用来保存模型空间的直接块
+        /// </summary>
+        private BlockData _userCreateBlock = null;  
+
         public void OnPolymesh(PolymeshTopology polyMesh)
         {
             // 如果是个模型空间的直接实体，包装一层块
@@ -632,23 +700,22 @@ namespace Exporter
                 {
                     m_bIsNewElementBegin = false;
 
-                    m_userCreateBlock = new BlockData();
+                    _userCreateBlock = new BlockData();
 
                     string elementName = CurrentElement == null ? string.Empty : CurrentElement.Name;
-                    m_userCreateBlock.Name = "D__" + elementName + "#" + CurrentElementId.ToString();
+                    _userCreateBlock.Name = "D__" + elementName + "#" + CurrentElementId.ToString();
 
                     InsertData ins = new InsertData();
-                    ins.BlockRef = m_userCreateBlock;
-                    ins.BlockBeloneTo = CurrentBlockData;
-                    ins.TransMatrix = Transform.Identity;
+                    //ins.BlockRef = userCreateBlock;
+                    ins.BlockName = _userCreateBlock.Name;
+                    ins.TransMatrix = GetTransData(Transform.Identity);
                     ins.DictProperties = GetPropertiesAndLocationFromElement(CurrentElement);
                     CurrentBlockData.Inserts.Add(ins);
+                    m_dictBlock.Add(_userCreateBlock.Name, _userCreateBlock);
                 }
             }
 
-            MeshData mesh = new MeshData();
-            mesh.TriangleIndexes = GetTriangleIndexFromPolymesh(polyMesh);
-            mesh.Vertexes = GetVertexesFromPolymesh(polyMesh);
+            MeshData mesh = GetMeshDataFromPolymesh(polyMesh);
 
             // 以下的材质获取，优先选用 m_curElementMaterialData，再者选用m_curMaterialId指代的material，最后选用m_curOriginMaterialData，如果再为空则使用“NoMaterial”
             string materialName = string.Empty;
@@ -682,11 +749,11 @@ namespace Exporter
             mesh.MaterialName = materialName;
 
             // 如果是模型空间的直接实体，包装成为一个特殊块
-            if (m_bPackageEntityToBlock && CurrentBlockData == ModelSpaceBlock && m_userCreateBlock != null)
+            if (m_bPackageEntityToBlock && CurrentBlockData == ModelSpaceBlock && _userCreateBlock != null)
             {
                 // 如果处理管道失败
-                if (!ProcessRoundedPipeEntity(CurrentElement, m_userCreateBlock, materialName))
-                    m_userCreateBlock.Meshs.Add(mesh);
+                if (!ProcessRoundedPipeEntity(CurrentElement, _userCreateBlock, materialName))
+                    _userCreateBlock.Meshs.Add(mesh);
             }
             else
                 CurrentBlockData.Meshs.Add(mesh);
@@ -768,9 +835,9 @@ namespace Exporter
             }
 
             InsertData insertData = new InsertData();
-            insertData.BlockBeloneTo = CurrentBlockData;
-            insertData.BlockRef = blk;
-            insertData.TransMatrix = node.GetTransform();
+            //insertData.BlockRef = blk;
+            insertData.BlockName = blk.Name;
+            insertData.TransMatrix = GetTransData(node.GetTransform());
             if (CurrentBlockData == ModelSpaceBlock)
                 insertData.DictProperties = GetPropertiesAndLocationFromElement(CurrentElement);
             CurrentBlockData.Inserts.Add(insertData);
@@ -797,6 +864,26 @@ namespace Exporter
             m_stackTrans.Pop();
             m_stackBlock.Pop();
 
+            var curBlk = m_dictBlock[curIns.BlockName];
+            if (curBlk == null)
+                return;
+
+            if (curBlk.Meshs.Count < 1 && curBlk.Inserts.Count < 1 && !curBlk.IsPipe)
+            {
+                var has = CurrentBlockData.Inserts.Remove(curIns);
+                m_dictBlock.Remove(curIns.BlockName);
+            }
+            else if (curIns.BlockName.EndsWith("__tmpBlk__"))
+            {
+                m_dictBlock.Remove(curIns.BlockName);
+
+                var extName = curIns.BlockName.Substring(0, curIns.BlockName.Length - 10);
+                if (m_dictBlock.ContainsKey(extName))
+                    curIns.BlockName = extName;
+            }
+
+
+            /*
             if (curIns.BlockRef.Meshs.Count < 1 && curIns.BlockRef.Inserts.Count < 1 && !curIns.BlockRef.IsPipe)
             {
                 var has = CurrentBlockData.Inserts.Remove(curIns);
@@ -813,12 +900,7 @@ namespace Exporter
                     curIns.BlockRef = blk;
                 }
             }
-
-            //var ins = _insertStack.Peek();
-            //if (ins.BlockRef.Meshs.Count < 1 && ins.BlockRef.Inserts.Count < 1 && !ins.BlockRef.IsPipe)
-            //    CurrentBlockData.Inserts.Remove(ins);
-
-            //_insertStack.Pop();
+            */
         }
 
         public RenderNodeAction OnFaceBegin(FaceNode node)
@@ -860,9 +942,9 @@ namespace Exporter
             if (!bAlreadyVisited)
             {
                 InsertData insertData = new InsertData();
-                insertData.BlockBeloneTo = CurrentBlockData;
-                insertData.BlockRef = blk;
-                insertData.TransMatrix = node.GetTransform();
+                //insertData.BlockRef = blk;
+                insertData.BlockName = blk.Name;
+                insertData.TransMatrix = GetTransData(node.GetTransform());
                 if (CurrentBlockData == ModelSpaceBlock)
                     insertData.DictProperties = GetPropertiesAndLocationFromElement(CurrentElement);
                 CurrentBlockData.Inserts.Add(insertData);

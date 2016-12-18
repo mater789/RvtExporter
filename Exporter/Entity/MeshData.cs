@@ -10,32 +10,10 @@ namespace Exporter
     /// </summary>
     public class MeshData
     {
-        private List<TriangleData> m_listTriangles = null;
-        public List<TriangleData> Triangles
-        {
-            get
-            {
-                return m_listTriangles;
-            }
-            set
-            {
-                m_listTriangles = value;
-            }
-        }
-
-        private List<TriangleIndexData> m_listTriangleIndexes = null;
-        public List<TriangleIndexData> TriangleIndexes
-        {
-            get { return m_listTriangleIndexes; }
-            set { m_listTriangleIndexes = value; }
-        }
-
-        private List<PointData> m_listVertex = null;
-        public List<PointData> Vertexes
-        {
-            get { return m_listVertex; }
-            set { m_listVertex = value; }
-        }
+        public List<TriangleIndexData> TriangleIndexes { get; set; }
+        public List<PointData> Vertexes { get; set; }
+        public List<PointData> Normals { get; set; }
+        public List<TextureUV> TextureUVs { get; set; }
 
         private string m_MaterialName = string.Empty;
         public string MaterialName

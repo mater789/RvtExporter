@@ -27,5 +27,12 @@ namespace Exporter
             get { return m_color; }
             set { m_color = value; }
         }
+
+        public string DiffuseMap { get; set; } = string.Empty;
+        public double TextureScaleX { get; set; } = 1.0;
+        public double TextureScaleY { get; set; } = 1.0;
+
+
+        public string BumpMap { get; set; } = string.Empty;
     }
 }

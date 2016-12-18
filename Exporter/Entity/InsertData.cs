@@ -4,31 +4,18 @@ using System.Linq;
 using System.Text;
 
 using Autodesk.Revit.DB;
+using Newtonsoft.Json;
 
 namespace Exporter
 {
     public class InsertData
     {
-        private Transform m_trans = Transform.Identity;
-        public Transform TransMatrix
+        public TransformData TransMatrix
         {
-            get { return m_trans; }
-            set { m_trans = value; }
+            get;set;
         }
 
-        private BlockData m_block = null;
-        public BlockData BlockRef
-        {
-            get { return m_block; }
-            set { m_block = value; }
-        }
-
-        private BlockData m_blockBelone = null;
-        public BlockData BlockBeloneTo
-        {
-            get { return m_blockBelone; }
-            set { m_blockBelone = value; }
-        }
+        public string BlockName { get; set; }
 
         private Dictionary<string, List<PropertyData>> m_dictProperties = new Dictionary<string, List<PropertyData>>();
         public Dictionary<string, List<PropertyData>> DictProperties

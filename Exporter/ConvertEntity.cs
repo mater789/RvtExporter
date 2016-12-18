@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Windows.Forms;
@@ -9,6 +10,7 @@ using VectorDraw.Professional.vdPrimaries;
 using VectorDraw.Professional.vdCollections;
 using VectorDraw.Geometry;
 using Autodesk.Revit.DB;
+using Newtonsoft.Json;
 using VectorDraw.Professional.vdObjects;
 
 namespace Exporter
@@ -28,7 +30,7 @@ namespace Exporter
 
         public List<MaterialData> Materials
         {
-            get; 
+            get;
             set;
         }
 
@@ -37,6 +39,8 @@ namespace Exporter
             get;
             set;
         }
+
+        public Dictionary<string, BlockData> DictBlocks { get; set; }
 
         private bool m_OptimizeTriangle = false;
         public bool OptimizeTriangle
@@ -109,41 +113,159 @@ namespace Exporter
                 m_formProgress.SetProgress((int)percent);
         }
 
+
         public void BeginConvert(string fileName)
         {
-            InitRenderProperty();
-            InitMaterialLayers();
-            InitEntityInModelBlock();
-            AddGridPolyline();
+            ProcessMaterialMapFile();
 
-            if (m_formProgress == null || m_formProgress.IsDisposed)
-                m_formProgress = new FormProgress();
-
-            m_formProgress.Show(this.WndParent);
-
-            if (m_OptimizeTriangle)
+            if (ExportSetting.SystemSetting.IsUserDefineFormat)
             {
-                m_formProgress.Text = "正在优化数据...";
-                ReduceTris.CRevit2vdl redTri = new ReduceTris.CRevit2vdl();
-                redTri.FamilySketchDictionary = this.FamilySketchDictionary;
-                redTri.InstanceLocationDictionary = this.InstanceLocationCurveDictionary;
-                redTri.Convert(vDraw.ActiveDocument, m_formProgress.progressBar, fileName);
+                try
+                {
+                    var ser = new ModelSerializeEntity();
+                    ser.Blocks = DictBlocks;
+                    ser.Materials = Materials;
+                    var str = JsonConvert.SerializeObject(ser);
+                    using (var objWriter = new StreamWriter(ExportSetting.SystemSetting.ExportFilePath))
+                        objWriter.Write(str);
+
+                    MessageBox.Show("导出完成");
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show("导出失败！" + ex.Message);
+                }
+            }
+            else
+            {
+                InitRenderProperty();
+                InitMaterialLayers();
+                InitEntityInModelBlock();
+                AddGridPolyline();
+
+                if (m_formProgress == null || m_formProgress.IsDisposed)
+                    m_formProgress = new FormProgress();
+
+                m_formProgress.Show(this.WndParent);
+
+                if (m_OptimizeTriangle)
+                {
+                    m_formProgress.Text = "正在优化数据...";
+                    ReduceTris.CRevit2vdl redTri = new ReduceTris.CRevit2vdl();
+                    redTri.FamilySketchDictionary = this.FamilySketchDictionary;
+                    redTri.InstanceLocationDictionary = this.InstanceLocationCurveDictionary;
+                    redTri.Convert(vDraw.ActiveDocument, m_formProgress.progressBar, fileName);
+                }
+
+                if (this.ExportSetting != null && this.ExportSetting.ParkingExportSetting.PropertyName.Length > 0)
+                {
+                    ReplaceParkingNumber replaceNumber = new ReplaceParkingNumber(vDraw);
+                    replaceNumber.Setting = this.ExportSetting.ParkingExportSetting;
+                    replaceNumber.ReplaceText();
+                }
+
+                vDraw.ActiveDocument.ActiveLayOut.Entities.Sort(new CompareMethod());
+
+                m_formProgress.Text = "正在保存";
+                bool bResult = vDraw.ActiveDocument.SaveAs(fileName);
+                m_formProgress.Close();
+
+                MessageBox.Show(bResult ? "导出完成！" : "导出失败！");
+            }
+        }
+
+        private void ProcessMaterialMapFile()
+        {
+            var dirPath = Path.GetDirectoryName(ExportSetting.SystemSetting.ExportFilePath);
+            var fileName = Path.GetFileNameWithoutExtension(ExportSetting.SystemSetting.ExportFilePath);
+            var dirRes = dirPath + "\\" + fileName + "_texture";
+
+            try
+            {
+                if (!Directory.Exists(dirRes))
+                    Directory.CreateDirectory(dirRes);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("创建文件夹失败。材质贴图文件无法导出。" + ex.Message);
+                return;
             }
 
-            if (this.ExportSetting != null && this.ExportSetting.ParkingExportSetting.PropertyName.Length > 0)
+            foreach (var mtl in Materials)
             {
-                ReplaceParkingNumber replaceNumber = new ReplaceParkingNumber(vDraw);
-                replaceNumber.Setting = this.ExportSetting.ParkingExportSetting;
-                replaceNumber.ReplaceText();
+                var diffuseMapFile = ProcessMapFile(mtl.DiffuseMap, dirRes);
+                if (string.IsNullOrEmpty(diffuseMapFile))
+                    mtl.DiffuseMap = string.Empty;
+                else
+                    mtl.DiffuseMap = Path.GetFileName(diffuseMapFile);
+
+                var bumpMapFile = ProcessMapFile(mtl.BumpMap, dirRes);
+                if (string.IsNullOrEmpty(bumpMapFile))
+                    mtl.BumpMap = string.Empty;
+                else
+                    mtl.BumpMap = Path.GetFileName(bumpMapFile);
             }
 
-            vDraw.ActiveDocument.ActiveLayOut.Entities.Sort(new CompareMethod());
+        }
 
-            m_formProgress.Text = "正在保存";
-            bool bResult = vDraw.ActiveDocument.SaveAs(fileName);
-            m_formProgress.Close();
+        private string ProcessMapFile(string fileString, string destFilePath)
+        {
+            try
+            {
+                var filePathName = string.Empty;
+                if (string.IsNullOrEmpty(fileString))
+                    return string.Empty;
 
-            MessageBox.Show(bResult ? "导出完成！" : "导出失败！");
+                if (fileString.Contains('|'))
+                {
+                    var paths = fileString.Split('|');
+                    if (paths.Length < 1)
+                        return string.Empty;
+
+                    fileString = paths.Last();
+                }
+
+                var fileName = Path.GetFileName(fileString);
+
+                if (fileString.Contains(':'))
+                {
+                    if (File.Exists(fileString))
+                        filePathName = fileString;
+                }
+                else
+                {
+                    filePathName = GetRelateFilePath(fileName);
+                }
+
+                if (string.IsNullOrEmpty(filePathName))
+                    return string.Empty;
+
+
+                var fileDestName = destFilePath + "\\" + fileName;
+                if (!File.Exists(fileDestName))
+                {
+                    File.Copy(filePathName, fileDestName, true);
+                }
+
+                return fileDestName;
+            }
+            catch (Exception)
+            {
+                MessageBox.Show("获取贴图文件");
+                return string.Empty;
+            }
+        }
+
+        private string GetRelateFilePath(string fileName)
+        {
+            foreach (var pa in Tools.TextureLibPaths)
+            {
+                var path = pa + "\\" + fileName;
+                if (File.Exists(path))
+                    return path;
+            }
+
+            return string.Empty;
         }
 
         private void InitRenderProperty()
@@ -254,7 +376,7 @@ namespace Exporter
             entities.Add(pf);
         }
 
-        private Matrix ChangeTransMatrix(Transform trans)
+        private Matrix ChangeTransMatrix(TransformData trans)
         {
             Matrix mtx = new Matrix();
 
@@ -284,13 +406,14 @@ namespace Exporter
 
         private vdInsert AddInsertToEntities(vdEntities entities, InsertData ins)
         {
-            var blk = vDraw.ActiveDocument.Blocks.FindName(ins.BlockRef.Name) ?? CreateBlock(ins.BlockRef);
+            //var blk = vDraw.ActiveDocument.Blocks.FindName(ins.BlockRef.Name) ?? CreateBlock(ins.BlockRef);
+            var blk = vDraw.ActiveDocument.Blocks.FindName(ins.BlockName) ?? CreateBlock(DictBlocks[ins.BlockName]);
             if (blk == null)
             {
                 MessageBox.Show("块创建失败！");
                 return null;
             }
-            
+
             vdInsert insEntity = new vdInsert(vDraw.ActiveDocument);
             insEntity.Block = blk;
             AddXProperties(insEntity, ins);
@@ -401,7 +524,7 @@ namespace Exporter
             vStart = new Vertex(curve.Points[0].X, curve.Points[0].Y, curve.Points[0].Z);
             vEnd = new Vertex(curve.Points[1].X, curve.Points[1].Y, curve.Points[1].Z);
 
-            if (curve.IsArc)    
+            if (curve.IsArc)
             {
                 var vtmp = vStart;
                 vStart = vEnd;
@@ -411,7 +534,7 @@ namespace Exporter
                 double angle = curve.StartParameter - curve.EndParameter;
 
                 // 凸度的定义是：圆弧段圆心角四分之一的正切值。正负决定圆弧方向
-                vStart.Bulge = dDirection * Math.Tan(angle/4);
+                vStart.Bulge = dDirection * Math.Tan(angle / 4);
             }
         }
     }

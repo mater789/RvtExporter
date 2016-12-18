@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
 using System.Drawing;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Windows.Forms;
@@ -63,6 +64,7 @@ namespace Exporter
             this.ExportSetting.SystemSetting.IsExportGrid = chkExportGrid.Checked;
             this.ExportSetting.SystemSetting.IsOptimizeCylinderFace = chkOptimize.Checked;
             this.ExportSetting.SystemSetting.IsOriginMaterial = chkOriginMaterial.Checked;
+            this.ExportSetting.SystemSetting.IsUserDefineFormat = chkUserDefineFormat.Checked;
 
             string strValue = textFilePath.Text.Trim();
             if (strValue.Length < 1)
@@ -71,7 +73,7 @@ namespace Exporter
                 return false;
             }
 
-            if (!strValue.EndsWith(".vdcl", StringComparison.OrdinalIgnoreCase))
+            if (!strValue.EndsWith(".vdcl", StringComparison.OrdinalIgnoreCase) && !strValue.EndsWith(".txt", StringComparison.OrdinalIgnoreCase))
             {
                 message = "输出的路径不正确！";
                 return false;
@@ -122,11 +124,25 @@ namespace Exporter
         private void btnSaveFile_Click(object sender, EventArgs e)
         {
             SaveFileDialog dlg = new SaveFileDialog();
-            dlg.Filter = "模型文件(*.vdcl)|*.vdcl";
+
+            dlg.Filter = chkUserDefineFormat.Checked ? "自定义文件(*.txt)|*.txt": "模型文件(*.vdcl)|*.vdcl";
             if (dlg.ShowDialog(this) != DialogResult.OK)
                 return;
 
             textFilePath.Text = dlg.FileName;
+        }
+
+        private void chkUserDefineFormat_CheckedChanged(object sender, EventArgs e)
+        {
+            var file = textFilePath.Text.Trim();
+            if (string.IsNullOrEmpty(file))
+                return;
+
+            string fileDir = Path.GetDirectoryName(file);
+            string fileName = Path.GetFileNameWithoutExtension(file);
+            string externsion = chkUserDefineFormat.Checked ? ".txt" : ".vdcl";
+
+            textFilePath.Text = fileDir + "\\" + fileName + externsion;
         }
     }
 }

@@ -53,6 +53,10 @@
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Newtonsoft.Json.Net20, Version=4.0.2.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>bin\Debug\Newtonsoft.Json.Net20.dll</HintPath>
+    </Reference>
     <Reference Include="OpenVDF, Version=6.6028.1.1, Culture=neutral, PublicKeyToken=54eac14e23c9ee53, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\..\..\PUBLIB\vdraw\OpenVDF.dll</HintPath>
@@ -131,8 +135,11 @@
     <Compile Include="Entity\GridData.cs" />
     <Compile Include="Entity\InsertData.cs" />
     <Compile Include="Entity\LocationData.cs" />
+    <Compile Include="Entity\ModelSerializeEntity.cs" />
     <Compile Include="Entity\PipeInfo.cs" />
     <Compile Include="Entity\SketchData.cs" />
+    <Compile Include="Entity\TextureUV.cs" />
+    <Compile Include="Entity\TransformData.cs" />
     <Compile Include="Entity\TriangleIndexData.cs" />
     <Compile Include="Entity\PropertyData.cs" />
     <Compile Include="Exporter.cs" />
@@ -168,6 +175,9 @@
     <EmbeddedResource Include="FormSettings.resx">
       <DependentUpon>FormSettings.cs</DependentUpon>
     </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

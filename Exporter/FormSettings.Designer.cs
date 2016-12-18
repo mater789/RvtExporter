@@ -37,6 +37,7 @@
             this.label1 = new System.Windows.Forms.Label();
             this.tabControl1 = new System.Windows.Forms.TabControl();
             this.tabPageSystem = new System.Windows.Forms.TabPage();
+            this.chkExportGrid = new System.Windows.Forms.CheckBox();
             this.label6 = new System.Windows.Forms.Label();
             this.txtDefaultLayer = new System.Windows.Forms.TextBox();
             this.chkOriginMaterial = new System.Windows.Forms.CheckBox();
@@ -49,7 +50,7 @@
             this.label4 = new System.Windows.Forms.Label();
             this.textWidth = new System.Windows.Forms.TextBox();
             this.label3 = new System.Windows.Forms.Label();
-            this.chkExportGrid = new System.Windows.Forms.CheckBox();
+            this.chkUserDefineFormat = new System.Windows.Forms.CheckBox();
             this.tabControl1.SuspendLayout();
             this.tabPageSystem.SuspendLayout();
             this.tabPageParking.SuspendLayout();
@@ -141,6 +142,7 @@
             // 
             // tabPageSystem
             // 
+            this.tabPageSystem.Controls.Add(this.chkUserDefineFormat);
             this.tabPageSystem.Controls.Add(this.chkExportGrid);
             this.tabPageSystem.Controls.Add(this.label6);
             this.tabPageSystem.Controls.Add(this.txtDefaultLayer);
@@ -159,6 +161,16 @@
             this.tabPageSystem.TabIndex = 0;
             this.tabPageSystem.Text = "系统";
             this.tabPageSystem.UseVisualStyleBackColor = true;
+            // 
+            // chkExportGrid
+            // 
+            this.chkExportGrid.AutoSize = true;
+            this.chkExportGrid.Location = new System.Drawing.Point(108, 37);
+            this.chkExportGrid.Name = "chkExportGrid";
+            this.chkExportGrid.Size = new System.Drawing.Size(96, 16);
+            this.chkExportGrid.TabIndex = 16;
+            this.chkExportGrid.Text = "导出轴网信息";
+            this.chkExportGrid.UseVisualStyleBackColor = true;
             // 
             // label6
             // 
@@ -205,6 +217,7 @@
             | System.Windows.Forms.AnchorStyles.Right)));
             this.textFilePath.Location = new System.Drawing.Point(77, 139);
             this.textFilePath.Name = "textFilePath";
+            this.textFilePath.ReadOnly = true;
             this.textFilePath.Size = new System.Drawing.Size(241, 21);
             this.textFilePath.TabIndex = 5;
             // 
@@ -276,15 +289,16 @@
             this.label3.TabIndex = 7;
             this.label3.Text = "编号大小范围：";
             // 
-            // chkExportGrid
+            // chkUserDefineFormat
             // 
-            this.chkExportGrid.AutoSize = true;
-            this.chkExportGrid.Location = new System.Drawing.Point(108, 37);
-            this.chkExportGrid.Name = "chkExportGrid";
-            this.chkExportGrid.Size = new System.Drawing.Size(96, 16);
-            this.chkExportGrid.TabIndex = 16;
-            this.chkExportGrid.Text = "导出轴网信息";
-            this.chkExportGrid.UseVisualStyleBackColor = true;
+            this.chkUserDefineFormat.AutoSize = true;
+            this.chkUserDefineFormat.Location = new System.Drawing.Point(108, 59);
+            this.chkUserDefineFormat.Name = "chkUserDefineFormat";
+            this.chkUserDefineFormat.Size = new System.Drawing.Size(84, 16);
+            this.chkUserDefineFormat.TabIndex = 17;
+            this.chkUserDefineFormat.Text = "自定义格式";
+            this.chkUserDefineFormat.UseVisualStyleBackColor = true;
+            this.chkUserDefineFormat.CheckedChanged += new System.EventHandler(this.chkUserDefineFormat_CheckedChanged);
             // 
             // FormSettings
             // 
@@ -332,5 +346,6 @@
         private System.Windows.Forms.Label label6;
         private System.Windows.Forms.TextBox txtDefaultLayer;
         private System.Windows.Forms.CheckBox chkExportGrid;
+        private System.Windows.Forms.CheckBox chkUserDefineFormat;
     }
 }

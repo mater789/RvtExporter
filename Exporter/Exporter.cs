@@ -7,6 +7,7 @@ using Autodesk.Revit.Attributes;
 using Autodesk.Revit.DB;
 using Autodesk.Revit.UI;
 using Autodesk.Revit.Utility;
+using System.Linq;
 
 namespace Exporter
 {
@@ -46,21 +47,19 @@ namespace Exporter
             if (!dlg.ExportSetting.SystemSetting.IsOriginMaterial)
                 colorOverride.ArrangeElemlentColor(doc, uidoc.ActiveView as View3D);
 
-            List<MaterialData> listMat = colorOverride.GetMaterials();
-            Dictionary<ElementId, string> matList = colorOverride.GetElementColorSetting();
-
             RevitEnvironmentSetting setting = new RevitEnvironmentSetting(doc);
             if (dlg.ExportSetting.SystemSetting.IsModifyUnit)               
                 setting.ReadOriginUnitsAndSetNew();
 
             ModelExportContext context = new ModelExportContext(doc);
+            context.BuiltInMaterialLibraryAsset = commandData.Application.Application.get_Assets(AssetType.Appearance);
             context.IsPackageEntityToBlock = true;
             context.IsExportProperty = dlg.ExportSetting.SystemSetting.IsExportProperty;
             context.ExtraMaterial = colorOverride.GetMaterials();
             context.ExtraElementColorSetting = colorOverride.GetElementColorSetting();
             CustomExporter exporter = new CustomExporter(doc, context);
 
-            exporter.IncludeFaces = false;
+            //exporter.IncludeFaces = false;
             exporter.ShouldStopOnError = false;
             exporter.Export(doc.ActiveView as View3D);
 
@@ -72,6 +71,7 @@ namespace Exporter
             converter.ExportSetting = dlg.ExportSetting;
             converter.Materials = context.Materials;
             converter.ModelBlock = context.ModelSpaceBlock;
+            converter.DictBlocks = context.DictBlocks;
             converter.WndParent = new WindowHandle(h);
             converter.BeginConvert(dlg.ExportSetting.SystemSetting.ExportFilePath);
                       
@@ -97,9 +97,6 @@ namespace Exporter
 
         public void ReadAssetProperty(AssetProperty prop, StreamWriter objWriter)
         {
-            if (prop.Name != "description" && prop.Name != "BaseSchema")
-                return;
-
             switch (prop.Type)
             {
                 // Retrieve the value from simple type property is easy.
@@ -124,15 +121,18 @@ namespace Exporter
 
                 case AssetPropertyType.APT_DoubleArray2d:
                     var AssetPropertyDoubleArray2d = prop as AssetPropertyDoubleArray2d;
-                    objWriter.WriteLine(_priexFix + AssetPropertyDoubleArray2d.Name + "= " + AssetPropertyDoubleArray2d.Value);
+                    string msg = AssetPropertyDoubleArray2d.Value.Cast<double>().Aggregate(string.Empty, (current, v) => current + (v + ", "));
+                    objWriter.WriteLine(_priexFix + AssetPropertyDoubleArray2d.Name + "= " + msg);
                     break;
                 case AssetPropertyType.APT_DoubleArray3d:
                     var arr3d = prop as AssetPropertyDoubleArray3d;
-                    objWriter.WriteLine(_priexFix + arr3d.Name + "= " + arr3d.Value);
+                    msg = arr3d.Value.Cast<double>().Aggregate(string.Empty, (current, v) => current + (v + ", "));
+                    objWriter.WriteLine(_priexFix + arr3d.Name + "= " + msg);
                     break;
                 case AssetPropertyType.APT_DoubleArray4d:
                     var AssetPropertyDoubleArray4d = prop as AssetPropertyDoubleArray4d;
-                    objWriter.WriteLine(_priexFix + AssetPropertyDoubleArray4d.Name + "= " + AssetPropertyDoubleArray4d.Value);
+                    msg = AssetPropertyDoubleArray4d.Value.Cast<double>().Aggregate(string.Empty, (current, v) => current + (v + ", "));
+                    objWriter.WriteLine(_priexFix + AssetPropertyDoubleArray4d.Name + "= " + msg);
                     break;
 
                 case AssetPropertyType.APT_String:
@@ -172,6 +172,7 @@ namespace Exporter
 
                 case AssetPropertyType.APT_Asset:
                     Asset propAsset = prop as Asset;
+                    objWriter.WriteLine(_priexFix + propAsset.Name + " as Asset");
                     ReadAsset(propAsset, objWriter);
                     break;
                 case AssetPropertyType.APT_Enum:
@@ -186,7 +187,6 @@ namespace Exporter
                 default:
                     objWriter.WriteLine(_priexFix + "居然有啥都不是类型的" + prop.Type);
                     break;
-
             }
 
             // Get the connected properties.
@@ -219,12 +219,15 @@ namespace Exporter
             //写入临时文件
             using (var objWriter = new StreamWriter(@"D:\aaa.txt"))
             {
-
                 foreach (var objLoopItem in beamList)
                 {
                     var objMaterial = objLoopItem as Material;
                     if (objMaterial != null)
                     {
+                        if (objMaterial.Name != "默认为新材质" && objMaterial.Name != "砌体 - 普通砖")
+                            continue;
+
+
                         var assetElementId = objMaterial.AppearanceAssetId;
                         if (assetElementId != ElementId.InvalidElementId)
                         {
@@ -252,7 +255,6 @@ namespace Exporter
                                 {
                                     objWriter.WriteLine(_priexFix + "读取自定义材质...");
                                     ReadAsset(currentAsset, objWriter);
-                                    
                                 }
                             }
                         }
