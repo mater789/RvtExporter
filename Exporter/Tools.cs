@@ -100,6 +100,7 @@ namespace Exporter
                     bumpTexture = GetStringValueFromAsset(asset["generic_bump_map"], out tmpx, out tmpy);
                     break;
                 case "Hardwood material.":
+                case "3 1/4\" dark brown stained white ash flooring.  Image courtesy of Mercier Wood Flooring Inc.":
                     diffuseTexture = GetStringValueFromAsset(asset["hardwood_color"], out scaleX, out scaleY);
                     bumpTexture = GetStringValueFromAsset(asset["hardwood_imperfections_shader"],out tmpx, out tmpy);
                     break;
@@ -114,6 +115,10 @@ namespace Exporter
                 case "Stone material.":
                     diffuseTexture = GetStringValueFromAsset(asset["stone_color"], out scaleX, out scaleY);
                     bumpTexture = GetStringValueFromAsset(asset["stone_bump_map"], out tmpx, out tmpy);
+                    break;
+                case "Images courtesy of Precast/Prestressed Concrete Institute (PCI).":
+                    diffuseTexture = GetStringValueFromAsset(asset["concrete_bump_map"], out scaleX, out scaleY);
+                    bumpTexture = diffuseTexture;
                     break;
                 default:
                     break;

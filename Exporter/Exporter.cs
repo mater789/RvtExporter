@@ -224,9 +224,8 @@ namespace Exporter
                     var objMaterial = objLoopItem as Material;
                     if (objMaterial != null)
                     {
-                        if (objMaterial.Name != "默认为新材质" && objMaterial.Name != "砌体 - 普通砖")
+                        if (objMaterial.Name != "混凝土 - 现场浇注混凝土")
                             continue;
-
 
                         var assetElementId = objMaterial.AppearanceAssetId;
                         if (assetElementId != ElementId.InvalidElementId)

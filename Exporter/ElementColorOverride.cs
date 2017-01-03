@@ -88,6 +88,9 @@ namespace Exporter
             foreach (ElementId idFilter in CurrentView.GetFilters())
             {
                 ParameterFilterElement filter = CurrentDocument.GetElement(idFilter) as ParameterFilterElement;
+                if (filter == null)
+                    continue;
+
                 OverrideGraphicSettings overrideSettings = CurrentView.GetFilterOverrides(idFilter);
                 if (overrideSettings == null)
                     continue;
@@ -98,10 +101,18 @@ namespace Exporter
                 AddMaterial(filter.Name, overrideSettings.ProjectionFillColor);
 
                 List<ElementId> listElem = new List<ElementId>();
-                foreach (ElementId catID in filter.GetCategories())
+                var cids = filter.GetCategories();
+                if (cids == null)
+                    continue;
+
+                foreach (ElementId catID in cids)
                 {
                     FilteredElementCollector collector = (new FilteredElementCollector(CurrentDocument, CurrentView.Id)).OfCategoryId(catID);
-                    listElem.AddRange(collector.ToElementIds() as List<ElementId>);
+                    var lstid = collector.ToElementIds() as List<ElementId>;
+                    if (lstid == null)
+                        continue;
+
+                    listElem.AddRange(lstid);
                 }
 
                 List<ElementId> elemPassed = new List<ElementId>();

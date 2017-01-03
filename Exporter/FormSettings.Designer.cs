@@ -37,6 +37,7 @@
             this.label1 = new System.Windows.Forms.Label();
             this.tabControl1 = new System.Windows.Forms.TabControl();
             this.tabPageSystem = new System.Windows.Forms.TabPage();
+            this.chkUserDefineFormat = new System.Windows.Forms.CheckBox();
             this.chkExportGrid = new System.Windows.Forms.CheckBox();
             this.label6 = new System.Windows.Forms.Label();
             this.txtDefaultLayer = new System.Windows.Forms.TextBox();
@@ -50,7 +51,6 @@
             this.label4 = new System.Windows.Forms.Label();
             this.textWidth = new System.Windows.Forms.TextBox();
             this.label3 = new System.Windows.Forms.Label();
-            this.chkUserDefineFormat = new System.Windows.Forms.CheckBox();
             this.tabControl1.SuspendLayout();
             this.tabPageSystem.SuspendLayout();
             this.tabPageParking.SuspendLayout();
@@ -161,6 +161,18 @@
             this.tabPageSystem.TabIndex = 0;
             this.tabPageSystem.Text = "系统";
             this.tabPageSystem.UseVisualStyleBackColor = true;
+            // 
+            // chkUserDefineFormat
+            // 
+            this.chkUserDefineFormat.AutoSize = true;
+            this.chkUserDefineFormat.Location = new System.Drawing.Point(108, 59);
+            this.chkUserDefineFormat.Name = "chkUserDefineFormat";
+            this.chkUserDefineFormat.Size = new System.Drawing.Size(84, 16);
+            this.chkUserDefineFormat.TabIndex = 17;
+            this.chkUserDefineFormat.Text = "自定义格式";
+            this.chkUserDefineFormat.UseVisualStyleBackColor = true;
+            this.chkUserDefineFormat.Visible = false;
+            this.chkUserDefineFormat.CheckedChanged += new System.EventHandler(this.chkUserDefineFormat_CheckedChanged);
             // 
             // chkExportGrid
             // 
@@ -288,17 +300,6 @@
             this.label3.Size = new System.Drawing.Size(89, 12);
             this.label3.TabIndex = 7;
             this.label3.Text = "编号大小范围：";
-            // 
-            // chkUserDefineFormat
-            // 
-            this.chkUserDefineFormat.AutoSize = true;
-            this.chkUserDefineFormat.Location = new System.Drawing.Point(108, 59);
-            this.chkUserDefineFormat.Name = "chkUserDefineFormat";
-            this.chkUserDefineFormat.Size = new System.Drawing.Size(84, 16);
-            this.chkUserDefineFormat.TabIndex = 17;
-            this.chkUserDefineFormat.Text = "自定义格式";
-            this.chkUserDefineFormat.UseVisualStyleBackColor = true;
-            this.chkUserDefineFormat.CheckedChanged += new System.EventHandler(this.chkUserDefineFormat_CheckedChanged);
             // 
             // FormSettings
             // 

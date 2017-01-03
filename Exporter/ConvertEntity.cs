@@ -116,16 +116,17 @@ namespace Exporter
 
         public void BeginConvert(string fileName)
         {
-            ProcessMaterialMapFile();
-
             if (ExportSetting.SystemSetting.IsUserDefineFormat)
             {
                 try
                 {
+                    ProcessMaterialMapFile();
+
                     var ser = new ModelSerializeEntity();
                     ser.Blocks = DictBlocks;
                     ser.Materials = Materials;
                     var str = JsonConvert.SerializeObject(ser);
+                    //var str = fastJSON.JSON.ToJSON(ser);
                     using (var objWriter = new StreamWriter(ExportSetting.SystemSetting.ExportFilePath))
                         objWriter.Write(str);
 
