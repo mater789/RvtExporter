@@ -53,10 +53,6 @@
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="fastJSON, Version=2.1.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>bin\Debug\fastJSON.dll</HintPath>
-    </Reference>
     <Reference Include="Newtonsoft.Json.Net20, Version=4.0.2.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>bin\Debug\Newtonsoft.Json.Net20.dll</HintPath>
@@ -138,6 +134,7 @@
     <Compile Include="Entity\CurveData.cs" />
     <Compile Include="Entity\GridData.cs" />
     <Compile Include="Entity\InsertData.cs" />
+    <Compile Include="Entity\LightData.cs" />
     <Compile Include="Entity\LocationData.cs" />
     <Compile Include="Entity\ModelSerializeEntity.cs" />
     <Compile Include="Entity\PipeInfo.cs" />

@@ -265,8 +265,39 @@ namespace Exporter
 
         public Result Execute(ExternalCommandData commandData, ref string message, ElementSet elements)
         {
+            var uiDoc = commandData.Application.ActiveUIDocument;
+            var entityRef = uiDoc.Selection.PickObject(Autodesk.Revit.UI.Selection.ObjectType.Element);
+            var elem = uiDoc.Document.GetElement(entityRef);
+
+            var fi = elem as FamilyInstance;
+            if (fi == null)
+                return Result.Cancelled;
+
+            if (elem.Category.Id.IntegerValue == (int) BuiltInCategory.OST_LightingFixtures)
+            {
+                var lightData = Autodesk.Revit.DB.Lighting.LightType.GetLightTypeFromInstance(uiDoc.Document, elem.Id);
+                if (lightData == null)
+                    return Result.Cancelled;
+
+                var temp = lightData.GetInitialColor().TemperatureValue;
+                var intensityValue = lightData.GetInitialIntensity().InitialIntensityValue;
+                //var distribution = lightData.GetLightDistribution();
+                //var lightShape = lightData.GetLightShape();
+
+                MessageBox.Show("temp: " + temp + "\n intensity: " + intensityValue);
+
+                
+            }
+
+
+
+
+            return Result.Succeeded;
+
+            /*
             ExportMaterialInfo(commandData);
             return Result.Succeeded;
+            */
         }
     }
 

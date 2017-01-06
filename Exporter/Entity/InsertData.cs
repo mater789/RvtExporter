@@ -31,5 +31,7 @@ namespace Exporter
             get { return m_Location; }
             set { m_Location = value; }
         }
+
+        public LightData Light { get; set; }
     }
 }

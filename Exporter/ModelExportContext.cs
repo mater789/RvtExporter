@@ -41,6 +41,8 @@ namespace Exporter
             set;
         }
 
+        public List<LightData> Lights { get; set; }
+
         /// <summary>
         /// 所使用的块列表
         /// </summary>
@@ -965,7 +967,29 @@ namespace Exporter
 
         public void OnLight(LightNode node)
         {
+            if (Lights == null)
+                Lights = new List<LightData>();
 
+            if (CurrentElement.Category.Id.IntegerValue == (int) BuiltInCategory.OST_LightingFixtures)
+            {
+                var curIns = _insertStack.Peek();
+                if (curIns == null)
+                    return;
+
+                var lightData = Autodesk.Revit.DB.Lighting.LightType.GetLightTypeFromInstance(m_doc, CurrentElement.Id);
+                if (lightData == null)
+                    return;
+
+                var data = new LightData();
+                data.Name = CurrentElement.Name + "__Light";
+                data.Lumen = lightData.GetInitialIntensity().InitialIntensityValue;
+                data.ColorTemperature = lightData.GetInitialColor().TemperatureValue;
+                data.Color = new ColorData(lightData.ColorFilter.Red, lightData.ColorFilter.Green,
+                    lightData.ColorFilter.Blue);
+                data.TransData = GetTransData(node.GetTransform());
+
+                curIns.Light = data;
+            }
         }
 
         #endregion
