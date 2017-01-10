@@ -28,11 +28,52 @@ namespace Exporter
             set { m_color = value; }
         }
 
-        public string DiffuseMap { get; set; } = string.Empty;
-        public double TextureScaleX { get; set; } = 1.0;
-        public double TextureScaleY { get; set; } = 1.0;
+        private string _diffuseMap = string.Empty;
 
+        public string DiffuseMap
+        {
+            get { return _diffuseMap; }
+            set { _diffuseMap = value; }
+        }
 
-        public string BumpMap { get; set; } = string.Empty;
+        private double _textureScaleX = 1.0;
+
+        public double TextureScaleX
+        {
+            get { return _textureScaleX; }
+            set { _textureScaleX = value; }
+        }
+
+        private double _textureScaleY = 1.0;
+
+        public double TextureScaleY
+        {
+            get { return _textureScaleY; }
+            set { _textureScaleY = value; }
+        }
+
+        private string _bumpMap = string.Empty;
+
+        public string BumpMap
+        {
+            get { return _bumpMap; }
+            set { _bumpMap = value; }
+        }
+
+        private double _metallic = 0.0;
+
+        public double Metallic
+        {
+            get { return _metallic; }
+            set { _metallic = value; }
+        }
+
+        private double _smoothness = 0.5f;
+
+        public double Smoothness
+        {
+            get { return _smoothness; }
+            set { _smoothness = value; }
+        }
     }
 }

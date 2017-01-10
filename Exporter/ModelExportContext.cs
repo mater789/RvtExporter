@@ -464,13 +464,13 @@ namespace Exporter
 
                 var diffuserMap = string.Empty;
                 var bumpMap = string.Empty;
-                double scaleX, scaleY;
-                Tools.GetMaterialTexture(material, BuiltInMaterialLibraryAsset, out diffuserMap, out bumpMap, out scaleX, out scaleY);
-                AddMaterial(material.Name, material.Color, material.Transparency, diffuserMap, bumpMap, scaleX, scaleY);
+                double scaleX, scaleY, metallic, smoothness;
+                Tools.GetMaterialTexture(material, BuiltInMaterialLibraryAsset, out diffuserMap, out bumpMap, out scaleX, out scaleY, out metallic, out smoothness);
+                AddMaterial(material.Name, material.Color, material.Transparency, diffuserMap, bumpMap, scaleX, scaleY, metallic, smoothness);
             }
         }
 
-        private void AddMaterial(string name, Color color, int transparency = 0, string diffuseMap = "", string bumpMap = "", double scaleX = 1.0, double scaleY = 1.0)
+        private void AddMaterial(string name, Color color, int transparency = 0, string diffuseMap = "", string bumpMap = "", double scaleX = 1.0, double scaleY = 1.0, double metallic = 0.0, double smoothness = 0.5)
         {
             if (m_listMaterial.Any(mtl => mtl.Name == name))
                 return;
@@ -482,6 +482,8 @@ namespace Exporter
             matdata.BumpMap = bumpMap;
             matdata.TextureScaleX = scaleX;
             matdata.TextureScaleY = scaleY;
+            matdata.Metallic = metallic;
+            matdata.Smoothness = smoothness;
 
 
             if (color.IsValid)
@@ -691,7 +693,7 @@ namespace Exporter
         /// <summary>
         /// 用来保存模型空间的直接块
         /// </summary>
-        private BlockData _userCreateBlock = null;  
+        private BlockData _userCreateBlock = null;
 
         public void OnPolymesh(PolymeshTopology polyMesh)
         {
@@ -788,19 +790,33 @@ namespace Exporter
 
         public RenderNodeAction OnElementBegin(ElementId elementId)
         {
-            m_stackElement.Push(elementId);
-
-            // 新Element标记修改为true
-            if (m_bPackageEntityToBlock)
-                m_bIsNewElementBegin = true;
-
-            if (ExtraElementColorSetting != null)
+            try
             {
-                if (ExtraElementColorSetting.ContainsKey(elementId))
-                    m_curElementMaterialData = ExtraMaterial.Find(mat => mat.Name == ExtraElementColorSetting[elementId]);
-            }
+                m_stackElement.Push(elementId);
 
-            return RenderNodeAction.Proceed;
+
+
+
+
+
+
+                // 新Element标记修改为true
+                if (m_bPackageEntityToBlock)
+                    m_bIsNewElementBegin = true;
+
+                if (ExtraElementColorSetting != null)
+                {
+                    if (ExtraElementColorSetting.ContainsKey(elementId))
+                        m_curElementMaterialData = ExtraMaterial.Find(mat => mat.Name == ExtraElementColorSetting[elementId]);
+                }
+
+                return RenderNodeAction.Proceed;
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+                return RenderNodeAction.Skip;
+            }
         }
 
         public void OnElementEnd(ElementId elementId)
@@ -849,14 +865,6 @@ namespace Exporter
             m_stackBlock.Push(blk);
 
             return RenderNodeAction.Proceed;
-
-            if (!bBlkAlreadyExist)
-                return RenderNodeAction.Proceed;
-
-            //if (blk.Meshs.Count < 1 && blk.Inserts.Count < 1 && !blk.IsPipe)
-            //    return RenderNodeAction.Proceed;
-
-            return RenderNodeAction.Skip;
         }
 
         public void OnInstanceEnd(InstanceNode node)
@@ -866,9 +874,13 @@ namespace Exporter
             m_stackTrans.Pop();
             m_stackBlock.Pop();
 
+            if (!m_dictBlock.ContainsKey(curIns.BlockName))
+                return;
+
             var curBlk = m_dictBlock[curIns.BlockName];
             if (curBlk == null)
                 return;
+
 
             if (curBlk.Meshs.Count < 1 && curBlk.Inserts.Count < 1 && !curBlk.IsPipe)
             {
@@ -883,26 +895,6 @@ namespace Exporter
                 if (m_dictBlock.ContainsKey(extName))
                     curIns.BlockName = extName;
             }
-
-
-            /*
-            if (curIns.BlockRef.Meshs.Count < 1 && curIns.BlockRef.Inserts.Count < 1 && !curIns.BlockRef.IsPipe)
-            {
-                var has = CurrentBlockData.Inserts.Remove(curIns);
-                m_dictBlock.Remove(curIns.BlockRef.Name);
-            }
-            else if (curIns.BlockRef.Name.EndsWith("__tmpBlk__"))
-            {
-                m_dictBlock.Remove(curIns.BlockRef.Name);
-
-                var extName = curIns.BlockRef.Name.Substring(0, curIns.BlockRef.Name.Length - 10);
-                BlockData blk;
-                if (m_dictBlock.TryGetValue(extName, out blk))
-                {
-                    curIns.BlockRef = blk;
-                }
-            }
-            */
         }
 
         public RenderNodeAction OnFaceBegin(FaceNode node)
@@ -970,7 +962,7 @@ namespace Exporter
             if (Lights == null)
                 Lights = new List<LightData>();
 
-            if (CurrentElement.Category.Id.IntegerValue == (int) BuiltInCategory.OST_LightingFixtures)
+            if (CurrentElement.Category.Id.IntegerValue == (int)BuiltInCategory.OST_LightingFixtures)
             {
                 var curIns = _insertStack.Peek();
                 if (curIns == null)
@@ -984,8 +976,7 @@ namespace Exporter
                 data.Name = CurrentElement.Name + "__Light";
                 data.Lumen = lightData.GetInitialIntensity().InitialIntensityValue;
                 data.ColorTemperature = lightData.GetInitialColor().TemperatureValue;
-                data.Color = new ColorData(lightData.ColorFilter.Red, lightData.ColorFilter.Green,
-                    lightData.ColorFilter.Blue);
+                data.Color = new ColorData(lightData.ColorFilter.Red, lightData.ColorFilter.Green, lightData.ColorFilter.Blue);
                 data.TransData = GetTransData(node.GetTransform());
 
                 curIns.Light = data;

@@ -224,7 +224,7 @@ namespace Exporter
                     var objMaterial = objLoopItem as Material;
                     if (objMaterial != null)
                     {
-                        if (objMaterial.Name != "混凝土 - 现场浇注混凝土")
+                        if (objMaterial.Name != "木纹防火板")
                             continue;
 
                         var assetElementId = objMaterial.AppearanceAssetId;
@@ -265,6 +265,7 @@ namespace Exporter
 
         public Result Execute(ExternalCommandData commandData, ref string message, ElementSet elements)
         {
+            /*
             var uiDoc = commandData.Application.ActiveUIDocument;
             var entityRef = uiDoc.Selection.PickObject(Autodesk.Revit.UI.Selection.ObjectType.Element);
             var elem = uiDoc.Document.GetElement(entityRef);
@@ -285,19 +286,16 @@ namespace Exporter
                 //var lightShape = lightData.GetLightShape();
 
                 MessageBox.Show("temp: " + temp + "\n intensity: " + intensityValue);
-
-                
             }
 
-
-
-
-            return Result.Succeeded;
-
-            /*
-            ExportMaterialInfo(commandData);
             return Result.Succeeded;
             */
+
+
+            /* */
+            ExportMaterialInfo(commandData);
+            return Result.Succeeded;
+           
         }
     }
 
