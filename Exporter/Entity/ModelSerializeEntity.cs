@@ -10,5 +10,6 @@ namespace Exporter
     {
         public Dictionary<string, BlockData> Blocks { get; set; }
         public List<MaterialData> Materials { get; set; }
+        public List<LevelData> Levels { get; set; }
     }
 }

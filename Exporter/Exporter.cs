@@ -72,6 +72,7 @@ namespace Exporter
             converter.Materials = context.Materials;
             converter.ModelBlock = context.ModelSpaceBlock;
             converter.DictBlocks = context.DictBlocks;
+            converter.Levels = Tools.GetLevelsFromDocument(doc);
             converter.WndParent = new WindowHandle(h);
             converter.BeginConvert(dlg.ExportSetting.SystemSetting.ExportFilePath);
                       
@@ -265,37 +266,33 @@ namespace Exporter
 
         public Result Execute(ExternalCommandData commandData, ref string message, ElementSet elements)
         {
-            /*
-            var uiDoc = commandData.Application.ActiveUIDocument;
-            var entityRef = uiDoc.Selection.PickObject(Autodesk.Revit.UI.Selection.ObjectType.Element);
-            var elem = uiDoc.Document.GetElement(entityRef);
+            /**/
+            var doc = commandData.Application.ActiveUIDocument.Document;
 
-            var fi = elem as FamilyInstance;
-            if (fi == null)
-                return Result.Cancelled;
+            var classFilter = new ElementClassFilter(typeof (Level));
+            var levelCategoryFilter = new ElementCategoryFilter(BuiltInCategory.OST_Levels);
+            var logicalFilter = new LogicalAndFilter(classFilter, levelCategoryFilter);
 
-            if (elem.Category.Id.IntegerValue == (int) BuiltInCategory.OST_LightingFixtures)
+            var collector = new FilteredElementCollector(doc);
+            var levElems = collector.WherePasses(logicalFilter).ToElements();
+
+            string result = string.Empty;
+            foreach (var elem in levElems)
             {
-                var lightData = Autodesk.Revit.DB.Lighting.LightType.GetLightTypeFromInstance(uiDoc.Document, elem.Id);
-                if (lightData == null)
-                    return Result.Cancelled;
-
-                var temp = lightData.GetInitialColor().TemperatureValue;
-                var intensityValue = lightData.GetInitialIntensity().InitialIntensityValue;
-                //var distribution = lightData.GetLightDistribution();
-                //var lightShape = lightData.GetLightShape();
-
-                MessageBox.Show("temp: " + temp + "\n intensity: " + intensityValue);
+                var level = elem as Level;
+                result += level.Name + ": " + level.Elevation + "\n";
             }
 
+            MessageBox.Show(result);
+
             return Result.Succeeded;
-            */
+            
 
 
-            /* */
+            /* 
             ExportMaterialInfo(commandData);
             return Result.Succeeded;
-           
+           */
         }
     }
 

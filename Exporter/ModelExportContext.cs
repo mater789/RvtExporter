@@ -794,6 +794,24 @@ namespace Exporter
             {
                 m_stackElement.Push(elementId);
 
+                /*
+                var blkName = CurrentElement.Name + "#" + elementId.IntegerValue;
+                var blk = new BlockData();
+                blk.Name = blkName;
+                m_dictBlock.Add(blkName, blk);
+
+                var insert = new InsertData();
+                insert.BlockName = blkName;
+                insert.TransMatrix = GetTransData(Transform.Identity);
+                insert.DictProperties = GetPropertiesAndLocationFromElement(CurrentElement);
+                CurrentBlockData.Inserts.Add(insert);
+
+                m_stackBlock.Push(blk);
+                _insertStack.Push(insert);
+                */
+
+
+
                 // 新Element标记修改为true
                 if (m_bPackageEntityToBlock)
                     m_bIsNewElementBegin = true;
@@ -817,6 +835,11 @@ namespace Exporter
         {
             m_curElementMaterialData = null;
             m_stackElement.Pop();
+
+            /*
+            m_stackBlock.Pop();
+            _insertStack.Pop();
+            */
         }
 
         private Stack<InsertData> _insertStack = new Stack<InsertData>();

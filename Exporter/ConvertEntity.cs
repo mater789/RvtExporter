@@ -40,6 +40,8 @@ namespace Exporter
             set;
         }
 
+        public List<LevelData> Levels { get; set; }
+
         public Dictionary<string, BlockData> DictBlocks { get; set; }
 
         private bool m_OptimizeTriangle = false;
@@ -67,9 +69,6 @@ namespace Exporter
                     foreach (var sketch in data)
                         sketch.ConvertToMM();
                 }
-
-                //value.Values.ToList().ForEach(listSkecth => listSkecth.ForEach(sketch => sketch.ConvertToMM()));
-
             }
         }
 
@@ -143,6 +142,7 @@ namespace Exporter
                 InitMaterialLayers();
                 InitEntityInModelBlock();
                 AddGridPolyline();
+                AddLevelData();
 
                 if (m_formProgress == null || m_formProgress.IsDisposed)
                     m_formProgress = new FormProgress();
@@ -172,6 +172,24 @@ namespace Exporter
                 m_formProgress.Close();
 
                 MessageBox.Show(bResult ? "导出完成！" : "导出失败！");
+            }
+        }
+
+        private void AddLevelData()
+        {
+            if (Levels == null)
+                return;
+
+            vdLayer layer = vDraw.ActiveDocument.Layers.FindName("__LayerDatas");
+            if (layer == null)
+            {
+                layer = new vdLayer(vDraw.ActiveDocument, "__LayerDatas");
+                vDraw.ActiveDocument.Layers.Add(layer);
+            }
+
+            foreach (var lv in Levels)
+            {
+                layer.XProperties.Add(lv.Name).PropValue = (Tools.Ft2MmScale*lv.Height).ToString();
             }
         }
 

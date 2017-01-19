@@ -134,6 +134,7 @@
     <Compile Include="Entity\CurveData.cs" />
     <Compile Include="Entity\GridData.cs" />
     <Compile Include="Entity\InsertData.cs" />
+    <Compile Include="Entity\LevelData.cs" />
     <Compile Include="Entity\LightData.cs" />
     <Compile Include="Entity\LocationData.cs" />
     <Compile Include="Entity\ModelSerializeEntity.cs" />

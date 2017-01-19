@@ -381,5 +381,32 @@ namespace Exporter
 
             return tagString == "Water" ? MatType.eWater : MatType.eUnknownMat;
         }
+
+        public static List<LevelData> GetLevelsFromDocument(Document doc)
+        {
+            if (doc == null)
+                return null;
+
+            var classFilter = new ElementClassFilter(typeof(Level));
+            var levelCategoryFilter = new ElementCategoryFilter(BuiltInCategory.OST_Levels);
+            var logicalFilter = new LogicalAndFilter(classFilter, levelCategoryFilter);
+
+            var collector = new FilteredElementCollector(doc);
+            var levElems = collector.WherePasses(logicalFilter).ToElements();
+
+            var res = new List<LevelData>();
+            foreach (var elem in levElems)
+            {
+                var level = elem as Level;
+                res.Add(new LevelData
+                {
+                    Name = level.Name,
+                    Height = level.Elevation
+                });
+            }
+
+            res.Sort((a, b) => a.Height.CompareTo(b.Height));
+            return res;
+        }
     }
 }
