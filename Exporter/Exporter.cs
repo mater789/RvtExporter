@@ -266,6 +266,19 @@ namespace Exporter
 
         public Result Execute(ExternalCommandData commandData, ref string message, ElementSet elements)
         {
+            OpenFileDialog dlg = new OpenFileDialog();
+            if (dlg.ShowDialog() != DialogResult.OK)
+                return Result.Cancelled;
+
+            var strResult = File.ReadAllText(dlg.FileName);
+            ModelSerializeEntity entity = LitJson.JsonMapper.ToObject<ModelSerializeEntity>(strResult);
+
+            if (entity == null)
+                return Result.Failed;
+
+            return Result.Succeeded;
+
+
             /**/
             var doc = commandData.Application.ActiveUIDocument.Document;
 
