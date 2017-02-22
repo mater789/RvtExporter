@@ -40,7 +40,7 @@ namespace Exporter
         /// <param name="vdbs"></param>
         private void ReplaceText(vdBlocks vdbs, vdDocument doc, double width, double height, string PropName)
         {
-            doc.Purge();
+            //doc.Purge();
             Dictionary<string, string> BlksMap = new Dictionary<string, string>();
             Dictionary<string, string> BlksMapTmp = new Dictionary<string, string>();
 

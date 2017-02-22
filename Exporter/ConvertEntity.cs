@@ -180,16 +180,19 @@ namespace Exporter
             if (Levels == null)
                 return;
 
-            vdLayer layer = vDraw.ActiveDocument.Layers.FindName("__LayerDatas");
+            vdLayer layer = vDraw.ActiveDocument.Layers.FindName("GRID__");
             if (layer == null)
             {
-                layer = new vdLayer(vDraw.ActiveDocument, "__LayerDatas");
+                layer = new vdLayer(vDraw.ActiveDocument, "GRID__");
                 vDraw.ActiveDocument.Layers.Add(layer);
             }
 
             foreach (var lv in Levels)
             {
-                layer.XProperties.Add(lv.Name).PropValue = (Tools.Ft2MmScale*lv.Height).ToString();
+                vdXProperty vdx1 = new vdXProperty();
+                vdx1.Name = lv.Name;
+                vdx1.PropValue = (Tools.Ft2MmScale*lv.Height).ToString();
+                layer.XProperties.AddItem(vdx1);
             }
         }
 

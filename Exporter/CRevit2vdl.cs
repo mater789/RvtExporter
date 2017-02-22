@@ -439,7 +439,7 @@ namespace ReduceTris
 
         public void Convert(string outFileName)
         {
-            doc.Purge();
+            //doc.Purge();
             SetProgress(5);
             Dictionary<string, bool> kvs = new Dictionary<string, bool>();
 
@@ -496,7 +496,7 @@ namespace ReduceTris
                 SetProgress(70 + (ipr * 30) / doc.ActiveLayOut.Entities.Count);
 
             }
-            doc.Purge();
+            //doc.Purge();
         }
 
 
