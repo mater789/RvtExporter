@@ -125,7 +125,7 @@ namespace Exporter
                     ser.Blocks = DictBlocks;
                     ser.Materials = Materials;
                     var str = JsonConvert.SerializeObject(ser);
-                    //var str = fastJSON.JSON.ToJSON(ser);
+                    //var str = LitJson.JsonMapper.ToJson(ser);
                     using (var objWriter = new StreamWriter(ExportSetting.SystemSetting.ExportFilePath))
                         objWriter.Write(str);
 
