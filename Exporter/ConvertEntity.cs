@@ -515,7 +515,28 @@ namespace Exporter
                 vDraw.ActiveDocument.ActiveLayOut.Entities.Add(pl);
                 SetEntityLayer(pl, _gGridLayerName);
                 AddXPropertiesToEntity(grid.Properties, pl);
+                AddGridText(pl, grid.Name);
             }
+        }
+
+        /// <summary>
+        /// tianjia 
+        /// </summary>
+        /// <param name="pline"></param>
+        /// <param name="name"></param>
+        private void AddGridText(vdPolyline pline, string name)
+        {
+            vdText txt = new vdText();
+            txt.SetUnRegisterDocument(vDraw.ActiveDocument);
+            txt.setDocumentDefaults();
+            txt.InsertionPoint = pline.getStartPoint();
+            txt.TextString = name;
+            txt.Height = 300;
+            txt.AlignToView = true;
+            txt.PenColor.ColorIndex = 2;
+
+            vDraw.ActiveDocument.ActiveLayOut.Entities.Add(txt);
+            SetEntityLayer(pline, _gGridLayerName);
         }
 
         /*

@@ -171,6 +171,7 @@
             this.chkUserDefineFormat.TabIndex = 17;
             this.chkUserDefineFormat.Text = "自定义格式";
             this.chkUserDefineFormat.UseVisualStyleBackColor = true;
+            this.chkUserDefineFormat.Visible = false;
             this.chkUserDefineFormat.CheckedChanged += new System.EventHandler(this.chkUserDefineFormat_CheckedChanged);
             // 
             // chkExportGrid

@@ -87,44 +87,52 @@ namespace Exporter
 
             foreach (ElementId idFilter in CurrentView.GetFilters())
             {
-                ParameterFilterElement filter = CurrentDocument.GetElement(idFilter) as ParameterFilterElement;
-                if (filter == null)
-                    continue;
-
-                OverrideGraphicSettings overrideSettings = CurrentView.GetFilterOverrides(idFilter);
-                if (overrideSettings == null)
-                    continue;
-
-                if (!overrideSettings.ProjectionFillColor.IsValid)
-                    continue;
-
-                AddMaterial(filter.Name, overrideSettings.ProjectionFillColor);
-
-                List<ElementId> listElem = new List<ElementId>();
-                var cids = filter.GetCategories();
-                if (cids == null)
-                    continue;
-
-                foreach (ElementId catID in cids)
+                try
                 {
-                    FilteredElementCollector collector = (new FilteredElementCollector(CurrentDocument, CurrentView.Id)).OfCategoryId(catID);
-                    var lstid = collector.ToElementIds() as List<ElementId>;
-                    if (lstid == null)
+                    ParameterFilterElement filter = CurrentDocument.GetElement(idFilter) as ParameterFilterElement;
+                    if (filter == null)
                         continue;
 
-                    listElem.AddRange(lstid);
+                    OverrideGraphicSettings overrideSettings = CurrentView.GetFilterOverrides(idFilter);
+                    if (overrideSettings == null)
+                        continue;
+
+                    if (!overrideSettings.ProjectionFillColor.IsValid)
+                        continue;
+
+                    AddMaterial(filter.Name, overrideSettings.ProjectionFillColor);
+
+                    List<ElementId> listElem = new List<ElementId>();
+                    var cids = filter.GetCategories();
+                    if (cids == null)
+                        continue;
+
+                    foreach (ElementId catID in cids)
+                    {
+                        FilteredElementCollector collector = (new FilteredElementCollector(CurrentDocument, CurrentView.Id)).OfCategoryId(catID);
+                        var lstid = collector.ToElementIds() as List<ElementId>;
+                        if (lstid == null)
+                            continue;
+
+                        listElem.AddRange(lstid);
+                    }
+
+                    List<ElementId> elemPassed = new List<ElementId>();
+                    foreach (ElementId elemId in listElem)
+                        if (CanPassFilterRules(filter, elemId))
+                            elemPassed.Add(elemId);
+
+                    foreach (ElementId elemId in elemPassed)
+                    {
+                        if (!m_dictElemColor.ContainsKey(elemId))
+                            m_dictElemColor.Add(elemId, filter.Name);
+                    }
                 }
-
-                List<ElementId> elemPassed = new List<ElementId>();
-                foreach (ElementId elemId in listElem)
-                    if (CanPassFilterRules(filter, elemId))
-                        elemPassed.Add(elemId);
-
-                foreach (ElementId elemId in elemPassed)
+                catch (Exception)
                 {
-                    if (!m_dictElemColor.ContainsKey(elemId))
-                        m_dictElemColor.Add(elemId, filter.Name);
+                    continue;
                 }
+                
             }
         }
 
