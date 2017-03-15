@@ -85,7 +85,21 @@ namespace Exporter
             if (CurrentDocument == null || CurrentView == null)
                 return;
 
-            foreach (ElementId idFilter in CurrentView.GetFilters())
+            ICollection<ElementId> filterIds = null;
+
+            try
+            {
+                filterIds = CurrentView.GetFilters();
+                if (filterIds == null || filterIds.Count < 1)
+                    return;
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+                return;
+            }
+
+            foreach (ElementId idFilter in filterIds)
             {
                 try
                 {
