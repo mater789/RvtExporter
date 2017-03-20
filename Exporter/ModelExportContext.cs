@@ -672,6 +672,11 @@ namespace Exporter
         }
 
         private MaterialData m_curOriginMaterialData = null;
+        public void OnDaylightPortal(DaylightPortalNode node)
+        {
+            //throw new NotImplementedException();
+        }
+
         public void OnMaterial(MaterialNode node)
         {
             m_curOriginMaterialData = null;
@@ -979,6 +984,7 @@ namespace Exporter
             if (Lights == null)
                 Lights = new List<LightData>();
 
+            /*
             if (CurrentElement.Category.Id.IntegerValue == (int)BuiltInCategory.OST_LightingFixtures)
             {
                 var curIns = _insertStack.Peek();
@@ -998,6 +1004,7 @@ namespace Exporter
 
                 curIns.Light = data;
             }
+            */
         }
 
         #endregion
