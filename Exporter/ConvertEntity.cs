@@ -124,10 +124,16 @@ namespace Exporter
                     var ser = new ModelSerializeEntity();
                     ser.Blocks = DictBlocks;
                     ser.Materials = Materials;
-                    var str = JsonConvert.SerializeObject(ser);
-                    //var str = LitJson.JsonMapper.ToJson(ser);
-                    using (var objWriter = new StreamWriter(ExportSetting.SystemSetting.ExportFilePath))
-                        objWriter.Write(str);
+                    ser.Levels = Levels;
+
+                    using (Stream s = File.OpenWrite(fileName))
+                    {
+                        ProtoBuf.Serializer.Serialize<ModelSerializeEntity>(s, ser);
+                    }
+
+                    //var str = JsonConvert.SerializeObject(ser);
+                    //using (var objWriter = new StreamWriter(ExportSetting.SystemSetting.ExportFilePath))
+                    //    objWriter.Write(str);
 
                     MessageBox.Show("导出完成");
                 }

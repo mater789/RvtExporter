@@ -270,14 +270,31 @@ namespace Exporter
             if (dlg.ShowDialog() != DialogResult.OK)
                 return Result.Cancelled;
 
-            var strResult = File.ReadAllText(dlg.FileName);
-            ModelSerializeEntity entity = LitJson.JsonMapper.ToObject<ModelSerializeEntity>(strResult);
+            Stopwatch sw = new Stopwatch();
 
+
+            using (Stream s = File.OpenRead(dlg.FileName))
+            {
+                //从文件中读取并反序列化到对象
+                sw.Start();
+                var data = ProtoBuf.Serializer.Deserialize<ModelSerializeEntity>(s);
+                MessageBox.Show(sw.ElapsedMilliseconds.ToString());
+            }
+
+            sw.Stop();
+
+            /*
+
+            var strResult = File.ReadAllText(dlg.FileName);
+            sw.Start();
+            ModelSerializeEntity entity = LitJson.JsonMapper.ToObject<ModelSerializeEntity>(strResult);
+            MessageBox.Show(sw.ElapsedMilliseconds.ToString());
+            sw.Stop();
             if (entity == null)
                 return Result.Failed;
-
+*/
             return Result.Succeeded;
-
+            
 
             /**/
             var doc = commandData.Application.ActiveUIDocument.Document;

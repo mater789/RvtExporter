@@ -5,12 +5,16 @@ using System.Text;
 
 using Autodesk.Revit.DB;
 using Newtonsoft.Json;
+using ProtoBuf;
 
 namespace Exporter
 {
+    [ProtoContract]
     public class BlockData
     {
         private string m_name = string.Empty;
+
+        [ProtoMember(1)]
         public string Name
         {
             set { m_name = value; }
@@ -18,6 +22,7 @@ namespace Exporter
         }
 
         private List<InsertData> m_Inserts = new List<InsertData>();
+        [ProtoMember(2)]
         public List<InsertData> Inserts
         {
             set { m_Inserts = value; }
@@ -25,6 +30,7 @@ namespace Exporter
         }
 
         private List<MeshData> m_Meshs = new List<MeshData>();
+        [ProtoMember(3)]
         public List<MeshData> Meshs
         {
             get { return m_Meshs; }
@@ -32,6 +38,7 @@ namespace Exporter
         }
 
         public bool m_bIsPipe = false;
+        [ProtoMember(4)]
         public bool IsPipe
         {
             get { return m_bIsPipe; }
@@ -39,6 +46,7 @@ namespace Exporter
         }
 
         private PipeInfo m_Pipe = null;
+        [ProtoMember(5)]
         public PipeInfo PipeInfo
         {
             get { return m_Pipe; }
@@ -46,6 +54,7 @@ namespace Exporter
         }
 
         private bool m_bIsByBlock = false;
+        [ProtoMember(6)]
         public bool IsByBlock
         {
             get { return m_bIsByBlock; }
