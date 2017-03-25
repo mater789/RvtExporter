@@ -408,5 +408,147 @@ namespace Exporter
             res.Sort((a, b) => a.Height.CompareTo(b.Height));
             return res;
         }
+
+        public static CurveData ToCurveData(this Curve curve)
+        {
+            CurveData cd = new CurveData();
+
+            cd.Points.Add(curve.GetEndPoint(0).ToPointData());
+            cd.Points.Add(curve.GetEndPoint(1).ToPointData());
+            cd.StartParameter = curve.GetEndParameter(0);
+            cd.EndParameter = curve.GetEndParameter(1);
+
+            var arc = curve as Arc;
+            cd.IsArc = arc != null;
+
+            if (cd.IsArc)
+            {
+                cd.Normal = arc.Normal.ToPointData();
+                cd.Center = arc.Center.ToPointData();
+                cd.Radius = arc.Radius;
+            }
+
+            return cd;
+        }
+
+        public static Dictionary<string, List<PropertyData>> GetPropertyFromElement(Element elem)
+        {
+            var dictProperties = new Dictionary<string, List<PropertyData>>();
+
+            // 属性中添加族和类型信息
+            var internalProps = new List<PropertyData>();
+            internalProps.Add(new PropertyData { GroupName = "#Internal", Name = "#name", Value = elem.Name });
+            if (elem.Category != null)
+                internalProps.Add(new PropertyData { GroupName = "#Internal", Name = "#category", Value = elem.Category.Name });
+            internalProps.Add(new PropertyData { GroupName = "#Internal", Name = "#guid", Value = elem.UniqueId });
+            var fname = GetFamilyName(elem);
+            if (!string.IsNullOrEmpty(fname))
+                internalProps.Add(new PropertyData { GroupName = "#Internal", Name = "#family", Value = fname });
+            dictProperties["#Internal"] = internalProps;
+
+            if (elem.Parameters != null)
+            {
+                foreach (Parameter param in elem.Parameters)
+                {
+                    string groupName = LabelUtils.GetLabelFor(param.Definition.ParameterGroup);
+                    if (string.IsNullOrEmpty(groupName))
+                        groupName = param.Definition.ParameterGroup.ToString();
+
+                    PropertyData proData = new PropertyData();
+                    proData.Name = param.Definition.Name;
+                    proData.GroupName = groupName;
+                    proData.Value = param.StorageType == StorageType.String ? param.AsString() : param.AsValueString();
+
+                    if (dictProperties.ContainsKey(groupName))
+                    {
+                        dictProperties[groupName].Add(proData);
+                    }
+                    else
+                    {
+                        List<PropertyData> listTmp = new List<PropertyData>();
+                        listTmp.Add(proData);
+                        dictProperties.Add(groupName, listTmp);
+                    }
+                }
+            }
+
+            return dictProperties;
+        }
+
+        private static string GetFamilyName(Element elem)
+        {
+            if (elem == null)
+                return string.Empty;
+
+            var fname = string.Empty;
+            try
+            {
+                if (elem is FamilyInstance)
+                    fname = (elem as FamilyInstance).Symbol.Family.Name;
+            }
+            catch
+            { }
+
+            return fname;
+        }
+
+        /// <summary>
+        /// 获取文档中所有的轴网信息
+        /// </summary>
+        /// <param name="doc"></param>
+        /// <returns>返回的是个轴号和pLine线列表字段</returns>
+        public static List<GridData> GetGridFromDocument(Document doc)
+        {
+            var result = new List<GridData>();
+
+            var gridIds = (new FilteredElementCollector(doc)).OfClass(typeof(Grid)).ToElementIds();
+            var mGridIds = (new FilteredElementCollector(doc)).OfClass(typeof(MultiSegmentGrid)).ToElementIds();
+
+            foreach (var id in mGridIds)
+            {
+
+
+                var mgrid = doc.GetElement(id) as MultiSegmentGrid;
+                List<CurveData> curves = new List<CurveData>();
+                if (mgrid != null)
+                {
+                    var subIds = mgrid.GetGridIds();
+                    foreach (var subId in subIds)
+                    {
+                        gridIds.Remove(subId);
+
+                        var grid = doc.GetElement(subId) as Grid;
+                        if (grid != null)
+                            curves.Add(grid.Curve.ToCurveData());
+                    }
+                }
+
+                if (curves.Count > 0)
+                {
+                    result.Add(new GridData
+                    {
+                        Name = mgrid.Name,
+                        Curves = curves,
+                        Properties = Tools.GetPropertyFromElement(mgrid)
+                    });
+                }
+            }
+
+            foreach (var id in gridIds)
+            {
+                var grid = doc.GetElement(id) as Grid;
+                if (grid != null)
+                {
+                    result.Add(new GridData
+                    {
+                        Name = grid.Name,
+                        Curves = new List<CurveData> { grid.Curve.ToCurveData() },
+                        Properties = Tools.GetPropertyFromElement(grid)
+                    });
+                }
+            }
+
+            return result;
+        }
     }
 }

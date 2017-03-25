@@ -73,6 +73,7 @@ namespace Exporter
             converter.ModelBlock = context.ModelSpaceBlock;
             converter.DictBlocks = context.DictBlocks;
             converter.Levels = Tools.GetLevelsFromDocument(doc);
+            converter.Grids = Tools.GetGridFromDocument(doc);
             converter.WndParent = new WindowHandle(h);
             converter.BeginConvert(dlg.ExportSetting.SystemSetting.ExportFilePath);
                       
