@@ -186,10 +186,10 @@ namespace Exporter
             if (Levels == null)
                 return;
 
-            vdLayer layer = vDraw.ActiveDocument.Layers.FindName("GRID__");
+            vdLayer layer = vDraw.ActiveDocument.Layers.FindName(_gGridLayerName);
             if (layer == null)
             {
-                layer = new vdLayer(vDraw.ActiveDocument, "GRID__");
+                layer = new vdLayer(vDraw.ActiveDocument, _gGridLayerName);
                 vDraw.ActiveDocument.Layers.Add(layer);
             }
 
