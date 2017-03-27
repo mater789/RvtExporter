@@ -672,10 +672,13 @@ namespace Exporter
         }
 
         private MaterialData m_curOriginMaterialData = null;
+
+        /*
         public void OnDaylightPortal(DaylightPortalNode node)
         {
             //throw new NotImplementedException();
         }
+        */
 
         public void OnMaterial(MaterialNode node)
         {
