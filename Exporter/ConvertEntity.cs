@@ -10,7 +10,6 @@ using VectorDraw.Professional.vdPrimaries;
 using VectorDraw.Professional.vdCollections;
 using VectorDraw.Geometry;
 using Autodesk.Revit.DB;
-using Newtonsoft.Json;
 using VectorDraw.Professional.vdObjects;
 
 namespace Exporter
@@ -119,7 +118,8 @@ namespace Exporter
             {
                 try
                 {
-                    ProcessMaterialMapFile();
+                    // 处理贴图文件
+                    //ProcessMaterialMapFile();
 
                     var ser = new ModelSerializeEntity();
                     ser.Blocks = DictBlocks;

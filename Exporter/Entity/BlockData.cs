@@ -4,7 +4,6 @@ using System.Linq;
 using System.Text;
 
 using Autodesk.Revit.DB;
-using Newtonsoft.Json;
 using ProtoBuf;
 
 namespace Exporter

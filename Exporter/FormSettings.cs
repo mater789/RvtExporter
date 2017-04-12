@@ -125,7 +125,7 @@ namespace Exporter
         {
             SaveFileDialog dlg = new SaveFileDialog();
 
-            dlg.Filter = chkUserDefineFormat.Checked ? "自定义文件(*.txt)|*.txt": "模型文件(*.vdcl)|*.vdcl";
+            dlg.Filter = chkUserDefineFormat.Checked ? "自定义文件(*.sdp)|*.sdp" : "模型文件(*.vdcl)|*.vdcl";
             if (dlg.ShowDialog(this) != DialogResult.OK)
                 return;
 
@@ -140,7 +140,7 @@ namespace Exporter
 
             string fileDir = Path.GetDirectoryName(file);
             string fileName = Path.GetFileNameWithoutExtension(file);
-            string externsion = chkUserDefineFormat.Checked ? ".txt" : ".vdcl";
+            string externsion = chkUserDefineFormat.Checked ? ".sdp" : ".vdcl";
 
             textFilePath.Text = fileDir + "\\" + fileName + externsion;
         }
