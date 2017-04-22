@@ -73,7 +73,7 @@ namespace Exporter
                 return false;
             }
 
-            if (!strValue.EndsWith(".vdcl", StringComparison.OrdinalIgnoreCase) && !strValue.EndsWith(".txt", StringComparison.OrdinalIgnoreCase))
+            if (!strValue.EndsWith(".vdcl", StringComparison.OrdinalIgnoreCase) && !strValue.EndsWith(".sdp", StringComparison.OrdinalIgnoreCase))
             {
                 message = "输出的路径不正确！";
                 return false;

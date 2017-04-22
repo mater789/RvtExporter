@@ -272,8 +272,6 @@ namespace Exporter
                 return Result.Cancelled;
 
             Stopwatch sw = new Stopwatch();
-
-
             using (Stream s = File.OpenRead(dlg.FileName))
             {
                 //从文件中读取并反序列化到对象
