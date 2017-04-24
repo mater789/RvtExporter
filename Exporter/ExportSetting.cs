@@ -66,6 +66,7 @@ namespace Exporter
             this.IsOptimizeCylinderFace = true;
             this.IsOriginMaterial = false;
             this.IsUserDefineFormat = false;
+            this.IsExportTextureFile = false;
             this.ExportFilePath = string.Empty;
             this.DefaultLayerName = string.Empty;
         }
@@ -109,6 +110,12 @@ namespace Exporter
         public bool IsUserDefineFormat
         {
             get;set;
+        }
+
+        public bool IsExportTextureFile
+        {
+            get;
+            set;
         }
 
         public string DefaultLayerName

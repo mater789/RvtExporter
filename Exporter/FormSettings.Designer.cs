@@ -51,6 +51,7 @@
             this.label4 = new System.Windows.Forms.Label();
             this.textWidth = new System.Windows.Forms.TextBox();
             this.label3 = new System.Windows.Forms.Label();
+            this.chkTextureFile = new System.Windows.Forms.CheckBox();
             this.tabControl1.SuspendLayout();
             this.tabPageSystem.SuspendLayout();
             this.tabPageParking.SuspendLayout();
@@ -142,6 +143,7 @@
             // 
             // tabPageSystem
             // 
+            this.tabPageSystem.Controls.Add(this.chkTextureFile);
             this.tabPageSystem.Controls.Add(this.chkUserDefineFormat);
             this.tabPageSystem.Controls.Add(this.chkExportGrid);
             this.tabPageSystem.Controls.Add(this.label6);
@@ -300,6 +302,16 @@
             this.label3.TabIndex = 7;
             this.label3.Text = "编号大小范围：";
             // 
+            // chkTextureFile
+            // 
+            this.chkTextureFile.AutoSize = true;
+            this.chkTextureFile.Location = new System.Drawing.Point(108, 81);
+            this.chkTextureFile.Name = "chkTextureFile";
+            this.chkTextureFile.Size = new System.Drawing.Size(96, 16);
+            this.chkTextureFile.TabIndex = 18;
+            this.chkTextureFile.Text = "导出材质贴图";
+            this.chkTextureFile.UseVisualStyleBackColor = true;
+            // 
             // FormSettings
             // 
             this.AcceptButton = this.btnStartExport;
@@ -347,5 +359,6 @@
         private System.Windows.Forms.TextBox txtDefaultLayer;
         private System.Windows.Forms.CheckBox chkExportGrid;
         private System.Windows.Forms.CheckBox chkUserDefineFormat;
+        private System.Windows.Forms.CheckBox chkTextureFile;
     }
 }

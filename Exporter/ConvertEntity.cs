@@ -119,7 +119,7 @@ namespace Exporter
                 try
                 {
                     // 处理贴图文件
-                    //ProcessMaterialMapFile();
+                    ProcessMaterialMapFile();
 
                     var ser = new ModelSerializeEntity();
                     ser.Blocks = DictBlocks;

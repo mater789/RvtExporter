@@ -49,6 +49,8 @@ namespace Exporter
             chkExportGrid.Checked = this.ExportSetting.SystemSetting.IsExportGrid;
             chkOptimize.Checked = this.ExportSetting.SystemSetting.IsOptimizeCylinderFace;
             chkOriginMaterial.Checked = this.ExportSetting.SystemSetting.IsOriginMaterial;
+            chkUserDefineFormat.Checked = this.ExportSetting.SystemSetting.IsUserDefineFormat;
+            chkTextureFile.Checked = this.ExportSetting.SystemSetting.IsExportTextureFile;
             textFilePath.Text = this.ExportSetting.SystemSetting.ExportFilePath;
 
             textPropertyName.Text = this.ExportSetting.ParkingExportSetting.PropertyName;
@@ -65,6 +67,7 @@ namespace Exporter
             this.ExportSetting.SystemSetting.IsOptimizeCylinderFace = chkOptimize.Checked;
             this.ExportSetting.SystemSetting.IsOriginMaterial = chkOriginMaterial.Checked;
             this.ExportSetting.SystemSetting.IsUserDefineFormat = chkUserDefineFormat.Checked;
+            this.ExportSetting.SystemSetting.IsExportTextureFile = chkTextureFile.Checked;
 
             string strValue = textFilePath.Text.Trim();
             if (strValue.Length < 1)
@@ -80,7 +83,6 @@ namespace Exporter
             }
 
             this.ExportSetting.SystemSetting.ExportFilePath = strValue;
-
             this.ExportSetting.ParkingExportSetting.PropertyName = textPropertyName.Text.Trim();
 
             double dValue = -1;
