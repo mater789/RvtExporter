@@ -21,6 +21,10 @@ namespace Exporter
         private ElementId m_curMaterialId = ElementId.InvalidElementId;
         private List<ElementId> m_listMaterialID = new List<ElementId>();
 
+        public bool IsOptimisePipeEntity = true;
+
+
+
         /// <summary>
         /// 提前收集好的材质信息
         /// </summary>
@@ -525,6 +529,9 @@ namespace Exporter
         /// <returns></returns>
         private bool ProcessRoundedPipeEntity(Element elem, BlockData block, string materialName)
         {
+            if (!IsOptimisePipeEntity)
+                return false;
+
             MEPCurve curve = elem as MEPCurve;
             if (curve == null)
                 return false;
