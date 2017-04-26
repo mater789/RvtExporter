@@ -62,7 +62,7 @@ namespace Exporter
             this.IsModifyUnit = false;
             this.IsExportLinkModel = false;
             this.IsExportProperty = true;
-            this.IsExportGrid = false;
+            this.IsExportGrid = true;
             this.IsOptimizeCylinderFace = true;
             this.IsOriginMaterial = false;
             this.IsUserDefineFormat = false;
