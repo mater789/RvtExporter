@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Text;
 using System.Linq;
 using System.Windows.Forms;
@@ -689,19 +690,27 @@ namespace Exporter
 
         public void OnMaterial(MaterialNode node)
         {
-            m_curOriginMaterialData = null;
-            m_curMaterialId = node.MaterialId;
-            if (node.Color.IsValid)
+            try
             {
-                m_curOriginMaterialData = new MaterialData();
-                m_curOriginMaterialData.Color.Red = node.Color.Red;
-                m_curOriginMaterialData.Color.Green = node.Color.Green;
-                m_curOriginMaterialData.Color.Blue = node.Color.Blue;
-                m_curOriginMaterialData.Transparency = (int)(255 * node.Transparency);
-                m_curOriginMaterialData.Name = "Color_" + node.Color.Red.ToString() + "-" +
-                    node.Color.Green.ToString() + "-" +
-                    node.Color.Blue.ToString() + "-" +
-                    m_curOriginMaterialData.Transparency.ToString();
+                m_curOriginMaterialData = null;
+                m_curMaterialId = node.MaterialId;
+                if (node.Color.IsValid)
+                {
+                    m_curOriginMaterialData = new MaterialData();
+                    m_curOriginMaterialData.Color.Red = node.Color.Red;
+                    m_curOriginMaterialData.Color.Green = node.Color.Green;
+                    m_curOriginMaterialData.Color.Blue = node.Color.Blue;
+                    m_curOriginMaterialData.Transparency = (int)(255 * node.Transparency);
+                    m_curOriginMaterialData.Name = "Color_" + node.Color.Red.ToString() + "-" +
+                        node.Color.Green.ToString() + "-" +
+                        node.Color.Blue.ToString() + "-" +
+                        m_curOriginMaterialData.Transparency.ToString();
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("throw from OnMaterial." + ex.Message);
+                throw ex;
             }
         }
 
@@ -712,70 +721,78 @@ namespace Exporter
 
         public void OnPolymesh(PolymeshTopology polyMesh)
         {
-            // 如果是个模型空间的直接实体，包装一层块
-            if (m_bPackageEntityToBlock && CurrentBlockData == ModelSpaceBlock)
+            try
             {
-                if (m_bIsNewElementBegin)
+                // 如果是个模型空间的直接实体，包装一层块
+                if (m_bPackageEntityToBlock && CurrentBlockData == ModelSpaceBlock)
                 {
-                    m_bIsNewElementBegin = false;
+                    if (m_bIsNewElementBegin)
+                    {
+                        m_bIsNewElementBegin = false;
 
-                    _userCreateBlock = new BlockData();
+                        _userCreateBlock = new BlockData();
 
-                    string elementName = CurrentElement == null ? string.Empty : CurrentElement.Name;
-                    _userCreateBlock.Name = "D__" + elementName + "#" + CurrentElementId.ToString();
+                        string elementName = CurrentElement == null ? string.Empty : CurrentElement.Name;
+                        _userCreateBlock.Name = "D__" + elementName + "#" + CurrentElementId.ToString();
 
-                    InsertData ins = new InsertData();
-                    //ins.BlockRef = userCreateBlock;
-                    ins.BlockName = _userCreateBlock.Name;
-                    ins.TransMatrix = GetTransData(Transform.Identity);
-                    ins.DictProperties = GetPropertiesAndLocationFromElement(CurrentElement);
-                    CurrentBlockData.Inserts.Add(ins);
-                    m_dictBlock.Add(_userCreateBlock.Name, _userCreateBlock);
+                        InsertData ins = new InsertData();
+                        //ins.BlockRef = userCreateBlock;
+                        ins.BlockName = _userCreateBlock.Name;
+                        ins.TransMatrix = GetTransData(Transform.Identity);
+                        ins.DictProperties = GetPropertiesAndLocationFromElement(CurrentElement);
+                        CurrentBlockData.Inserts.Add(ins);
+                        m_dictBlock.Add(_userCreateBlock.Name, _userCreateBlock);
+                    }
                 }
-            }
 
-            MeshData mesh = GetMeshDataFromPolymesh(polyMesh);
+                MeshData mesh = GetMeshDataFromPolymesh(polyMesh);
 
-            // 以下的材质获取，优先选用 m_curElementMaterialData，再者选用m_curMaterialId指代的material，最后选用m_curOriginMaterialData，如果再为空则使用“NoMaterial”
-            string materialName = string.Empty;
-            if (m_curElementMaterialData != null)
-            {
-                AddMaterial(m_curElementMaterialData);
-                materialName = m_curElementMaterialData.Name;
-            }
-            else
-            {
-                Material material = m_doc.GetElement(m_curMaterialId) as Material;
-                if (material != null)
+                // 以下的材质获取，优先选用 m_curElementMaterialData，再者选用m_curMaterialId指代的material，最后选用m_curOriginMaterialData，如果再为空则使用“NoMaterial”
+                string materialName = string.Empty;
+                if (m_curElementMaterialData != null)
                 {
-                    AddMaterial(material);
-                    materialName = material.Name;
+                    AddMaterial(m_curElementMaterialData);
+                    materialName = m_curElementMaterialData.Name;
                 }
                 else
                 {
-                    if (m_curOriginMaterialData != null)
+                    Material material = m_doc.GetElement(m_curMaterialId) as Material;
+                    if (material != null)
                     {
-                        AddMaterial(m_curOriginMaterialData);
-                        materialName = m_curOriginMaterialData.Name;
+                        AddMaterial(material);
+                        materialName = material.Name;
                     }
                     else
                     {
-                        AddMaterial(material);  // 其实是个空材质null
-                        materialName = "NoMaterial";
+                        if (m_curOriginMaterialData != null)
+                        {
+                            AddMaterial(m_curOriginMaterialData);
+                            materialName = m_curOriginMaterialData.Name;
+                        }
+                        else
+                        {
+                            AddMaterial(material);  // 其实是个空材质null
+                            materialName = "NoMaterial";
+                        }
                     }
                 }
-            }
-            mesh.MaterialName = materialName;
+                mesh.MaterialName = materialName;
 
-            // 如果是模型空间的直接实体，包装成为一个特殊块
-            if (m_bPackageEntityToBlock && CurrentBlockData == ModelSpaceBlock && _userCreateBlock != null)
-            {
-                // 如果处理管道失败
-                if (!ProcessRoundedPipeEntity(CurrentElement, _userCreateBlock, materialName))
-                    _userCreateBlock.Meshs.Add(mesh);
+                // 如果是模型空间的直接实体，包装成为一个特殊块
+                if (m_bPackageEntityToBlock && CurrentBlockData == ModelSpaceBlock && _userCreateBlock != null)
+                {
+                    // 如果处理管道失败
+                    if (!ProcessRoundedPipeEntity(CurrentElement, _userCreateBlock, materialName))
+                        _userCreateBlock.Meshs.Add(mesh);
+                }
+                else
+                    CurrentBlockData.Meshs.Add(mesh);
             }
-            else
-                CurrentBlockData.Meshs.Add(mesh);
+            catch (Exception ex)
+            {
+                MessageBox.Show("throw from OnPolymesh. " + ex.Message);
+                throw ex;
+            }
         }
 
         public bool IsCanceled()
@@ -861,71 +878,122 @@ namespace Exporter
 
         public RenderNodeAction OnInstanceBegin(InstanceNode node)
         {
-            m_stackTrans.Push(m_stackTrans.Peek().Multiply(node.GetTransform()));
-
-            FamilySymbol fs = m_doc.GetElement(node.GetSymbolId()) as FamilySymbol;
-            //string name = fs == null ? "null" : fs.Name;
-            string blockName = node.NodeName + "#" + node.GetSymbolId().ToString();
-            if (m_curElementMaterialData != null)   // 如果设置了颜色，则使用不同的块
-                blockName += "#" + m_curElementMaterialData.Name;
-
-            BlockData blk = null;
-            bool bBlkAlreadyExist = m_dictBlock.TryGetValue(blockName, out blk);
-            if (!bBlkAlreadyExist)
+            try
             {
-                blk = new BlockData();
-                blk.Name = blockName;
-                m_dictBlock.Add(blk.Name, blk);
+                m_stackTrans.Push(m_stackTrans.Peek().Multiply(node.GetTransform()));
+
+                FamilySymbol fs = m_doc.GetElement(node.GetSymbolId()) as FamilySymbol;
+                //string name = fs == null ? "null" : fs.Name;
+                string blockName = node.NodeName + "#" + node.GetSymbolId().ToString();
+                if (m_curElementMaterialData != null)   // 如果设置了颜色，则使用不同的块
+                    blockName += "#" + m_curElementMaterialData.Name;
+
+                Debug.WriteLine("--- instance begin, blkname: " + blockName);
+
+                BlockData blk = null;
+                bool bBlkAlreadyExist = m_dictBlock.TryGetValue(blockName, out blk);
+                if (!bBlkAlreadyExist)
+                {
+                    blk = new BlockData();
+                    blk.Name = blockName;
+                    Debug.WriteLine("--- not exist, added!");
+                    m_dictBlock.Add(blk.Name, blk);
+                }
+                else
+                {
+                    Debug.WriteLine("--- already exist, add __tmpBlk__ follow!");
+
+                    blockName = blockName + "__tmpBlk__";
+
+                    if (m_dictBlock.TryGetValue(blockName, out blk))
+                    {
+                        InsertData insData = new InsertData();
+                        insData.BlockName = blk.Name;
+                        insData.TransMatrix = GetTransData(node.GetTransform());
+                        if (CurrentBlockData == ModelSpaceBlock)
+                            insData.DictProperties = GetPropertiesAndLocationFromElement(CurrentElement);
+                        CurrentBlockData.Inserts.Add(insData);
+
+
+                        _insertStack.Push(insData);
+                        m_stackBlock.Push(blk);
+
+                        return RenderNodeAction.Skip;
+                    }
+                    else
+                    {
+                        blk = new BlockData();
+                        blk.Name = blockName;
+                        m_dictBlock.Add(blk.Name, blk);
+                    }
+                }
+
+                InsertData insertData = new InsertData();
+                insertData.BlockName = blk.Name;
+                insertData.TransMatrix = GetTransData(node.GetTransform());
+                if (CurrentBlockData == ModelSpaceBlock)
+                    insertData.DictProperties = GetPropertiesAndLocationFromElement(CurrentElement);
+                CurrentBlockData.Inserts.Add(insertData);
+
+                _insertStack.Push(insertData);
+
+                m_stackBlock.Push(blk);
+
+                return RenderNodeAction.Proceed;
             }
-            else
+            catch (Exception e)
             {
-                blk = new BlockData();
-                blk.Name = blockName + "__tmpBlk__";
-                m_dictBlock.Add(blk.Name, blk);
+                MessageBox.Show("throw from OnInstanceBegin. " + e.Message);
+                throw e;
             }
-
-            InsertData insertData = new InsertData();
-            //insertData.BlockRef = blk;
-            insertData.BlockName = blk.Name;
-            insertData.TransMatrix = GetTransData(node.GetTransform());
-            if (CurrentBlockData == ModelSpaceBlock)
-                insertData.DictProperties = GetPropertiesAndLocationFromElement(CurrentElement);
-            CurrentBlockData.Inserts.Add(insertData);
-
-            _insertStack.Push(insertData);
-
-            m_stackBlock.Push(blk);
-
-            return RenderNodeAction.Proceed;
         }
 
         public void OnInstanceEnd(InstanceNode node)
         {
-            var curIns = _insertStack.Peek();
-
-            m_stackTrans.Pop();
-            m_stackBlock.Pop();
-
-            if (!m_dictBlock.ContainsKey(curIns.BlockName))
-                return;
-
-            var curBlk = m_dictBlock[curIns.BlockName];
-            if (curBlk == null)
-                return;
-
-
-            if (curBlk.Meshs.Count < 1 && curBlk.Inserts.Count < 1 && !curBlk.IsPipe)
+            try
             {
-                var has = CurrentBlockData.Inserts.Remove(curIns);
-                m_dictBlock.Remove(curIns.BlockName);
+                var curIns = _insertStack.Peek();
+
+                _insertStack.Pop();
+
+                m_stackTrans.Pop();
+                m_stackBlock.Pop();
+
+                Debug.WriteLine("--- Instance end.");
+                if (!m_dictBlock.ContainsKey(curIns.BlockName))
+                {
+                    Debug.WriteLine("--- blk Not exist: " + curIns.BlockName);
+                    return;
+                }
+
+                var curBlk = m_dictBlock[curIns.BlockName];
+                if (curBlk == null)
+                    return;
+
+
+                if (curBlk.Meshs.Count < 1 && curBlk.Inserts.Count < 1 && !curBlk.IsPipe)
+                {
+                    var has = CurrentBlockData.Inserts.Remove(curIns);
+                    m_dictBlock.Remove(curIns.BlockName);
+                    Debug.WriteLine("--- blk removed: " + curIns.BlockName);
+                }
+                else if (curIns.BlockName.EndsWith("__tmpBlk__"))
+                {
+                    Debug.WriteLine("--- blk endwith '__tmpBlk__': " + curIns.BlockName + " --- removed!");
+
+                    m_dictBlock.Remove(curIns.BlockName);
+
+                    var extName = curIns.BlockName.Substring(0, curIns.BlockName.Length - 10);
+                    if (m_dictBlock.ContainsKey(extName))
+                    {
+                        curIns.BlockName = extName;
+                        Debug.WriteLine("--- rename ins blk name with: " + extName);
+                    }
+                }
             }
-            else if (curIns.BlockName.EndsWith("__tmpBlk__"))
+            catch (Exception e)
             {
-                m_dictBlock.Remove(curIns.BlockName);
-
-                var extName = curIns.BlockName.Substring(0, curIns.BlockName.Length - 10);
-                if (m_dictBlock.ContainsKey(extName))
-                    curIns.BlockName = extName;
+                MessageBox.Show("throw from OnInstanceEnd. " + e.Message);
             }
         }
 

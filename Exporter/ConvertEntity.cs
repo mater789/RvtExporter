@@ -166,9 +166,11 @@ namespace Exporter
 
                 if (this.ExportSetting != null && this.ExportSetting.ParkingExportSetting.PropertyName.Length > 0)
                 {
+                    /*
                     ReplaceParkingNumber replaceNumber = new ReplaceParkingNumber(vDraw);
                     replaceNumber.Setting = this.ExportSetting.ParkingExportSetting;
                     replaceNumber.ReplaceText();
+                    */
                 }
 
                 vDraw.ActiveDocument.ActiveLayOut.Entities.Sort(new CompareMethod());
