@@ -842,8 +842,6 @@ namespace Exporter
                 _insertStack.Push(insert);
                 */
 
-
-
                 // 新Element标记修改为true
                 if (m_bPackageEntityToBlock)
                     m_bIsNewElementBegin = true;

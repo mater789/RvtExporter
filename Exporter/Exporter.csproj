@@ -171,14 +171,6 @@
     <Compile Include="FormSettings.Designer.cs">
       <DependentUpon>FormSettings.cs</DependentUpon>
     </Compile>
-    <Compile Include="LitJson\IJsonWrapper.cs" />
-    <Compile Include="LitJson\JsonData.cs" />
-    <Compile Include="LitJson\JsonException.cs" />
-    <Compile Include="LitJson\JsonMapper.cs" />
-    <Compile Include="LitJson\JsonReader.cs" />
-    <Compile Include="LitJson\JsonWriter.cs" />
-    <Compile Include="LitJson\Lexer.cs" />
-    <Compile Include="LitJson\ParserToken.cs" />
     <Compile Include="ModelExportContext.cs" />
     <Compile Include="Entity\PointData.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
