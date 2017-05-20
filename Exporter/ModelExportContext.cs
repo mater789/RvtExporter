@@ -6,6 +6,7 @@ using System.Linq;
 using System.Windows.Forms;
 using Autodesk.Revit.DB;
 using System.IO;
+using Autodesk.Revit.DB.Architecture;
 using Autodesk.Revit.DB.Plumbing;
 using Autodesk.Revit.UI;
 using Autodesk.Revit.Utility;
@@ -723,6 +724,7 @@ namespace Exporter
         {
             try
             {
+                /*
                 // 如果是个模型空间的直接实体，包装一层块
                 if (m_bPackageEntityToBlock && CurrentBlockData == ModelSpaceBlock)
                 {
@@ -744,6 +746,7 @@ namespace Exporter
                         m_dictBlock.Add(_userCreateBlock.Name, _userCreateBlock);
                     }
                 }
+                */
 
                 MeshData mesh = GetMeshDataFromPolymesh(polyMesh);
 
@@ -826,7 +829,6 @@ namespace Exporter
             {
                 m_stackElement.Push(elementId);
 
-                /*
                 var blkName = CurrentElement.Name + "#" + elementId.IntegerValue;
                 var blk = new BlockData();
                 blk.Name = blkName;
@@ -840,8 +842,14 @@ namespace Exporter
 
                 m_stackBlock.Push(blk);
                 _insertStack.Push(insert);
-                */
 
+                if (CurrentElement is StairsRun || CurrentElement is StairsLanding)
+                {
+                    m_dictBlock.Remove(blkName);
+                    ModelSpaceBlock.Inserts.Remove(insert);
+                    return RenderNodeAction.Skip;
+                }
+                
                 // 新Element标记修改为true
                 if (m_bPackageEntityToBlock)
                     m_bIsNewElementBegin = true;
@@ -866,10 +874,10 @@ namespace Exporter
             m_curElementMaterialData = null;
             m_stackElement.Pop();
 
-            /*
+
             m_stackBlock.Pop();
             _insertStack.Pop();
-            */
+
         }
 
         private Stack<InsertData> _insertStack = new Stack<InsertData>();

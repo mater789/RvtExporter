@@ -126,6 +126,9 @@ namespace Exporter
                     ser.Materials = Materials;
                     ser.Levels = Levels;
 
+                    if (File.Exists(fileName))
+                        File.Delete(fileName);
+
                     using (Stream s = File.OpenWrite(fileName))
                     {
                         ProtoBuf.Serializer.Serialize<ModelSerializeEntity>(s, ser);
