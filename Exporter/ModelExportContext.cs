@@ -823,13 +823,28 @@ namespace Exporter
 
         }
 
+        private bool _isElementSkiped = false;
+
         public RenderNodeAction OnElementBegin(ElementId elementId)
         {
             try
             {
+                _isElementSkiped = false;
                 m_stackElement.Push(elementId);
 
                 var blkName = CurrentElement.Name + "#" + elementId.IntegerValue;
+                if (m_dictBlock.ContainsKey(blkName))
+                {
+                    _isElementSkiped = true;
+                    return RenderNodeAction.Skip;
+                }
+
+                if (CurrentElement is StairsRun || CurrentElement is StairsLanding)
+                {
+                    _isElementSkiped = true;
+                    return RenderNodeAction.Skip;
+                }
+
                 var blk = new BlockData();
                 blk.Name = blkName;
                 m_dictBlock.Add(blkName, blk);
@@ -843,13 +858,6 @@ namespace Exporter
                 m_stackBlock.Push(blk);
                 _insertStack.Push(insert);
 
-                if (CurrentElement is StairsRun || CurrentElement is StairsLanding)
-                {
-                    m_dictBlock.Remove(blkName);
-                    ModelSpaceBlock.Inserts.Remove(insert);
-                    return RenderNodeAction.Skip;
-                }
-                
                 // 新Element标记修改为true
                 if (m_bPackageEntityToBlock)
                     m_bIsNewElementBegin = true;
@@ -875,9 +883,11 @@ namespace Exporter
             m_stackElement.Pop();
 
 
-            m_stackBlock.Pop();
-            _insertStack.Pop();
-
+            if (!_isElementSkiped)
+            {
+                m_stackBlock.Pop();
+                _insertStack.Pop();              
+            }
         }
 
         private Stack<InsertData> _insertStack = new Stack<InsertData>();
