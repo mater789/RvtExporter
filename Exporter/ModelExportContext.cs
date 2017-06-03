@@ -715,39 +715,10 @@ namespace Exporter
             }
         }
 
-        /// <summary>
-        /// 用来保存模型空间的直接块
-        /// </summary>
-        private BlockData _userCreateBlock = null;
-
         public void OnPolymesh(PolymeshTopology polyMesh)
         {
             try
-            {
-                /*
-                // 如果是个模型空间的直接实体，包装一层块
-                if (m_bPackageEntityToBlock && CurrentBlockData == ModelSpaceBlock)
-                {
-                    if (m_bIsNewElementBegin)
-                    {
-                        m_bIsNewElementBegin = false;
-
-                        _userCreateBlock = new BlockData();
-
-                        string elementName = CurrentElement == null ? string.Empty : CurrentElement.Name;
-                        _userCreateBlock.Name = "D__" + elementName + "#" + CurrentElementId.ToString();
-
-                        InsertData ins = new InsertData();
-                        //ins.BlockRef = userCreateBlock;
-                        ins.BlockName = _userCreateBlock.Name;
-                        ins.TransMatrix = GetTransData(Transform.Identity);
-                        ins.DictProperties = GetPropertiesAndLocationFromElement(CurrentElement);
-                        CurrentBlockData.Inserts.Add(ins);
-                        m_dictBlock.Add(_userCreateBlock.Name, _userCreateBlock);
-                    }
-                }
-                */
-
+            { 
                 MeshData mesh = GetMeshDataFromPolymesh(polyMesh);
 
                 // 以下的材质获取，优先选用 m_curElementMaterialData，再者选用m_curMaterialId指代的material，最后选用m_curOriginMaterialData，如果再为空则使用“NoMaterial”
@@ -781,14 +752,8 @@ namespace Exporter
                 }
                 mesh.MaterialName = materialName;
 
-                // 如果是模型空间的直接实体，包装成为一个特殊块
-                if (m_bPackageEntityToBlock && CurrentBlockData == ModelSpaceBlock && _userCreateBlock != null)
-                {
-                    // 如果处理管道失败
-                    if (!ProcessRoundedPipeEntity(CurrentElement, _userCreateBlock, materialName))
-                        _userCreateBlock.Meshs.Add(mesh);
-                }
-                else
+                // 如果处理管道失败
+                if (!ProcessRoundedPipeEntity(CurrentElement, CurrentBlockData, materialName))
                     CurrentBlockData.Meshs.Add(mesh);
             }
             catch (Exception ex)

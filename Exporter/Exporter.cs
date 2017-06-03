@@ -57,7 +57,7 @@ namespace Exporter
             context.IsExportProperty = dlg.ExportSetting.SystemSetting.IsExportProperty;
             context.ExtraMaterial = colorOverride.GetMaterials();
             context.ExtraElementColorSetting = colorOverride.GetElementColorSetting();
-            context.IsOptimisePipeEntity = !dlg.ExportSetting.SystemSetting.IsUserDefineFormat;
+            context.IsOptimisePipeEntity = true;
             CustomExporter exporter = new CustomExporter(doc, context);
 
             //exporter.IncludeFaces = false;
