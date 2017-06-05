@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.IO.Compression;
 using System.Linq;
 using System.Text;
 using System.Windows.Forms;
@@ -129,9 +130,15 @@ namespace Exporter
                     if (File.Exists(fileName))
                         File.Delete(fileName);
 
-                    using (Stream s = File.OpenWrite(fileName))
+                    using (FileStream fs = File.OpenWrite(fileName))
                     {
-                        ProtoBuf.Serializer.Serialize<ModelSerializeEntity>(s, ser);
+                        MemoryStream ms = new MemoryStream();
+                        ProtoBuf.Serializer.Serialize<ModelSerializeEntity>(ms, ser);
+                        var buffer = ms.ToArray();
+
+                        var compressedzipStream = new DeflateStream(fs, CompressionMode.Compress, true);
+                        compressedzipStream.Write(buffer, 0, buffer.Length);
+                        compressedzipStream.Close();
                     }
 
                     //var str = JsonConvert.SerializeObject(ser);
