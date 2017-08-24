@@ -42,40 +42,50 @@ namespace Exporter
             DialogResult dr = dlg.ShowDialog(new WindowHandle(h));
             if (dr != DialogResult.OK)
                 return Result.Cancelled;
-            
-            ElementColorOverride colorOverride = new ElementColorOverride();
-            if (!dlg.ExportSetting.SystemSetting.IsOriginMaterial)
-                colorOverride.ArrangeElemlentColor(doc, uidoc.ActiveView as View3D);
 
-            RevitEnvironmentSetting setting = new RevitEnvironmentSetting(doc);
-            if (dlg.ExportSetting.SystemSetting.IsModifyUnit)               
-                setting.ReadOriginUnitsAndSetNew();
-
-            ModelExportContext context = new ModelExportContext(doc);
-            context.BuiltInMaterialLibraryAsset = commandData.Application.Application.get_Assets(AssetType.Appearance);
-            context.IsPackageEntityToBlock = true;
-            context.IsExportProperty = dlg.ExportSetting.SystemSetting.IsExportProperty;
-            context.ExtraMaterial = colorOverride.GetMaterials();
-            context.ExtraElementColorSetting = colorOverride.GetElementColorSetting();
-            context.IsOptimisePipeEntity = true;
-            CustomExporter exporter = new CustomExporter(doc, context);
-
-            //exporter.IncludeFaces = false;
-            exporter.ShouldStopOnError = false;
-            exporter.Export(doc.ActiveView as View3D);
-
-            if (dlg.ExportSetting.SystemSetting.IsModifyUnit)
-                setting.RecoverOriginUnits();
 
             ConvertEntity converter = new ConvertEntity();
-            converter.OptimizeTriangle = dlg.ExportSetting.SystemSetting.IsOptimizeCylinderFace;
             converter.ExportSetting = dlg.ExportSetting;
-            converter.Materials = context.Materials;
-            converter.ModelBlock = context.ModelSpaceBlock;
-            converter.DictBlocks = context.DictBlocks;
-            converter.Levels = Tools.GetLevelsFromDocument(doc);
-            if (dlg.ExportSetting.SystemSetting.IsExportGrid)
-                converter.Grids = Tools.GetGridFromDocument(doc);
+            if (dlg.ExportSetting.SystemSetting.IsExportRebar)
+            {
+                converter.Rebars = Tools.GetRebaresInDocument(doc);
+            }
+            else
+            {
+                ElementColorOverride colorOverride = new ElementColorOverride();
+                if (!dlg.ExportSetting.SystemSetting.IsOriginMaterial)
+                    colorOverride.ArrangeElemlentColor(doc, uidoc.ActiveView as View3D);
+
+                RevitEnvironmentSetting setting = new RevitEnvironmentSetting(doc);
+                if (dlg.ExportSetting.SystemSetting.IsModifyUnit)
+                    setting.ReadOriginUnitsAndSetNew();
+
+                ModelExportContext context = new ModelExportContext(doc);
+                context.BuiltInMaterialLibraryAsset = commandData.Application.Application.get_Assets(AssetType.Appearance);
+                context.IsPackageEntityToBlock = true;
+                context.IsExportProperty = dlg.ExportSetting.SystemSetting.IsExportProperty;
+                context.ExtraMaterial = colorOverride.GetMaterials();
+                context.ExtraElementColorSetting = colorOverride.GetElementColorSetting();
+                context.IsOptimisePipeEntity = true;
+                CustomExporter exporter = new CustomExporter(doc, context);
+
+                //exporter.IncludeFaces = false;
+
+                exporter.ShouldStopOnError = false;
+                exporter.Export(doc.ActiveView as View3D);
+
+                if (dlg.ExportSetting.SystemSetting.IsModifyUnit)
+                    setting.RecoverOriginUnits();
+
+                converter.OptimizeTriangle = dlg.ExportSetting.SystemSetting.IsOptimizeCylinderFace;
+                converter.Materials = context.Materials;
+                converter.ModelBlock = context.ModelSpaceBlock;
+                converter.DictBlocks = context.DictBlocks;
+                converter.Levels = Tools.GetLevelsFromDocument(doc);
+                if (dlg.ExportSetting.SystemSetting.IsExportGrid)
+                    converter.Grids = Tools.GetGridFromDocument(doc);
+            }
+
             converter.WndParent = new WindowHandle(h);
             converter.BeginConvert(dlg.ExportSetting.SystemSetting.ExportFilePath);
                       

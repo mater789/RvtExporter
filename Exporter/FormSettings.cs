@@ -51,6 +51,7 @@ namespace Exporter
             chkOriginMaterial.Checked = this.ExportSetting.SystemSetting.IsOriginMaterial;
             chkUserDefineFormat.Checked = this.ExportSetting.SystemSetting.IsUserDefineFormat;
             chkTextureFile.Checked = this.ExportSetting.SystemSetting.IsExportTextureFile;
+            chkRebar.Checked = this.ExportSetting.SystemSetting.IsExportRebar;
             textFilePath.Text = this.ExportSetting.SystemSetting.ExportFilePath;
 
             textPropertyName.Text = this.ExportSetting.ParkingExportSetting.PropertyName;
@@ -68,6 +69,7 @@ namespace Exporter
             this.ExportSetting.SystemSetting.IsOriginMaterial = chkOriginMaterial.Checked;
             this.ExportSetting.SystemSetting.IsUserDefineFormat = chkUserDefineFormat.Checked;
             this.ExportSetting.SystemSetting.IsExportTextureFile = chkTextureFile.Checked;
+            this.ExportSetting.SystemSetting.IsExportRebar = chkRebar.Checked;
 
             string strValue = textFilePath.Text.Trim();
             if (strValue.Length < 1)
@@ -140,11 +142,23 @@ namespace Exporter
             if (string.IsNullOrEmpty(file))
                 return;
 
+            if (chkUserDefineFormat.Checked)
+                chkRebar.Checked = false;
+
             string fileDir = Path.GetDirectoryName(file);
             string fileName = Path.GetFileNameWithoutExtension(file);
             string externsion = chkUserDefineFormat.Checked ? ".sdp" : ".vdcl";
 
             textFilePath.Text = fileDir + "\\" + fileName + externsion;
+        }
+
+        private void chkRebar_CheckedChanged(object sender, EventArgs e)
+        {
+            if (chkUserDefineFormat.Checked && chkRebar.Checked)
+            {
+                chkRebar.Checked = false;
+            }
+                
         }
     }
 }

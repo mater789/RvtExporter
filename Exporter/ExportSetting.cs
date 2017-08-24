@@ -67,67 +67,31 @@ namespace Exporter
             this.IsOriginMaterial = false;
             this.IsUserDefineFormat = false;
             this.IsExportTextureFile = false;
+            this.IsExportRebar = false;
             this.ExportFilePath = string.Empty;
             this.DefaultLayerName = string.Empty;
         }
 
-        public bool IsModifyUnit
-        {
-            get;
-            set;
-        }
+        public bool IsModifyUnit { get; set; }
 
-        public bool IsExportLinkModel
-        {
-            get;
-            set;
-        }
+        public bool IsExportLinkModel { get; set; }
 
-        public bool IsExportProperty
-        {
-            get;
-            set;
-        }
+        public bool IsExportProperty { get; set; }
 
-        public bool IsExportGrid
-        {
-            get;
-            set;
-        }
+        public bool IsExportGrid { get; set; }
 
-        public bool IsOptimizeCylinderFace
-        {
-            get;
-            set;
-        }
+        public bool IsOptimizeCylinderFace { get; set; }
 
-        public bool IsOriginMaterial
-        {
-            get;
-            set;
-        }
+        public bool IsOriginMaterial { get; set; }
 
-        public bool IsUserDefineFormat
-        {
-            get;set;
-        }
+        public bool IsUserDefineFormat { get; set; }
 
-        public bool IsExportTextureFile
-        {
-            get;
-            set;
-        }
+        public bool IsExportTextureFile { get; set; }
 
-        public string DefaultLayerName
-        {
-            get;
-            set;
-        }
+        public string DefaultLayerName { get; set; }
 
-        public string ExportFilePath
-        {
-            get;
-            set;
-        }
+        public string ExportFilePath { get; set; }
+
+        public bool IsExportRebar { get; set; }
     }
 }

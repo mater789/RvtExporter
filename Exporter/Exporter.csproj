@@ -142,6 +142,7 @@
     <Compile Include="Entity\LocationData.cs" />
     <Compile Include="Entity\ModelSerializeEntity.cs" />
     <Compile Include="Entity\PipeInfo.cs" />
+    <Compile Include="Entity\RebarData.cs" />
     <Compile Include="Entity\SketchData.cs" />
     <Compile Include="Entity\TextureUV.cs" />
     <Compile Include="Entity\TransformData.cs" />

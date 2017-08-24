@@ -812,6 +812,9 @@ namespace Exporter
 
                 var blk = new BlockData();
                 blk.Name = blkName;
+                var typeid = CurrentElement.GetTypeId();
+                if (typeid != ElementId.InvalidElementId)
+                    blk.DictProperties = Tools.GetPropertyFromElement(CurrentElement.Document.GetElement(typeid));
                 m_dictBlock.Add(blkName, blk);
 
                 var insert = new InsertData();
@@ -892,7 +895,16 @@ namespace Exporter
                         insData.BlockName = blk.Name;
                         insData.TransMatrix = GetTransData(node.GetTransform());
                         if (CurrentBlockData == ModelSpaceBlock)
+                        {
                             insData.DictProperties = GetPropertiesAndLocationFromElement(CurrentElement);
+                            if (blk.DictProperties.Count < 1)
+                            {
+                                var typeid = CurrentElement.GetTypeId();
+                                if (typeid != ElementId.InvalidElementId)
+                                    blk.DictProperties = Tools.GetPropertyFromElement(CurrentElement.Document.GetElement(typeid));
+                            }
+                        }
+
                         CurrentBlockData.Inserts.Add(insData);
 
 
@@ -913,7 +925,16 @@ namespace Exporter
                 insertData.BlockName = blk.Name;
                 insertData.TransMatrix = GetTransData(node.GetTransform());
                 if (CurrentBlockData == ModelSpaceBlock)
+                {
                     insertData.DictProperties = GetPropertiesAndLocationFromElement(CurrentElement);
+                    if (blk.DictProperties.Count < 1)
+                    {
+                        var typeid = CurrentElement.GetTypeId();
+                        if (typeid != ElementId.InvalidElementId)
+                            blk.DictProperties = Tools.GetPropertyFromElement(CurrentElement.Document.GetElement(typeid));
+                    }
+                }
+
                 CurrentBlockData.Inserts.Add(insertData);
 
                 _insertStack.Push(insertData);

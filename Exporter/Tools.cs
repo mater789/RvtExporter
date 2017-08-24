@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Autodesk.Revit.DB;
+using Autodesk.Revit.DB.Structure;
 using Autodesk.Revit.Utility;
 using VectorDraw.Geometry;
 using VectorDraw.Professional.vdPrimaries;
@@ -506,8 +507,6 @@ namespace Exporter
 
             foreach (var id in mGridIds)
             {
-
-
                 var mgrid = doc.GetElement(id) as MultiSegmentGrid;
                 List<CurveData> curves = new List<CurveData>();
                 if (mgrid != null)
@@ -549,6 +548,141 @@ namespace Exporter
             }
 
             return result;
+        }
+
+        /// <summary>
+        /// 获取文档中所有的钢筋信息
+        /// </summary>
+        /// <param name="doc"></param>
+        /// <returns></returns>
+        public static List<RebarData> GetRebaresInDocument(Document doc)
+        {
+            var result = new List<RebarData>();
+            var rebares = GetElementInDocument<Rebar>(doc);
+            foreach (var rb in rebares)
+            {
+                var rd = new RebarData();
+                rd.CurvePoints = new List<PointData>();
+                rd.Properties = GetPropertyFromElement(rb);
+
+                if (rb.LayoutRule == RebarLayoutRule.Single)
+                {
+                }
+                else if (rb.LayoutRule == RebarLayoutRule.NumberWithSpacing)
+                {
+                    var line = rb.GetDistributionPath();
+                    rd.DistributionVector = line.Direction.ToPointData();
+                    rd.RepeatDistance = rb.MaxSpacing;
+                    rd.RepeatCount = rb.NumberOfBarPositions;
+                }
+
+                var curves = rb.GetCenterlineCurves(false, false, false);
+                foreach (var curve in curves)
+                {
+                    if (curve is Line)
+                    {
+                        rd.CurvePoints.Add(curve.GetEndPoint(0).ToPointData());
+                        rd.CurvePoints.Add(curve.GetEndPoint(1).ToPointData());
+                    }
+                    else if (curve is Arc)
+                    {
+                        var pts = curve.Tessellate();
+                        rd.CurvePoints.AddRange(pts.Select(pt => pt.ToPointData()).ToList());
+                    }
+                }
+
+                result.Add(rd);
+            }
+
+            return result;
+        }
+
+        public static List<T> GetElementInDocument<T>(Document doc)
+        {
+            if (doc == null)
+                throw new ArgumentNullException(nameof(doc));
+
+            var classFilter = new ElementClassFilter(typeof(T));
+            //var levelCategoryFilter = new ElementCategoryFilter(BuiltInCategory.OST_Levels);
+            //var logicalFilter = new LogicalAndFilter(classFilter, levelCategoryFilter);
+
+            var collector = new FilteredElementCollector(doc);
+            var levElems = collector.WherePasses(classFilter).ToElements();
+
+            return levElems.Cast<T>().ToList();
+        }
+
+        public static List<T> GetNotNativeElementInDocument<T>(Document doc)
+        {
+            if (doc == null)
+                throw new ArgumentNullException(nameof(doc));
+
+            return (new FilteredElementCollector(doc)).OfClass(typeof(SpatialElement)).OfType<T>().ToList();
+        }
+
+        public static List<FamilyInstance> GetFamilyInstanceInDocument(Document doc, BuiltInCategory cate)
+        {
+            if (doc == null)
+                throw new ArgumentNullException(nameof(doc));
+
+            var categoryFilter = new ElementCategoryFilter(cate);
+            var collector = new FilteredElementCollector(doc);
+            var elems = collector.WherePasses(categoryFilter).ToElements();
+            return elems.OfType<FamilyInstance>().ToList();
+        }
+
+        public static Vertexes GetVertexesFromPoints(List<PointData> points)
+        {
+            Vertexes vtxs = new Vertexes();
+            gPoints gps = new gPoints();
+            points.ForEach(pt => gps.Add(new gPoint(pt.X, pt.Y, pt.Z)));
+            gps.RemoveEqualPoints(0.01);
+
+            vtxs.AddRange(gps);
+            return vtxs;
+        }
+
+        /*
+            Revit中导出的多段轴网信息很奇怪，首先，对于直线段，直线的起始、终止点和点击时的顺序是相反的，但是多段线的顺序是正确的，所以整个
+            排序就变成了“终点”-“起点”-“终点”-“起点”的方式，所以在导出的时候，程序处理时反着顺序导出，就可以正常得到“起点”-“终点”
+            的顺序了。其次，如果遇上了圆弧段，圆弧段的起点、终点的顺序是和点击的顺序是一致的，所以遇到圆弧段，输出的起点和终点交换，这样就
+            可以正确输出了。下面的两个方法就是用来处理这个。
+        */
+
+        public static Vertexes GetVertexesFromCurves(List<CurveData> curves)
+        {
+
+            Vertexes vs = new Vertexes();
+            for (int i = curves.Count - 1; i >= 0; i--)
+            {
+                Vertex vStart, vEnd;
+                GetVertexFromSingleCurve(curves[i], out vStart, out vEnd);
+
+                vs.Add(vStart);
+                if (i == 0)
+                    vs.Add(vEnd);
+            }
+
+            return vs;
+        }
+
+        public static void GetVertexFromSingleCurve(CurveData curve, out Vertex vStart, out Vertex vEnd)
+        {
+            vStart = new Vertex(curve.Points[0].X, curve.Points[0].Y, curve.Points[0].Z);
+            vEnd = new Vertex(curve.Points[1].X, curve.Points[1].Y, curve.Points[1].Z);
+
+            if (curve.IsArc)
+            {
+                var vtmp = vStart;
+                vStart = vEnd;
+                vEnd = vtmp;
+
+                int dDirection = curve.Normal.Z > 0 ? 1 : -1;
+                double angle = curve.StartParameter - curve.EndParameter;
+
+                // 凸度的定义是：圆弧段圆心角四分之一的正切值。正负决定圆弧方向
+                vStart.Bulge = dDirection * Math.Tan(angle / 4);
+            }
         }
     }
 }

@@ -10,7 +10,7 @@ using VectorDraw.Professional.vdFigures;
 using VectorDraw.Professional.vdPrimaries;
 using VectorDraw.Professional.vdCollections;
 using VectorDraw.Geometry;
-using Autodesk.Revit.DB;
+//using Autodesk.Revit.DB;
 using VectorDraw.Professional.vdObjects;
 
 namespace Exporter
@@ -39,6 +39,8 @@ namespace Exporter
             get;
             set;
         }
+
+        public List<RebarData> Rebars { get; set; }
 
         public List<LevelData> Levels { get; set; }
 
@@ -155,42 +157,134 @@ namespace Exporter
             else
             {
                 InitRenderProperty();
-                InitMaterialLayers();
-                InitEntityInModelBlock();
-                AddGridPolyline();
-                AddLevelData();
 
                 if (m_formProgress == null || m_formProgress.IsDisposed)
                     m_formProgress = new FormProgress();
 
                 m_formProgress.Show(this.WndParent);
 
-                if (m_OptimizeTriangle)
+                if (this.ExportSetting.SystemSetting.IsExportRebar)
                 {
-                    m_formProgress.Text = "正在优化数据...";
-                    ReduceTris.CRevit2vdl redTri = new ReduceTris.CRevit2vdl();
-                    redTri.FamilySketchDictionary = this.FamilySketchDictionary;
-                    redTri.InstanceLocationDictionary = this.InstanceLocationCurveDictionary;
-                    redTri.Convert(vDraw.ActiveDocument, m_formProgress.progressBar, fileName);
+                    AddRebarData();
                 }
-
-                if (this.ExportSetting != null && this.ExportSetting.ParkingExportSetting.PropertyName.Length > 0)
+                else
                 {
-                    /*
-                    ReplaceParkingNumber replaceNumber = new ReplaceParkingNumber(vDraw);
-                    replaceNumber.Setting = this.ExportSetting.ParkingExportSetting;
-                    replaceNumber.ReplaceText();
-                    */
+                    InitMaterialLayers();
+                    InitEntityInModelBlock();
+                    AddGridPolyline();
+                    AddLevelData();
+
+                    if (m_OptimizeTriangle)
+                    {
+                        m_formProgress.Text = "正在优化数据...";
+                        ReduceTris.CRevit2vdl redTri = new ReduceTris.CRevit2vdl();
+                        redTri.FamilySketchDictionary = this.FamilySketchDictionary;
+                        redTri.InstanceLocationDictionary = this.InstanceLocationCurveDictionary;
+                        redTri.Convert(vDraw.ActiveDocument, m_formProgress.progressBar, fileName);
+                    }
+
+                    if (this.ExportSetting != null && this.ExportSetting.ParkingExportSetting.PropertyName.Length > 0)
+                    {
+                        //ReplaceParkingNumber replaceNumber = new ReplaceParkingNumber(vDraw);
+                        //replaceNumber.Setting = this.ExportSetting.ParkingExportSetting;
+                        //replaceNumber.ReplaceText();
+                    }
                 }
 
                 vDraw.ActiveDocument.ActiveLayOut.Entities.Sort(new CompareMethod());
 
                 m_formProgress.Text = "正在保存";
                 bool bResult = vDraw.ActiveDocument.SaveAs(fileName);
-                m_formProgress.Close();
+                m_formProgress?.Close();
 
                 MessageBox.Show(bResult ? "导出完成！" : "导出失败！");
             }
+        }
+
+        private void AddRebarData()
+        {
+            if (Rebars == null)
+                return;
+
+            foreach (RebarData rd in Rebars)
+            {
+                rd.ConvertToMM();
+
+                var pl = CreatePolylineFromPoints(rd.CurvePoints);
+                pl.PenColor.ColorIndex = 1;
+                SetEntityLayer(pl, "Rebar_CenterLine");
+                var pf = CreatePolyFaceFromCurve(pl, 20);
+                SetEntityLayer(pf, "Rebar");
+
+                if (m_formProgress != null && !m_formProgress.IsDisposed)
+                {
+                    int cur = Rebars.IndexOf(rd) + 1;
+                    int total = Rebars.Count;
+
+                    if (cur % 100 == 0)
+                    {
+                        double percent = 1.0 * cur / total;
+                        m_formProgress.Text = Rebars.IndexOf(rd).ToString() + "/" + Rebars.Count.ToString();
+                        m_formProgress.SetProgress((int)(percent * 100));
+                    }
+                }
+
+                if (rd.RepeatDistance > 0 && rd.RepeatCount > 1)
+                {
+                    for(int i=0; i<rd.RepeatCount - 1; i++)
+                    {
+                        Matrix mtx = new Matrix();
+                        mtx.TranslateMatrix(new gPoint(rd.DistributionVector.X, rd.DistributionVector.Y, rd.DistributionVector.Z) * rd.RepeatDistance * (i + 1));
+
+                        var plClone = pl.Clone(vDraw.ActiveDocument) as vdPolyline;
+                        plClone.Transformby(mtx);
+                        vDraw.ActiveDocument.ActiveLayOut.Entities.Add(plClone);
+
+                        var pfCl = CreatePolyFaceFromCurve(plClone, 20);
+                        SetEntityLayer(pfCl, "Rebar");
+                    }
+                }
+            }
+        }
+
+        private vdPolyface CreatePolyFaceFromCurve(vdPolyline curvePath, double diameter)
+        {
+            var pf = new vdPolyface();
+            pf.SetUnRegisterDocument(vDraw.ActiveDocument);
+            pf.setDocumentDefaults();
+
+            var circle = new vdCircle();
+            circle.Radius = diameter / 2.0;
+
+            vdCurve path = curvePath;
+            if (curvePath.VertexList.Count == 2)
+            {
+                var line = new vdLine();
+                line.SetUnRegisterDocument(vDraw.ActiveDocument);
+                line.setDocumentDefaults();
+                line.StartPoint = curvePath.getStartPoint();
+                line.EndPoint = curvePath.getEndPoint();
+                path = line;
+            }
+
+            pf.Generate3dPathSection(path, circle, new gPoint(0, 0, 0), 6, 1);
+            pf.SmoothAngle = 45;
+            pf.PenColor.ColorIndex = 2;
+            vDraw.ActiveDocument.ActiveLayOut.Entities.Add(pf);
+
+            return pf;
+        }
+
+        private vdPolyline CreatePolylineFromPoints(List<PointData> points)
+        {
+            vdPolyline pl = new vdPolyline();
+            pl.SetUnRegisterDocument(vDraw.ActiveDocument);
+            pl.setDocumentDefaults();
+
+            pl.VertexList = Tools.GetVertexesFromPoints(points);
+            vDraw.ActiveDocument.ActiveLayOut.Entities.Add(pl);
+
+            return pl;
         }
 
         private void AddLevelData()
@@ -209,7 +303,7 @@ namespace Exporter
             {
                 vdXProperty vdx1 = new vdXProperty();
                 vdx1.Name = lv.Name;
-                vdx1.PropValue = (Tools.Ft2MmScale*lv.Height).ToString();
+                vdx1.PropValue = (Tools.Ft2MmScale * lv.Height).ToString();
                 layer.XProperties.AddItem(vdx1);
             }
         }
@@ -395,6 +489,8 @@ namespace Exporter
                 AddPipeToEntities(block.Entities, blkData.PipeInfo.Diameter, ptStart, ptEnd, blkData.PipeInfo.MaterialName);
             }
 
+            AddXPropertiesToEntity(blkData.DictProperties, block);
+
             block.Update();
 
             return block;
@@ -473,9 +569,8 @@ namespace Exporter
             AddXPropertiesToEntity(ins.DictProperties, insEntity);
         }
 
-        private void AddXPropertiesToEntity(Dictionary<string, List<PropertyData>> dictProperty, vdFigure vdf)
+        private void AddXPropertiesToEntity(Dictionary<string, List<PropertyData>> dictProperty, vdPrimary vdf)
         {
-
             foreach (string groupName in dictProperty.Keys)
             {
                 List<PropertyData> listData = dictProperty[groupName];
@@ -528,7 +623,7 @@ namespace Exporter
                 vdPolyline pl = new vdPolyline();
                 pl.SetUnRegisterDocument(vDraw.ActiveDocument);
                 pl.setDocumentDefaults();
-                pl.VertexList = GetVertexesFromCurves(grid.Curves);
+                pl.VertexList = Tools.GetVertexesFromCurves(grid.Curves);
 
                 vDraw.ActiveDocument.ActiveLayOut.Entities.Add(pl);
                 SetEntityLayer(pl, _gGridLayerName);
@@ -554,46 +649,7 @@ namespace Exporter
             AddXPropertiesToEntity(grid.Properties, txt);
         }
 
-        /*
-            Revit中导出的多段轴网信息很奇怪，首先，对于直线段，直线的起始、终止点和点击时的顺序是相反的，但是多段线的顺序是正确的，所以整个
-            排序就变成了“终点”-“起点”-“终点”-“起点”的方式，所以在导出的时候，程序处理时反着顺序导出，就可以正常得到“起点”-“终点”
-            的顺序了。其次，如果遇上了圆弧段，圆弧段的起点、终点的顺序是和点击的顺序是一致的，所以遇到圆弧段，输出的起点和终点交换，这样就
-            可以正确输出了。下面的两个方法就是用来处理这个。
-        */
 
-        private Vertexes GetVertexesFromCurves(List<CurveData> curves)
-        {
-            Vertexes vs = new Vertexes();
-            for (int i = curves.Count - 1; i >= 0; i--)
-            {
-                Vertex vStart, vEnd;
-                GetVertexFromSingleCurve(curves[i], out vStart, out vEnd);
 
-                vs.Add(vStart);
-                if (i == 0)
-                    vs.Add(vEnd);
-            }
-
-            return vs;
-        }
-
-        private void GetVertexFromSingleCurve(CurveData curve, out Vertex vStart, out Vertex vEnd)
-        {
-            vStart = new Vertex(curve.Points[0].X, curve.Points[0].Y, curve.Points[0].Z);
-            vEnd = new Vertex(curve.Points[1].X, curve.Points[1].Y, curve.Points[1].Z);
-
-            if (curve.IsArc)
-            {
-                var vtmp = vStart;
-                vStart = vEnd;
-                vEnd = vtmp;
-
-                int dDirection = curve.Normal.Z > 0 ? 1 : -1;
-                double angle = curve.StartParameter - curve.EndParameter;
-
-                // 凸度的定义是：圆弧段圆心角四分之一的正切值。正负决定圆弧方向
-                vStart.Bulge = dDirection * Math.Tan(angle / 4);
-            }
-        }
     }
 }

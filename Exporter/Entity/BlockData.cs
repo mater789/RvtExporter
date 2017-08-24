@@ -59,5 +59,13 @@ namespace Exporter
             get { return m_bIsByBlock; }
             set { m_bIsByBlock = value; }
         }
+
+        private Dictionary<string, List<PropertyData>> m_dictProperties = new Dictionary<string, List<PropertyData>>();
+        [ProtoMember(7)]
+        public Dictionary<string, List<PropertyData>> DictProperties
+        {
+            get { return m_dictProperties; }
+            set { m_dictProperties = value; }
+        }
     }
 }
