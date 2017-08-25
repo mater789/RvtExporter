@@ -4,10 +4,10 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{80F18EB3-DE04-40C2-B389-AB895E8F4422}</ProjectGuid>
+    <ProjectGuid>{B8DB191F-56F1-4A3B-8479-159ECF18A62D}</ProjectGuid>
     <OutputType>Exe</OutputType>
     <RootNamespace>AddinProcesser</RootNamespace>
-    <AssemblyName>AddinProcesser</AssemblyName>
+    <AssemblyName>AddinProcesser2017</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
@@ -17,7 +17,7 @@
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
     <OutputPath>..\Exporter\bin\Debug\</OutputPath>
-    <DefineConstants>TRACE;DEBUG;_2016</DefineConstants>
+    <DefineConstants>TRACE;DEBUG;_2017</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>

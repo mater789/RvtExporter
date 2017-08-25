@@ -576,7 +576,11 @@ namespace Exporter
                     rd.RepeatCount = rb.NumberOfBarPositions;
                 }
 
+#if _Revit2016
                 var curves = rb.GetCenterlineCurves(false, false, false);
+#elif _Revit2017
+                var curves = rb.GetCenterlineCurves(false, false, false);
+#endif
                 foreach (var curve in curves)
                 {
                     if (curve is Line)

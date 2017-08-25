@@ -682,12 +682,16 @@ namespace Exporter
 
         private MaterialData m_curOriginMaterialData = null;
 
-        /*        */
+
+#if _Revit2016
         public void OnDaylightPortal(DaylightPortalNode node)
         {
-            //throw new NotImplementedException();
+            
         }
 
+#elif _Revit2017
+
+#endif
 
         public void OnMaterial(MaterialNode node)
         {
@@ -1087,6 +1091,6 @@ namespace Exporter
             */
         }
 
-        #endregion
+#endregion
     }
 }

@@ -10,7 +10,12 @@ namespace AddinProcesser
 {
     class Program
     {
+#if _2016
         private static string _destFolderPath = @"c:\ProgramData\Autodesk\Revit\Addins\2016";
+#elif _2017
+        private static string _destFolderPath = @"c:\ProgramData\Autodesk\Revit\Addins\2017";
+#endif
+
         private static string _addinFileName = @"BimExporter.addin";
         static void Main(string[] args)
         {
@@ -38,7 +43,11 @@ namespace AddinProcesser
                 }
 
                 var node = nodes[0];
+#if _2016
                 node.InnerText = Path.GetDirectoryName(Application.ExecutablePath) + "\\Exporter.dll";
+#elif _2017
+                node.InnerText = Path.GetDirectoryName(Application.ExecutablePath) + "\\Exporter2017.dll";
+#endif
 
                 doc.Save(_destFolderPath + "\\" + _addinFileName);
             }
