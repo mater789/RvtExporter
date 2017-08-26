@@ -17,6 +17,7 @@ namespace AddinProcesser
 #endif
 
         private static string _addinFileName = @"BimExporter.addin";
+
         static void Main(string[] args)
         {
             ProcessXml();
