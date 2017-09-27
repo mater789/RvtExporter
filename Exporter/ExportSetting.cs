@@ -59,10 +59,10 @@ namespace Exporter
     {
         public SystemSetting()
         {
-            this.IsModifyUnit = false;
+            this.IsModifyUnit = true;
             this.IsExportLinkModel = false;
             this.IsExportProperty = true;
-            this.IsExportGrid = true;
+            this.IsExportGrid = false;
             this.IsOptimizeCylinderFace = true;
             this.IsOriginMaterial = false;
             this.IsUserDefineFormat = false;

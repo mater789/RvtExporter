@@ -80,7 +80,7 @@ namespace Exporter
                 return false;
             }
 
-            if (!strValue.EndsWith(".vdcl", StringComparison.OrdinalIgnoreCase) && !strValue.EndsWith(".sdp", StringComparison.OrdinalIgnoreCase))
+            if (!strValue.EndsWith(".bim", StringComparison.OrdinalIgnoreCase) && !strValue.EndsWith(".sdp", StringComparison.OrdinalIgnoreCase))
             {
                 message = "输出的路径不正确！";
                 return false;
@@ -131,7 +131,7 @@ namespace Exporter
         {
             SaveFileDialog dlg = new SaveFileDialog();
 
-            dlg.Filter = chkUserDefineFormat.Checked ? "自定义文件(*.sdp)|*.sdp" : "模型文件(*.vdcl)|*.vdcl";
+            dlg.Filter = chkUserDefineFormat.Checked ? "自定义文件(*.sdp)|*.sdp" : "模型文件(*.bim)|*.bim";
             if (dlg.ShowDialog(this) != DialogResult.OK)
                 return;
 
@@ -149,7 +149,7 @@ namespace Exporter
 
             string fileDir = Path.GetDirectoryName(file);
             string fileName = Path.GetFileNameWithoutExtension(file);
-            string externsion = chkUserDefineFormat.Checked ? ".sdp" : ".vdcl";
+            string externsion = chkUserDefineFormat.Checked ? ".sdp" : ".bim";
 
             textFilePath.Text = fileDir + "\\" + fileName + externsion;
         }
