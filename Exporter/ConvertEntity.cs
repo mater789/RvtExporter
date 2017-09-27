@@ -19,6 +19,7 @@ namespace Exporter
     {
         private VectorDraw.Professional.Control.VectorDrawBaseControl vDraw = new VectorDraw.Professional.Control.VectorDrawBaseControl();
         private FormProgress m_formProgress = null;
+        private bool IsZipFile = false;
 
         private static string _gGridLayerName = "GRID__";
 
@@ -114,7 +115,6 @@ namespace Exporter
                 m_formProgress.SetProgress((int)percent);
         }
 
-
         public void BeginConvert(string fileName)
         {
             if (ExportSetting.SystemSetting.IsUserDefineFormat)
@@ -134,13 +134,20 @@ namespace Exporter
 
                     using (FileStream fs = File.OpenWrite(fileName))
                     {
-                        MemoryStream ms = new MemoryStream();
-                        ProtoBuf.Serializer.Serialize<ModelSerializeEntity>(ms, ser);
-                        var buffer = ms.ToArray();
+                        if (IsZipFile)
+                        {
+                            MemoryStream ms = new MemoryStream();
+                            ProtoBuf.Serializer.Serialize<ModelSerializeEntity>(ms, ser);
 
-                        var compressedzipStream = new DeflateStream(fs, CompressionMode.Compress, true);
-                        compressedzipStream.Write(buffer, 0, buffer.Length);
-                        compressedzipStream.Close();
+                            var buffer = ms.ToArray();
+                            var compressedzipStream = new DeflateStream(fs, CompressionMode.Compress, true);
+                            compressedzipStream.Write(buffer, 0, buffer.Length);
+                            compressedzipStream.Close();
+                        }
+                        else
+                        {
+                            ProtoBuf.Serializer.Serialize<ModelSerializeEntity>(fs, ser);
+                        }
                     }
 
                     //var str = JsonConvert.SerializeObject(ser);
