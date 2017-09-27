@@ -688,5 +688,11 @@ namespace Exporter
                 vStart.Bulge = dDirection * Math.Tan(angle / 4);
             }
         }
+
+        public static string ToSplitString(this gPoint pt)
+        {
+            return pt.x + "," + pt.y + "," + pt.z;
+        }
+
     }
 }

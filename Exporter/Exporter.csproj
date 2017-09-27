@@ -160,6 +160,7 @@
     <Compile Include="FormProgress.Designer.cs">
       <DependentUpon>FormProgress.cs</DependentUpon>
     </Compile>
+    <Compile Include="MergeFace.cs" />
     <Compile Include="Sheets\FormSelectSheets.cs">
       <SubType>Form</SubType>
     </Compile>

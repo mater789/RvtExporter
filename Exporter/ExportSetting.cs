@@ -68,6 +68,7 @@ namespace Exporter
             this.IsUserDefineFormat = false;
             this.IsExportTextureFile = false;
             this.IsExportRebar = false;
+            this.IsMergeFace = true;
             this.ExportFilePath = string.Empty;
             this.DefaultLayerName = string.Empty;
         }
@@ -87,6 +88,8 @@ namespace Exporter
         public bool IsUserDefineFormat { get; set; }
 
         public bool IsExportTextureFile { get; set; }
+        
+        public bool IsMergeFace { get; set; }
 
         public string DefaultLayerName { get; set; }
 

@@ -690,7 +690,7 @@ namespace Exporter
         }
 
 #elif _Revit2017
-
+        // Revit2017 没有这个方法
 #endif
 
         public void OnMaterial(MaterialNode node)

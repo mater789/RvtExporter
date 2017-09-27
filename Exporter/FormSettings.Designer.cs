@@ -37,6 +37,7 @@
             this.label1 = new System.Windows.Forms.Label();
             this.tabControl1 = new System.Windows.Forms.TabControl();
             this.tabPageSystem = new System.Windows.Forms.TabPage();
+            this.chkRebar = new System.Windows.Forms.CheckBox();
             this.chkTextureFile = new System.Windows.Forms.CheckBox();
             this.chkUserDefineFormat = new System.Windows.Forms.CheckBox();
             this.chkExportGrid = new System.Windows.Forms.CheckBox();
@@ -52,7 +53,7 @@
             this.label4 = new System.Windows.Forms.Label();
             this.textWidth = new System.Windows.Forms.TextBox();
             this.label3 = new System.Windows.Forms.Label();
-            this.chkRebar = new System.Windows.Forms.CheckBox();
+            this.chkMerge = new System.Windows.Forms.CheckBox();
             this.tabControl1.SuspendLayout();
             this.tabPageSystem.SuspendLayout();
             this.tabPageParking.SuspendLayout();
@@ -144,6 +145,7 @@
             // 
             // tabPageSystem
             // 
+            this.tabPageSystem.Controls.Add(this.chkMerge);
             this.tabPageSystem.Controls.Add(this.chkRebar);
             this.tabPageSystem.Controls.Add(this.chkTextureFile);
             this.tabPageSystem.Controls.Add(this.chkUserDefineFormat);
@@ -165,6 +167,17 @@
             this.tabPageSystem.TabIndex = 0;
             this.tabPageSystem.Text = "系统";
             this.tabPageSystem.UseVisualStyleBackColor = true;
+            // 
+            // chkRebar
+            // 
+            this.chkRebar.AutoSize = true;
+            this.chkRebar.Location = new System.Drawing.Point(214, 15);
+            this.chkRebar.Name = "chkRebar";
+            this.chkRebar.Size = new System.Drawing.Size(120, 16);
+            this.chkRebar.TabIndex = 19;
+            this.chkRebar.Text = "单独导出钢筋信息";
+            this.chkRebar.UseVisualStyleBackColor = true;
+            this.chkRebar.CheckedChanged += new System.EventHandler(this.chkRebar_CheckedChanged);
             // 
             // chkTextureFile
             // 
@@ -268,7 +281,7 @@
             this.tabPageParking.Location = new System.Drawing.Point(4, 22);
             this.tabPageParking.Name = "tabPageParking";
             this.tabPageParking.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPageParking.Size = new System.Drawing.Size(386, 170);
+            this.tabPageParking.Size = new System.Drawing.Size(339, 166);
             this.tabPageParking.TabIndex = 1;
             this.tabPageParking.Text = "车位优化";
             this.tabPageParking.UseVisualStyleBackColor = true;
@@ -314,16 +327,15 @@
             this.label3.TabIndex = 7;
             this.label3.Text = "编号大小范围：";
             // 
-            // chkRebar
+            // chkMerge
             // 
-            this.chkRebar.AutoSize = true;
-            this.chkRebar.Location = new System.Drawing.Point(214, 15);
-            this.chkRebar.Name = "chkRebar";
-            this.chkRebar.Size = new System.Drawing.Size(120, 16);
-            this.chkRebar.TabIndex = 19;
-            this.chkRebar.Text = "单独导出钢筋信息";
-            this.chkRebar.UseVisualStyleBackColor = true;
-            this.chkRebar.CheckedChanged += new System.EventHandler(this.chkRebar_CheckedChanged);
+            this.chkMerge.AutoSize = true;
+            this.chkMerge.Location = new System.Drawing.Point(214, 37);
+            this.chkMerge.Name = "chkMerge";
+            this.chkMerge.Size = new System.Drawing.Size(120, 16);
+            this.chkMerge.TabIndex = 20;
+            this.chkMerge.Text = "合并网格（提速）";
+            this.chkMerge.UseVisualStyleBackColor = true;
             // 
             // FormSettings
             // 
@@ -374,5 +386,6 @@
         private System.Windows.Forms.CheckBox chkUserDefineFormat;
         private System.Windows.Forms.CheckBox chkTextureFile;
         private System.Windows.Forms.CheckBox chkRebar;
+        private System.Windows.Forms.CheckBox chkMerge;
     }
 }

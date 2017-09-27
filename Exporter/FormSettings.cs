@@ -52,6 +52,7 @@ namespace Exporter
             chkUserDefineFormat.Checked = this.ExportSetting.SystemSetting.IsUserDefineFormat;
             chkTextureFile.Checked = this.ExportSetting.SystemSetting.IsExportTextureFile;
             chkRebar.Checked = this.ExportSetting.SystemSetting.IsExportRebar;
+            chkMerge.Checked = this.ExportSetting.SystemSetting.IsMergeFace;
             textFilePath.Text = this.ExportSetting.SystemSetting.ExportFilePath;
 
             textPropertyName.Text = this.ExportSetting.ParkingExportSetting.PropertyName;
@@ -70,6 +71,7 @@ namespace Exporter
             this.ExportSetting.SystemSetting.IsUserDefineFormat = chkUserDefineFormat.Checked;
             this.ExportSetting.SystemSetting.IsExportTextureFile = chkTextureFile.Checked;
             this.ExportSetting.SystemSetting.IsExportRebar = chkRebar.Checked;
+            this.ExportSetting.SystemSetting.IsMergeFace = chkMerge.Checked;
 
             string strValue = textFilePath.Text.Trim();
             if (strValue.Length < 1)

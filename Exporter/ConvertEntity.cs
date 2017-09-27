@@ -183,6 +183,11 @@ namespace Exporter
                         redTri.Convert(vDraw.ActiveDocument, m_formProgress.progressBar, fileName);
                     }
 
+                    if (this.ExportSetting.SystemSetting.IsMergeFace)
+                    {
+                        MergeFace.Merge(vDraw, m_formProgress);
+                    }
+
                     if (this.ExportSetting != null && this.ExportSetting.ParkingExportSetting.PropertyName.Length > 0)
                     {
                         //ReplaceParkingNumber replaceNumber = new ReplaceParkingNumber(vDraw);
@@ -485,8 +490,22 @@ namespace Exporter
             if (blkData.IsPipe)
             {
                 var ptStart = new gPoint(blkData.PipeInfo.PtStart.X, blkData.PipeInfo.PtStart.Y, blkData.PipeInfo.PtStart.Z);
+                ptStart = ptStart * Tools.Ft2MmScale;
                 var ptEnd = new gPoint(blkData.PipeInfo.PtEnd.X, blkData.PipeInfo.PtEnd.Y, blkData.PipeInfo.PtEnd.Z);
-                AddPipeToEntities(block.Entities, blkData.PipeInfo.Diameter, ptStart, ptEnd, blkData.PipeInfo.MaterialName);
+                ptEnd = ptEnd * Tools.Ft2MmScale;
+                AddPipeToEntities(block.Entities, blkData.PipeInfo.Diameter * Tools.Ft2MmScale, ptStart, ptEnd, blkData.PipeInfo.MaterialName);
+
+                if (!blkData.DictProperties.ContainsKey("PipeInfo"))
+                {
+                    var pipeProps = new List<PropertyData>
+                    {
+                        new PropertyData { GroupName = "PipeInfo", Name = "PipeStartPoint", Value = ptStart.ToSplitString() },
+                        new PropertyData { GroupName = "PipeInfo", Name = "PipeEndPoint", Value = ptEnd.ToSplitString() },
+                        new PropertyData { GroupName = "PipeInfo", Name = "PipeDiameter", Value = (blkData.PipeInfo.Diameter * Tools.Ft2MmScale).ToString() }
+                    };
+
+                    blkData.DictProperties.Add("PipeInfo", pipeProps);
+                }
             }
 
             AddXPropertiesToEntity(blkData.DictProperties, block);
@@ -502,9 +521,9 @@ namespace Exporter
             pf.SetUnRegisterDocument(vDraw.ActiveDocument);
             pf.setDocumentDefaults();
 
-            var line = new vdLine(ptStart * Tools.Ft2MmScale, ptEnd * Tools.Ft2MmScale);
+            var line = new vdLine(ptStart , ptEnd);
             var circle = new vdCircle();
-            circle.Radius = diameter * Tools.Ft2MmScale / 2.0;
+            circle.Radius = diameter / 2.0;
 
             pf.Generate3dPathSection(line, circle, new gPoint(0, 0, 0), 10, 1);
             pf.Layer = vDraw.ActiveDocument.Layers.FindName(layerName);
