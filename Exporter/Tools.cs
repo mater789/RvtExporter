@@ -64,6 +64,7 @@ namespace Exporter
     public static class Tools
     {
         public static double Ft2MmScale = 304.8;
+        public static readonly string FileExtention = ".vdcl";
 
         public static List<string> TextureLibPaths = new List<string>
         {

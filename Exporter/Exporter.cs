@@ -38,7 +38,7 @@ namespace Exporter
             string fileName = Path.GetFileNameWithoutExtension(doc.PathName);
 
             FormSettings dlg = new FormSettings();
-            dlg.ExportSetting.SystemSetting.ExportFilePath = filePath + "\\" + fileName + ".vdcl";
+            dlg.ExportSetting.SystemSetting.ExportFilePath = filePath + "\\" + fileName + Tools.FileExtention;
             DialogResult dr = dlg.ShowDialog(new WindowHandle(h));
             if (dr != DialogResult.OK)
                 return Result.Cancelled;
