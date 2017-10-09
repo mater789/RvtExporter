@@ -53,12 +53,12 @@
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="DevComponents.DotNetBar2, Version=14.0.0.3, Culture=neutral, PublicKeyToken=c39c3242a43eee2b, processorArchitecture=MSIL" />
-    <Reference Include="OpenVDF, Version=6.6028.1.1, Culture=neutral, PublicKeyToken=54eac14e23c9ee53, processorArchitecture=MSIL">
+    <Reference Include="BimEx.Draw, Version=2.2011.0.3, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\..\..\PUBLIB\vdraw\OpenVDF.dll</HintPath>
+      <HintPath>bin\Debug\BimEx.Draw.dll</HintPath>
       <Private>False</Private>
     </Reference>
+    <Reference Include="DevComponents.DotNetBar2, Version=14.0.0.3, Culture=neutral, PublicKeyToken=c39c3242a43eee2b, processorArchitecture=MSIL" />
     <Reference Include="PresentationCore" />
     <Reference Include="PresentationFramework" />
     <Reference Include="protobuf-net, Version=2.1.0.0, Culture=neutral, PublicKeyToken=257b51d87d2e4d67, processorArchitecture=MSIL">
@@ -68,10 +68,12 @@
     <Reference Include="RevitAPI, Version=17.0.0.0, Culture=neutral, processorArchitecture=AMD64">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>D:\Program Files\Autodesk\Revit 2016\RevitAPI.dll</HintPath>
+      <Private>False</Private>
     </Reference>
     <Reference Include="RevitAPIUI, Version=17.0.0.0, Culture=neutral, processorArchitecture=AMD64">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>D:\Program Files\Autodesk\Revit 2016\RevitAPIUI.dll</HintPath>
+      <Private>False</Private>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -83,52 +85,7 @@
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
-    <Reference Include="VDrawBaseControl, Version=6.6028.1.1, Culture=neutral, PublicKeyToken=54eac14e23c9ee53, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\..\..\PUBLIB\vdraw\VDrawBaseControl.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
-    <Reference Include="VectorDraw.Actions, Version=6.6028.1.1, Culture=neutral, PublicKeyToken=54eac14e23c9ee53, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\..\..\PUBLIB\vdraw\VectorDraw.Actions.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
-    <Reference Include="VectorDraw.Fonts, Version=6.6028.1.1, Culture=neutral, PublicKeyToken=54eac14e23c9ee53, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\..\..\PUBLIB\vdraw\VectorDraw.Fonts.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
-    <Reference Include="VectorDraw.Generics, Version=6.6028.1.1, Culture=neutral, PublicKeyToken=54eac14e23c9ee53, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\..\..\PUBLIB\vdraw\VectorDraw.Generics.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
-    <Reference Include="VectorDraw.Geometry, Version=6.6028.1.1, Culture=neutral, PublicKeyToken=54eac14e23c9ee53, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\..\..\PUBLIB\vdraw\VectorDraw.Geometry.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
-    <Reference Include="VectorDraw.Professional, Version=6.6028.1.1, Culture=neutral, PublicKeyToken=54eac14e23c9ee53, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\..\..\PUBLIB\vdraw\VectorDraw.Professional.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
-    <Reference Include="VectorDraw.Render, Version=6.6028.1.1, Culture=neutral, PublicKeyToken=54eac14e23c9ee53, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\..\..\PUBLIB\vdraw\VectorDraw.Render.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
-    <Reference Include="VectorDraw.Serialize, Version=6.6028.1.1, Culture=neutral, PublicKeyToken=54eac14e23c9ee53, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\..\..\PUBLIB\vdraw\VectorDraw.Serialize.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
     <Reference Include="WindowsBase" />
-    <Reference Include="WinMsgMannager, Version=6.6028.1.1, Culture=neutral, PublicKeyToken=54eac14e23c9ee53, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\..\..\PUBLIB\vdraw\WinMsgMannager.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ConvertEntity.cs" />
