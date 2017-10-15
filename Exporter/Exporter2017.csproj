@@ -58,7 +58,6 @@
       <HintPath>bin\Debug\BimEx.Draw.dll</HintPath>
       <Private>False</Private>
     </Reference>
-    <Reference Include="DevComponents.DotNetBar2, Version=14.0.0.3, Culture=neutral, PublicKeyToken=c39c3242a43eee2b, processorArchitecture=MSIL" />
     <Reference Include="PresentationCore" />
     <Reference Include="PresentationFramework" />
     <Reference Include="protobuf-net, Version=2.1.0.0, Culture=neutral, PublicKeyToken=257b51d87d2e4d67, processorArchitecture=MSIL">
@@ -118,12 +117,6 @@
       <DependentUpon>FormProgress.cs</DependentUpon>
     </Compile>
     <Compile Include="MergeFace.cs" />
-    <Compile Include="Sheets\FormSelectSheets.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="Sheets\FormSelectSheets.Designer.cs">
-      <DependentUpon>FormSelectSheets.cs</DependentUpon>
-    </Compile>
     <Compile Include="FormSettings.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -136,15 +129,11 @@
     <Compile Include="Entity\TriangleData.cs" />
     <Compile Include="ReplaceParkingNumber.cs" />
     <Compile Include="RevitEnvironmentSetting.cs" />
-    <Compile Include="Sheets\ScheduleGridExproter.cs" />
     <Compile Include="Tools.cs" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="FormProgress.resx">
       <DependentUpon>FormProgress.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Sheets\FormSelectSheets.resx">
-      <DependentUpon>FormSelectSheets.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="FormSettings.resx">
       <DependentUpon>FormSettings.cs</DependentUpon>
