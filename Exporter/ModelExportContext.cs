@@ -771,11 +771,7 @@ namespace Exporter
         {
             return m_bIsCanceled;
         }
-        /*
-        public void OnDaylightPortal(DaylightPortalNode node)
-        {
 
-        }*/
 
         public void OnRPC(RPCNode node)
         {
