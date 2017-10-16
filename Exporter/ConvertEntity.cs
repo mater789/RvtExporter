@@ -197,9 +197,47 @@ namespace Exporter
 
                 vDraw.ActiveDocument.ActiveLayOut.Entities.Sort(new CompareMethod());
 
+                if (this.ExportSetting.SystemSetting.IsMoveBlkXpropertyToInsert)
+
+
+
+
                 m_formProgress.Text = "正在保存";
                 bool bResult = vDraw.ActiveDocument.SaveAs(fileName);
                 m_formProgress?.Close();
+            }
+        }
+
+        private void MoveProperty()
+        {
+            List<string> list1 = new List<string>();
+            list1.Add("工序编码");
+            list1.Add("合约类型编码1");
+            list1.Add("合约类型编码2");
+            list1.Add("合约类型代码1");
+            list1.Add("合约类型代码2");
+            list1.Add("清单编码");
+            //list1.Add("结构材质");
+            list1.Add("类型名称");
+
+
+            foreach (vdFigure vdl in this.vDraw.ActiveDocument.ActiveLayOut.Entities)
+            {
+                if (vdl is vdInsert)
+                {
+                    vdInsert vdi = vdl as vdInsert;
+                    vdBlock vdb = vdi.Block;
+                    foreach (string str in list1)
+                    {
+                        vdXProperty x = vdb.XProperties.FindName(str);
+                        if (x != null)
+                        {
+                            vdXProperty x1 = vdi.XProperties.Add(str);
+                            x1.PropValue = x.PropValue;
+                        }
+                    }
+                    vdb.XProperties.RemoveAll();
+                }
             }
         }
 
