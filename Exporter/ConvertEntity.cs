@@ -198,9 +198,7 @@ namespace Exporter
                 vDraw.ActiveDocument.ActiveLayOut.Entities.Sort(new CompareMethod());
 
                 if (this.ExportSetting.SystemSetting.IsMoveBlkXpropertyToInsert)
-
-
-
+                    MoveProperty();
 
                 m_formProgress.Text = "正在保存";
                 bool bResult = vDraw.ActiveDocument.SaveAs(fileName);
@@ -422,8 +420,9 @@ namespace Exporter
 
                 return fileDestName;
             }
-            catch (Exception ex)
+            catch (Exception)
             {
+                
                 return string.Empty;
             }
         }

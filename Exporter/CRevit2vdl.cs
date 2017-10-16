@@ -553,7 +553,7 @@ namespace ReduceTris
             if (i32.Count < 5) return false;
 
             //ÕÒµ½ÏòÁ¿
-            int iii = 1;
+            ///int iii = 1;
             gPoints Points = vdp.VertexList;
             Points.makeClosed();
             gPoints gps = new gPoints();// Points.Clone() as gPoints;
@@ -577,10 +577,10 @@ namespace ReduceTris
 
             for (int i = 0; i < gps.Count - 1; i++)
             {
-                if (i == 5)
-                {
-                    int j = 0;
-                }
+                //if (i == 5)
+                //{
+                //    int j = 0;
+                //}
 
                 if (i != gps.Count - 2)
                 {
@@ -975,7 +975,6 @@ namespace ReduceTris
             while (true)
             {
                 int len = i32.Count;
-                int nextNode = -1;
                 string strKey = "";
                 int iEnd = -1;
                 foreach (KeyValuePair<string, bool> kv in kvs)

@@ -551,7 +551,7 @@ namespace Exporter
             {
                 diameter = curve.Diameter;
             }
-            catch (System.Exception ex)
+            catch (System.Exception)
             {
                 return false;
             }
