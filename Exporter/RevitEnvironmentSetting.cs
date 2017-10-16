@@ -12,7 +12,7 @@ using System.Windows.Forms;
 
 namespace Exporter
 {
-    class RevitEnvironmentSetting
+    public class RevitEnvironmentSetting
     {
         private Document m_doc = null;
         private Units m_units = null;

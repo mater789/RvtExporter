@@ -17,6 +17,10 @@ namespace Exporter
         public Result Execute(ExternalCommandData commandData, ref string messages, ElementSet elements)
         {
             UIApplication uiapp = commandData.Application;
+            var ap = commandData.Application.Application;
+
+           
+
             UIDocument uidoc = uiapp.ActiveUIDocument;
             if (uidoc == null)
             {
@@ -31,65 +35,87 @@ namespace Exporter
                 return Result.Cancelled;
             }
 
-            Process process = Process.GetCurrentProcess();
-            IntPtr h = process.MainWindowHandle;
-
             string filePath = Path.GetDirectoryName(doc.PathName);
             string fileName = Path.GetFileNameWithoutExtension(doc.PathName);
 
             FormSettings dlg = new FormSettings();
             dlg.ExportSetting.SystemSetting.ExportFilePath = filePath + "\\" + fileName + Tools.FileExtention;
-            DialogResult dr = dlg.ShowDialog(new WindowHandle(h));
+            DialogResult dr = dlg.ShowDialog(new WindowHandle(Process.GetCurrentProcess().MainWindowHandle));
             if (dr != DialogResult.OK)
                 return Result.Cancelled;
 
-
-            ConvertEntity converter = new ConvertEntity();
-            converter.ExportSetting = dlg.ExportSetting;
-            if (dlg.ExportSetting.SystemSetting.IsExportRebar)
+            Exception ex;
+            if (Export(uiapp.Application, uidoc.ActiveView as View3D, dlg.ExportSetting, out ex))
             {
-                converter.Rebars = Tools.GetRebaresInDocument(doc);
+                TaskDialog.Show("导出", "导出完成！");
+                return Result.Succeeded;
             }
             else
             {
-                ElementColorOverride colorOverride = new ElementColorOverride();
-                if (!dlg.ExportSetting.SystemSetting.IsOriginMaterial)
-                    colorOverride.ArrangeElemlentColor(doc, uidoc.ActiveView as View3D);
+                TaskDialog.Show("导出", "导出失败！");
+                messages = ex.Message;
+                return Result.Failed;
+            }
+        }
 
-                RevitEnvironmentSetting setting = new RevitEnvironmentSetting(doc);
-                if (dlg.ExportSetting.SystemSetting.IsModifyUnit)
-                    setting.ReadOriginUnitsAndSetNew();
+        public bool Export(Autodesk.Revit.ApplicationServices.Application app, View3D view, ExportSetting setting, out Exception ex)
+        {
+            ex = new Exception();
 
-                ModelExportContext context = new ModelExportContext(doc);
-                context.BuiltInMaterialLibraryAsset = commandData.Application.Application.get_Assets(AssetType.Appearance);
-                context.IsPackageEntityToBlock = true;
-                context.IsExportProperty = dlg.ExportSetting.SystemSetting.IsExportProperty;
-                context.ExtraMaterial = colorOverride.GetMaterials();
-                context.ExtraElementColorSetting = colorOverride.GetElementColorSetting();
-                context.IsOptimisePipeEntity = true;
-                CustomExporter exporter = new CustomExporter(doc, context);
+            try
+            {
+                ConvertEntity converter = new ConvertEntity();
+                converter.ExportSetting = setting;
+                if (setting.SystemSetting.IsExportRebar)
+                {
+                    converter.Rebars = Tools.GetRebaresInDocument(view.Document);
+                }
+                else
+                {
+                    ElementColorOverride colorOverride = new ElementColorOverride();
+                    if (!setting.SystemSetting.IsOriginMaterial)
+                        colorOverride.ArrangeElemlentColor(view.Document, view);
 
-                //exporter.IncludeFaces = false;
+                    RevitEnvironmentSetting envSetting = new RevitEnvironmentSetting(view.Document);
+                    if (setting.SystemSetting.IsModifyUnit)
+                        envSetting.ReadOriginUnitsAndSetNew();
 
-                exporter.ShouldStopOnError = false;
-                exporter.Export(doc.ActiveView as View3D);
+                    ModelExportContext context = new ModelExportContext(view.Document);
+                    context.BuiltInMaterialLibraryAsset = app.get_Assets(AssetType.Appearance);
+                    context.IsPackageEntityToBlock = true;
+                    context.IsExportProperty = setting.SystemSetting.IsExportProperty;
+                    context.ExtraMaterial = colorOverride.GetMaterials();
+                    context.ExtraElementColorSetting = colorOverride.GetElementColorSetting();
+                    context.IsOptimisePipeEntity = true;
+                    CustomExporter exporter = new CustomExporter(view.Document, context);
 
-                if (dlg.ExportSetting.SystemSetting.IsModifyUnit)
-                    setting.RecoverOriginUnits();
+                    //exporter.IncludeFaces = false;
 
-                converter.OptimizeTriangle = dlg.ExportSetting.SystemSetting.IsOptimizeCylinderFace;
-                converter.Materials = context.Materials;
-                converter.ModelBlock = context.ModelSpaceBlock;
-                converter.DictBlocks = context.DictBlocks;
-                converter.Levels = Tools.GetLevelsFromDocument(doc);
-                if (dlg.ExportSetting.SystemSetting.IsExportGrid)
-                    converter.Grids = Tools.GetGridFromDocument(doc);
+                    exporter.ShouldStopOnError = false;
+                    exporter.Export(view);
+
+                    if (setting.SystemSetting.IsModifyUnit)
+                        envSetting.RecoverOriginUnits();
+
+                    converter.OptimizeTriangle = setting.SystemSetting.IsOptimizeCylinderFace;
+                    converter.Materials = context.Materials;
+                    converter.ModelBlock = context.ModelSpaceBlock;
+                    converter.DictBlocks = context.DictBlocks;
+                    converter.Levels = Tools.GetLevelsFromDocument(view.Document);
+                    if (setting.SystemSetting.IsExportGrid)
+                        converter.Grids = Tools.GetGridFromDocument(view.Document);
+                }
+
+                converter.WndParent = new WindowHandle(Process.GetCurrentProcess().MainWindowHandle);
+                converter.BeginConvert(setting.SystemSetting.ExportFilePath);
+            }
+            catch (Exception e)
+            {
+                ex = e;
+                return false;
             }
 
-            converter.WndParent = new WindowHandle(h);
-            converter.BeginConvert(dlg.ExportSetting.SystemSetting.ExportFilePath);
-                      
-            return Result.Succeeded;
+            return true;
         }
     }
 

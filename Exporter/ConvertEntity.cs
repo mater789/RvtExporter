@@ -15,7 +15,7 @@ using VectorDraw.Professional.vdObjects;
 
 namespace Exporter
 {
-    internal class ConvertEntity
+    public class ConvertEntity
     {
         private VectorDraw.Professional.Control.VectorDrawBaseControl vDraw = new VectorDraw.Professional.Control.VectorDrawBaseControl();
         private FormProgress m_formProgress = null;
@@ -119,47 +119,39 @@ namespace Exporter
         {
             if (ExportSetting.SystemSetting.IsUserDefineFormat)
             {
-                try
+
+                if (ExportSetting.SystemSetting.IsExportTextureFile)
+                    ProcessMaterialMapFile();
+
+                var ser = new ModelSerializeEntity();
+                ser.Blocks = DictBlocks;
+                ser.Materials = Materials;
+                ser.Levels = Levels;
+
+                if (File.Exists(fileName))
+                    File.Delete(fileName);
+
+                using (FileStream fs = File.OpenWrite(fileName))
                 {
-                    if (ExportSetting.SystemSetting.IsExportTextureFile)
-                        ProcessMaterialMapFile();
-
-                    var ser = new ModelSerializeEntity();
-                    ser.Blocks = DictBlocks;
-                    ser.Materials = Materials;
-                    ser.Levels = Levels;
-
-                    if (File.Exists(fileName))
-                        File.Delete(fileName);
-
-                    using (FileStream fs = File.OpenWrite(fileName))
+                    if (IsZipFile)
                     {
-                        if (IsZipFile)
-                        {
-                            MemoryStream ms = new MemoryStream();
-                            ProtoBuf.Serializer.Serialize<ModelSerializeEntity>(ms, ser);
+                        MemoryStream ms = new MemoryStream();
+                        ProtoBuf.Serializer.Serialize<ModelSerializeEntity>(ms, ser);
 
-                            var buffer = ms.ToArray();
-                            var compressedzipStream = new DeflateStream(fs, CompressionMode.Compress, true);
-                            compressedzipStream.Write(buffer, 0, buffer.Length);
-                            compressedzipStream.Close();
-                        }
-                        else
-                        {
-                            ProtoBuf.Serializer.Serialize<ModelSerializeEntity>(fs, ser);
-                        }
+                        var buffer = ms.ToArray();
+                        var compressedzipStream = new DeflateStream(fs, CompressionMode.Compress, true);
+                        compressedzipStream.Write(buffer, 0, buffer.Length);
+                        compressedzipStream.Close();
                     }
-
-                    //var str = JsonConvert.SerializeObject(ser);
-                    //using (var objWriter = new StreamWriter(ExportSetting.SystemSetting.ExportFilePath))
-                    //    objWriter.Write(str);
-
-                    MessageBox.Show("导出完成");
+                    else
+                    {
+                        ProtoBuf.Serializer.Serialize<ModelSerializeEntity>(fs, ser);
+                    }
                 }
-                catch (Exception ex)
-                {
-                    MessageBox.Show("导出失败！" + ex.Message);
-                }
+
+                //var str = JsonConvert.SerializeObject(ser);
+                //using (var objWriter = new StreamWriter(ExportSetting.SystemSetting.ExportFilePath))
+                //    objWriter.Write(str);
             }
             else
             {
@@ -208,8 +200,6 @@ namespace Exporter
                 m_formProgress.Text = "正在保存";
                 bool bResult = vDraw.ActiveDocument.SaveAs(fileName);
                 m_formProgress?.Close();
-
-                MessageBox.Show(bResult ? "导出完成！" : "导出失败！");
             }
         }
 
@@ -243,7 +233,7 @@ namespace Exporter
 
                 if (rd.RepeatDistance > 0 && rd.RepeatCount > 1)
                 {
-                    for(int i=0; i<rd.RepeatCount - 1; i++)
+                    for (int i = 0; i < rd.RepeatCount - 1; i++)
                     {
                         Matrix mtx = new Matrix();
                         mtx.TranslateMatrix(new gPoint(rd.DistributionVector.X, rd.DistributionVector.Y, rd.DistributionVector.Z) * rd.RepeatDistance * (i + 1));
@@ -333,10 +323,9 @@ namespace Exporter
             }
             catch (Exception ex)
             {
-                MessageBox.Show("创建文件夹失败。材质贴图文件无法导出。" + ex.Message);
-                return;
+                throw new Exception("创建文件夹失败。材质贴图文件无法导出。", ex);
             }
-
+            
             foreach (var mtl in Materials)
             {
                 var diffuseMapFile = ProcessMapFile(mtl.DiffuseMap, dirRes);
@@ -395,9 +384,8 @@ namespace Exporter
 
                 return fileDestName;
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                MessageBox.Show("获取贴图文件");
                 return string.Empty;
             }
         }
@@ -420,7 +408,7 @@ namespace Exporter
             vDraw.ActiveDocument.EnsureDefaults();
             vDraw.ActiveDocument.GlobalRenderProperties.TimerBreakForDraw = 300;
             vDraw.ActiveDocument.FocalLength = 100.0;
-            vDraw.ActiveDocument.GlobalRenderProperties.CustomRenderTypeName = "VectorDraw.Render.opengllist#VectorDraw.Professional.dll";
+            vDraw.ActiveDocument.GlobalRenderProperties.CustomRenderType = typeof(VectorDraw.Render.opengllist);
             vDraw.ActiveDocument.ActiveLayOut.RenderMode = VectorDraw.Render.vdRender.Mode.Shade;
         }
 
@@ -477,14 +465,14 @@ namespace Exporter
             vdBlock block = vDraw.ActiveDocument.Blocks.FindName(blkData.Name);
             if (block != null)
             {
-                MessageBox.Show("存在同名块: " + blkData.Name + " 跳过！");
+                //MessageBox.Show("存在同名块: " + blkData.Name + " 跳过！");
                 return null;
             }
 
             block = vDraw.ActiveDocument.Blocks.Add(blkData.Name);
             if (block == null)
             {
-                MessageBox.Show("添加块: " + blkData.Name + " 失败！ 跳过！");
+                //MessageBox.Show("添加块: " + blkData.Name + " 失败！ 跳过！");
                 return null;
             }
 
@@ -528,7 +516,7 @@ namespace Exporter
             pf.SetUnRegisterDocument(vDraw.ActiveDocument);
             pf.setDocumentDefaults();
 
-            var line = new vdLine(ptStart , ptEnd);
+            var line = new vdLine(ptStart, ptEnd);
             var circle = new vdCircle();
             circle.Radius = diameter / 2.0;
 
@@ -572,7 +560,7 @@ namespace Exporter
             var blk = vDraw.ActiveDocument.Blocks.FindName(ins.BlockName) ?? CreateBlock(DictBlocks[ins.BlockName]);
             if (blk == null)
             {
-                MessageBox.Show("块创建失败！");
+                //MessageBox.Show("块创建失败！");
                 return null;
             }
 
@@ -674,8 +662,5 @@ namespace Exporter
             SetEntityLayer(txt, _gGridLayerName);
             AddXPropertiesToEntity(grid.Properties, txt);
         }
-
-
-
     }
 }

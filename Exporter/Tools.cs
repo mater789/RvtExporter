@@ -461,6 +461,10 @@ namespace Exporter
                     proData.GroupName = groupName;
                     proData.Value = param.StorageType == StorageType.String ? param.AsString() : param.AsValueString();
 
+                    // 去掉部分额外的属性
+                    if (proData.Name.Contains("Extensions."))
+                        continue;
+
                     if (dictProperties.ContainsKey(groupName))
                     {
                         dictProperties[groupName].Add(proData);

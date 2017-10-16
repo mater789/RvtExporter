@@ -13,7 +13,7 @@ using Autodesk.Revit.Utility;
 
 namespace Exporter
 {
-    class ModelExportContext : IExportContext
+    public class ModelExportContext : IExportContext
     {
         #region 属性
 
@@ -397,6 +397,10 @@ namespace Exporter
                     proData.GroupName = groupName;
                     proData.Value = param.StorageType == StorageType.String ? param.AsString() : param.AsValueString();
 
+                    // 去掉多余的属性
+                    if (proData.Name.Contains("Extensions."))
+                        continue;
+
                     if (dictProperties.ContainsKey(groupName))
                     {
                         dictProperties[groupName].Add(proData);
@@ -686,7 +690,7 @@ namespace Exporter
 #if _Revit2016
         public void OnDaylightPortal(DaylightPortalNode node)
         {
-            
+
         }
 
 #elif _Revit2017
@@ -695,34 +699,26 @@ namespace Exporter
 
         public void OnMaterial(MaterialNode node)
         {
-            try
+            m_curOriginMaterialData = null;
+            m_curMaterialId = node.MaterialId;
+            if (node.Color.IsValid)
             {
-                m_curOriginMaterialData = null;
-                m_curMaterialId = node.MaterialId;
-                if (node.Color.IsValid)
-                {
-                    m_curOriginMaterialData = new MaterialData();
-                    m_curOriginMaterialData.Color.Red = node.Color.Red;
-                    m_curOriginMaterialData.Color.Green = node.Color.Green;
-                    m_curOriginMaterialData.Color.Blue = node.Color.Blue;
-                    m_curOriginMaterialData.Transparency = (int)(255 * node.Transparency);
-                    m_curOriginMaterialData.Name = "Color_" + node.Color.Red.ToString() + "-" +
-                        node.Color.Green.ToString() + "-" +
-                        node.Color.Blue.ToString() + "-" +
-                        m_curOriginMaterialData.Transparency.ToString();
-                }
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show("throw from OnMaterial." + ex.Message);
-                throw ex;
+                m_curOriginMaterialData = new MaterialData();
+                m_curOriginMaterialData.Color.Red = node.Color.Red;
+                m_curOriginMaterialData.Color.Green = node.Color.Green;
+                m_curOriginMaterialData.Color.Blue = node.Color.Blue;
+                m_curOriginMaterialData.Transparency = (int)(255 * node.Transparency);
+                m_curOriginMaterialData.Name = "Color_" + node.Color.Red.ToString() + "-" +
+                    node.Color.Green.ToString() + "-" +
+                    node.Color.Blue.ToString() + "-" +
+                    m_curOriginMaterialData.Transparency.ToString();
             }
         }
 
         public void OnPolymesh(PolymeshTopology polyMesh)
         {
             try
-            { 
+            {
                 MeshData mesh = GetMeshDataFromPolymesh(polyMesh);
 
                 // 以下的材质获取，优先选用 m_curElementMaterialData，再者选用m_curMaterialId指代的material，最后选用m_curOriginMaterialData，如果再为空则使用“NoMaterial”
@@ -762,8 +758,7 @@ namespace Exporter
             }
             catch (Exception ex)
             {
-                MessageBox.Show("throw from OnPolymesh. " + ex.Message);
-                throw ex;
+                throw new Exception("throw from polymesh", ex);
             }
         }
 
@@ -840,7 +835,7 @@ namespace Exporter
             }
             catch (Exception ex)
             {
-                MessageBox.Show(ex.Message);
+                
                 return RenderNodeAction.Skip;
             }
         }
@@ -854,7 +849,7 @@ namespace Exporter
             if (!_isElementSkiped)
             {
                 m_stackBlock.Pop();
-                _insertStack.Pop();              
+                _insertStack.Pop();
             }
         }
 
@@ -872,21 +867,16 @@ namespace Exporter
                 if (m_curElementMaterialData != null)   // 如果设置了颜色，则使用不同的块
                     blockName += "#" + m_curElementMaterialData.Name;
 
-                Debug.WriteLine("--- instance begin, blkname: " + blockName);
-
                 BlockData blk = null;
                 bool bBlkAlreadyExist = m_dictBlock.TryGetValue(blockName, out blk);
                 if (!bBlkAlreadyExist)
                 {
                     blk = new BlockData();
                     blk.Name = blockName;
-                    Debug.WriteLine("--- not exist, added!");
                     m_dictBlock.Add(blk.Name, blk);
                 }
                 else
                 {
-                    Debug.WriteLine("--- already exist, add __tmpBlk__ follow!");
-
                     blockName = blockName + "__tmpBlk__";
 
                     if (m_dictBlock.TryGetValue(blockName, out blk))
@@ -945,8 +935,7 @@ namespace Exporter
             }
             catch (Exception e)
             {
-                MessageBox.Show("throw from OnInstanceBegin. " + e.Message);
-                throw e;
+                throw new Exception("throw from OnInstanceBegin", e);
             }
         }
 
@@ -961,10 +950,8 @@ namespace Exporter
                 m_stackTrans.Pop();
                 m_stackBlock.Pop();
 
-                Debug.WriteLine("--- Instance end.");
                 if (!m_dictBlock.ContainsKey(curIns.BlockName))
                 {
-                    Debug.WriteLine("--- blk Not exist: " + curIns.BlockName);
                     return;
                 }
 
@@ -977,25 +964,21 @@ namespace Exporter
                 {
                     var has = CurrentBlockData.Inserts.Remove(curIns);
                     m_dictBlock.Remove(curIns.BlockName);
-                    Debug.WriteLine("--- blk removed: " + curIns.BlockName);
                 }
                 else if (curIns.BlockName.EndsWith("__tmpBlk__"))
                 {
-                    Debug.WriteLine("--- blk endwith '__tmpBlk__': " + curIns.BlockName + " --- removed!");
-
                     m_dictBlock.Remove(curIns.BlockName);
 
                     var extName = curIns.BlockName.Substring(0, curIns.BlockName.Length - 10);
                     if (m_dictBlock.ContainsKey(extName))
                     {
                         curIns.BlockName = extName;
-                        Debug.WriteLine("--- rename ins blk name with: " + extName);
                     }
                 }
             }
             catch (Exception e)
             {
-                MessageBox.Show("throw from OnInstanceEnd. " + e.Message);
+                throw e;
             }
         }
 
@@ -1087,6 +1070,6 @@ namespace Exporter
             */
         }
 
-#endregion
+        #endregion
     }
 }
