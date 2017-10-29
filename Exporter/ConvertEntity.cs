@@ -658,10 +658,13 @@ namespace Exporter
                 sb.Append(groupName + "=" + _gPropertyGroupSeparator + "\r\n");
 
                 foreach (PropertyData prop in listData)
-                    sb.Append(prop.Name + "=" + prop.Value ?? string.Empty + "\r\n");
-
-                vdf.Props = sb.ToString();
+                {
+                    var propValue = string.IsNullOrEmpty(prop.Value) ? "" : prop.Value;
+                    sb.Append(prop.Name + "=" + propValue + "\r\n");
+                }
             }
+
+            vdf.Props = sb.ToString();
         }
 
         private vdPolyface AddMeshToEntities(vdEntities entities, MeshData mesh)
