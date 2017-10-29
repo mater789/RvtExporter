@@ -18,7 +18,20 @@ namespace Exporter
 
         public void SetProgress(int nValue)
         {
-            progressBar.Value = nValue;
+            if (progressBar.Value != nValue)
+            {
+                progressBar.Value = nValue;
+                progressBar.Update();
+            }
+        }
+
+        public void SetProgress1(int nValue)
+        {
+            if (progressBar1.Value != nValue)
+            {
+                progressBar1.Value = nValue;
+                progressBar1.Update();
+            }
         }
     }
 }

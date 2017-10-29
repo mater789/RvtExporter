@@ -19,9 +19,10 @@ namespace Exporter
     {
         private VectorDraw.Professional.Control.VectorDrawBaseControl vDraw = new VectorDraw.Professional.Control.VectorDrawBaseControl();
         private FormProgress m_formProgress = null;
-        private bool IsZipFile = false;
+        private bool IsZipFile = true;
 
         private static string _gGridLayerName = "GRID__";
+        private static string _gPropertyGroupSeparator = "--------";
 
         public IWin32Window WndParent
         {
@@ -105,7 +106,6 @@ namespace Exporter
 
         public ConvertEntity()
         {
-            vDraw.Progress += vDraw_Progress;
         }
 
         void vDraw_Progress(object sender, long percent, string jobDescription)
@@ -200,9 +200,11 @@ namespace Exporter
                 if (this.ExportSetting.SystemSetting.IsMoveBlkXpropertyToInsert)
                     MoveProperty();
 
+                vDraw.Progress += vDraw_Progress;
                 m_formProgress.Text = "正在保存";
                 bool bResult = vDraw.ActiveDocument.SaveAs(fileName);
                 m_formProgress?.Close();
+                vDraw.Progress -= vDraw_Progress;
             }
         }
 
@@ -227,16 +229,43 @@ namespace Exporter
                     vdBlock vdb = vdi.Block;
                     foreach (string str in list1)
                     {
-                        vdXProperty x = vdb.XProperties.FindName(str);
-                        if (x != null)
+                        var prop = GetFigurePropByName(vdb, str);
+                        if (prop != null)
                         {
-                            vdXProperty x1 = vdi.XProperties.Add(str);
-                            x1.PropValue = x.PropValue;
+                            vdi.Props += str + "=" + prop + "\r\n";
                         }
                     }
-                    vdb.XProperties.RemoveAll();
+                    vdb.Props = string.Empty;
                 }
             }
+        }
+
+        private string GetFigurePropByName(vdPrimary vdp, string propName)
+        {
+            if (vdp == null)
+                return null;
+
+            if (string.IsNullOrEmpty(vdp.Props))
+                return null;
+
+            var propStrings = vdp.Props.Split(new char[2] { '\r', '\n' });
+            foreach (var propStr in propStrings)
+            {
+                if (string.IsNullOrEmpty(propStr))
+                    continue;
+
+                var index = propStr.IndexOf('=');
+                if (index < 0)
+                    continue;
+
+                var name = propStr.Substring(0, index);
+                var prop = propStr.Substring(index + 1, propStr.Length - index - 1);
+
+                if (string.Compare(propName, name) == 0)
+                    return prop;
+            }
+
+            return null;
         }
 
         private void AddRebarData()
@@ -622,22 +651,16 @@ namespace Exporter
 
         private void AddXPropertiesToEntity(Dictionary<string, List<PropertyData>> dictProperty, vdPrimary vdf)
         {
+            StringBuilder sb = new StringBuilder();
             foreach (string groupName in dictProperty.Keys)
             {
                 List<PropertyData> listData = dictProperty[groupName];
-
-                vdXProperty vdx = new vdXProperty();
-                vdx.Name = groupName;
-                vdx.PropValue = "--------";
-                vdf.XProperties.AddItem(vdx);
+                sb.Append(groupName + "=" + _gPropertyGroupSeparator + "\r\n");
 
                 foreach (PropertyData prop in listData)
-                {
-                    vdXProperty vdx1 = new vdXProperty();
-                    vdx1.Name = prop.Name;
-                    vdx1.PropValue = prop.Value ?? string.Empty;
-                    vdf.XProperties.AddItem(vdx1);
-                }
+                    sb.Append(prop.Name + "=" + prop.Value ?? string.Empty + "\r\n");
+
+                vdf.Props = sb.ToString();
             }
         }
 

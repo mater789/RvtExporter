@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Autodesk.Revit.UI;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -97,7 +98,6 @@ namespace Exporter
             vdArray<vdBlock> blocks = new vdArray<vdBlock>();
             bool LargeNum = false;
 
-
             foreach (vdBlock vdb in v.ActiveDocument.Blocks)
             {
 
@@ -111,22 +111,16 @@ namespace Exporter
                 Dictionary<int, int> ids = new Dictionary<int, int>();
                 int icount = 0;
 
-                if (vdb.Entities.Count > 5000)
-                {
-                    LargeNum = true;
-                }
-                else
-                {
-                    LargeNum = false;
-                }
+                p.SetProgress(value);
 
-                if (!LargeNum)
-                {
-                    //label4.Text = ii.ToString() + "/" + count.ToString() + "/" + vdb.Entities.Count.ToString();
-                    p.SetProgress(value);
-                    p.Refresh();
-                }
-
+                //if (vdb.Entities.Count > 5000)
+                //{
+                //    LargeNum = true;
+                //}
+                //else
+                //{
+                //    LargeNum = false;
+                //}
 
                 foreach (vdFigure vdf in vdb.Entities)
                 {
@@ -144,18 +138,13 @@ namespace Exporter
                             layFaces[vdp.Layer.Name].MergePolyface1(vdp);
                         }
 
-                        if (LargeNum)
-                        {
-                            icount++;
-                            //label4.Text = ii.ToString() + "/" + count.ToString() + "/" + vdb.Entities.Count.ToString() + "/" + icount.ToString();
-                            p.SetProgress(value);
-                            p.Refresh();
-                        }
-
-
+                        //if (LargeNum)
+                        //{
+                        //    icount++;
+                        //}
                     }
                 }
-                //}
+
                 icount = 0;
                 for (int i = vdb.Entities.Count - 1; i >= 0; i--)
                 {
@@ -181,13 +170,10 @@ namespace Exporter
                         vdf = null;
                     }
 
-                    if (LargeNum)
-                    {
-                        icount++;
-                        //label4.Text = ii.ToString() + "/" + count.ToString() + "/" + vdb.Entities.Count.ToString() + "/" + icount.ToString();
-                        p.SetProgress(value);
-                        p.Refresh();
-                    }
+                    //if (LargeNum)
+                    //{
+                    //    icount++;
+                    //}
                 }
 
                 //vdb.Update();

@@ -48,7 +48,7 @@ namespace ReduceTris
             vec.EnsureDocument();
             vec.ActiveDocument.EnsureDefaults();
             doc = vec.ActiveDocument;
-            vec.Progress += new VectorDraw.Professional.Control.ProgressEventHandler(vec_Progress);
+            vec.Progress += vec_Progress;
             doc.Open(strFile);
             foreach (vdFigure vdf in doc.ActiveLayOut.Entities)
             {

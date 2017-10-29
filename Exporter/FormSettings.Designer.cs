@@ -37,6 +37,7 @@
             this.label1 = new System.Windows.Forms.Label();
             this.tabControl1 = new System.Windows.Forms.TabControl();
             this.tabPageSystem = new System.Windows.Forms.TabPage();
+            this.chkMerge = new System.Windows.Forms.CheckBox();
             this.chkRebar = new System.Windows.Forms.CheckBox();
             this.chkTextureFile = new System.Windows.Forms.CheckBox();
             this.chkUserDefineFormat = new System.Windows.Forms.CheckBox();
@@ -53,7 +54,7 @@
             this.label4 = new System.Windows.Forms.Label();
             this.textWidth = new System.Windows.Forms.TextBox();
             this.label3 = new System.Windows.Forms.Label();
-            this.chkMerge = new System.Windows.Forms.CheckBox();
+            this.chkMoveBlkProps = new System.Windows.Forms.CheckBox();
             this.tabControl1.SuspendLayout();
             this.tabPageSystem.SuspendLayout();
             this.tabPageParking.SuspendLayout();
@@ -145,6 +146,7 @@
             // 
             // tabPageSystem
             // 
+            this.tabPageSystem.Controls.Add(this.chkMoveBlkProps);
             this.tabPageSystem.Controls.Add(this.chkMerge);
             this.tabPageSystem.Controls.Add(this.chkRebar);
             this.tabPageSystem.Controls.Add(this.chkTextureFile);
@@ -167,6 +169,16 @@
             this.tabPageSystem.TabIndex = 0;
             this.tabPageSystem.Text = "系统";
             this.tabPageSystem.UseVisualStyleBackColor = true;
+            // 
+            // chkMerge
+            // 
+            this.chkMerge.AutoSize = true;
+            this.chkMerge.Location = new System.Drawing.Point(214, 37);
+            this.chkMerge.Name = "chkMerge";
+            this.chkMerge.Size = new System.Drawing.Size(120, 16);
+            this.chkMerge.TabIndex = 20;
+            this.chkMerge.Text = "合并网格（提速）";
+            this.chkMerge.UseVisualStyleBackColor = true;
             // 
             // chkRebar
             // 
@@ -327,15 +339,15 @@
             this.label3.TabIndex = 7;
             this.label3.Text = "编号大小范围：";
             // 
-            // chkMerge
+            // chkMoveBlkProps
             // 
-            this.chkMerge.AutoSize = true;
-            this.chkMerge.Location = new System.Drawing.Point(214, 37);
-            this.chkMerge.Name = "chkMerge";
-            this.chkMerge.Size = new System.Drawing.Size(120, 16);
-            this.chkMerge.TabIndex = 20;
-            this.chkMerge.Text = "合并网格（提速）";
-            this.chkMerge.UseVisualStyleBackColor = true;
+            this.chkMoveBlkProps.AutoSize = true;
+            this.chkMoveBlkProps.Location = new System.Drawing.Point(214, 59);
+            this.chkMoveBlkProps.Name = "chkMoveBlkProps";
+            this.chkMoveBlkProps.Size = new System.Drawing.Size(84, 16);
+            this.chkMoveBlkProps.TabIndex = 21;
+            this.chkMoveBlkProps.Text = "块属性合并";
+            this.chkMoveBlkProps.UseVisualStyleBackColor = true;
             // 
             // FormSettings
             // 
@@ -387,5 +399,6 @@
         private System.Windows.Forms.CheckBox chkTextureFile;
         private System.Windows.Forms.CheckBox chkRebar;
         private System.Windows.Forms.CheckBox chkMerge;
+        private System.Windows.Forms.CheckBox chkMoveBlkProps;
     }
 }

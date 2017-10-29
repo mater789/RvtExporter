@@ -19,8 +19,6 @@ namespace Exporter
             UIApplication uiapp = commandData.Application;
             var ap = commandData.Application.Application;
 
-           
-
             UIDocument uidoc = uiapp.ActiveUIDocument;
             if (uidoc == null)
             {
@@ -45,7 +43,9 @@ namespace Exporter
                 return Result.Cancelled;
 
             Exception ex;
-            if (Export(uiapp.Application, uidoc.ActiveView as View3D, dlg.ExportSetting, out ex))
+            var assertSet = uiapp.Application.get_Assets(AssetType.Appearance);
+
+            if (Export(assertSet, uidoc.ActiveView as View3D, dlg.ExportSetting, out ex))
             {
                 TaskDialog.Show("导出", "导出完成！");
                 return Result.Succeeded;
@@ -58,7 +58,9 @@ namespace Exporter
             }
         }
 
-        public bool Export(Autodesk.Revit.ApplicationServices.Application app, View3D view, ExportSetting setting, out Exception ex)
+        
+
+        public bool Export(AssetSet appearanceAssetSet, View3D view, ExportSetting setting, out Exception ex)
         {
             ex = new Exception();
 
@@ -81,7 +83,7 @@ namespace Exporter
                         envSetting.ReadOriginUnitsAndSetNew();
 
                     ModelExportContext context = new ModelExportContext(view.Document);
-                    context.BuiltInMaterialLibraryAsset = app.get_Assets(AssetType.Appearance);
+                    context.BuiltInMaterialLibraryAsset = appearanceAssetSet;
                     context.IsPackageEntityToBlock = true;
                     context.IsExportProperty = setting.SystemSetting.IsExportProperty;
                     context.ExtraMaterial = colorOverride.GetMaterials();
