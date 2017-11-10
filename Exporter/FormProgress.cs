@@ -24,14 +24,5 @@ namespace Exporter
                 progressBar.Update();
             }
         }
-
-        public void SetProgress1(int nValue)
-        {
-            if (progressBar1.Value != nValue)
-            {
-                progressBar1.Value = nValue;
-                progressBar1.Update();
-            }
-        }
     }
 }
