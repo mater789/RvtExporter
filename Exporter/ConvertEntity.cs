@@ -48,13 +48,6 @@ namespace Exporter
 
         public Dictionary<string, BlockData> DictBlocks { get; set; }
 
-        private bool m_OptimizeTriangle = false;
-        public bool OptimizeTriangle
-        {
-            get { return m_OptimizeTriangle; }
-            set { m_OptimizeTriangle = value; }
-        }
-
         public ExportSetting ExportSetting
         {
             get;
@@ -115,7 +108,7 @@ namespace Exporter
                 m_formProgress.SetProgress((int)percent);
         }
 
-        public void BeginConvert(string fileName)
+        public void BeginConvert()
         {
             if (ExportSetting.SystemSetting.IsUserDefineFormat)
             {
@@ -128,10 +121,10 @@ namespace Exporter
                 ser.Materials = Materials;
                 ser.Levels = Levels;
 
-                if (File.Exists(fileName))
-                    File.Delete(fileName);
+                if (File.Exists(ExportSetting.SystemSetting.ExportFilePath))
+                    File.Delete(ExportSetting.SystemSetting.ExportFilePath);
 
-                using (FileStream fs = File.OpenWrite(fileName))
+                using (FileStream fs = File.OpenWrite(ExportSetting.SystemSetting.ExportFilePath))
                 {
                     if (IsZipFile)
                     {
@@ -173,13 +166,13 @@ namespace Exporter
                     AddGridPolyline();
                     AddLevelData();
 
-                    if (m_OptimizeTriangle)
+                    if (ExportSetting.SystemSetting.IsOptimizeCylinderFace)
                     {
                         m_formProgress.Text = "正在优化数据...";
                         ReduceTris.CRevit2vdl redTri = new ReduceTris.CRevit2vdl();
                         redTri.FamilySketchDictionary = this.FamilySketchDictionary;
                         redTri.InstanceLocationDictionary = this.InstanceLocationCurveDictionary;
-                        redTri.Convert(vDraw.ActiveDocument, m_formProgress.progressBar, fileName);
+                        redTri.Convert(vDraw.ActiveDocument, m_formProgress.progressBar);
                     }
 
                     if (this.ExportSetting.SystemSetting.IsMergeFace)
@@ -202,7 +195,7 @@ namespace Exporter
 
                 vDraw.Progress += vDraw_Progress;
                 m_formProgress.Text = "正在保存";
-                bool bResult = vDraw.ActiveDocument.SaveAs(fileName);
+                bool bResult = vDraw.ActiveDocument.SaveAs(ExportSetting.SystemSetting.ExportFilePath);
                 m_formProgress?.Close();
                 vDraw.Progress -= vDraw_Progress;
             }

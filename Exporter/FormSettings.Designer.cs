@@ -37,6 +37,7 @@
             this.label1 = new System.Windows.Forms.Label();
             this.tabControl1 = new System.Windows.Forms.TabControl();
             this.tabPageSystem = new System.Windows.Forms.TabPage();
+            this.chkMoveBlkProps = new System.Windows.Forms.CheckBox();
             this.chkMerge = new System.Windows.Forms.CheckBox();
             this.chkRebar = new System.Windows.Forms.CheckBox();
             this.chkTextureFile = new System.Windows.Forms.CheckBox();
@@ -54,7 +55,7 @@
             this.label4 = new System.Windows.Forms.Label();
             this.textWidth = new System.Windows.Forms.TextBox();
             this.label3 = new System.Windows.Forms.Label();
-            this.chkMoveBlkProps = new System.Windows.Forms.CheckBox();
+            this.chkWallSideArea = new System.Windows.Forms.CheckBox();
             this.tabControl1.SuspendLayout();
             this.tabPageSystem.SuspendLayout();
             this.tabPageParking.SuspendLayout();
@@ -107,7 +108,7 @@
             // btnStartExport
             // 
             this.btnStartExport.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnStartExport.Location = new System.Drawing.Point(249, 210);
+            this.btnStartExport.Location = new System.Drawing.Point(297, 221);
             this.btnStartExport.Name = "btnStartExport";
             this.btnStartExport.Size = new System.Drawing.Size(110, 23);
             this.btnStartExport.TabIndex = 4;
@@ -141,11 +142,12 @@
             this.tabControl1.Location = new System.Drawing.Point(12, 12);
             this.tabControl1.Name = "tabControl1";
             this.tabControl1.SelectedIndex = 0;
-            this.tabControl1.Size = new System.Drawing.Size(347, 192);
+            this.tabControl1.Size = new System.Drawing.Size(395, 203);
             this.tabControl1.TabIndex = 8;
             // 
             // tabPageSystem
             // 
+            this.tabPageSystem.Controls.Add(this.chkWallSideArea);
             this.tabPageSystem.Controls.Add(this.chkMoveBlkProps);
             this.tabPageSystem.Controls.Add(this.chkMerge);
             this.tabPageSystem.Controls.Add(this.chkRebar);
@@ -165,10 +167,20 @@
             this.tabPageSystem.Location = new System.Drawing.Point(4, 22);
             this.tabPageSystem.Name = "tabPageSystem";
             this.tabPageSystem.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPageSystem.Size = new System.Drawing.Size(339, 166);
+            this.tabPageSystem.Size = new System.Drawing.Size(387, 177);
             this.tabPageSystem.TabIndex = 0;
             this.tabPageSystem.Text = "系统";
             this.tabPageSystem.UseVisualStyleBackColor = true;
+            // 
+            // chkMoveBlkProps
+            // 
+            this.chkMoveBlkProps.AutoSize = true;
+            this.chkMoveBlkProps.Location = new System.Drawing.Point(214, 59);
+            this.chkMoveBlkProps.Name = "chkMoveBlkProps";
+            this.chkMoveBlkProps.Size = new System.Drawing.Size(84, 16);
+            this.chkMoveBlkProps.TabIndex = 21;
+            this.chkMoveBlkProps.Text = "块属性合并";
+            this.chkMoveBlkProps.UseVisualStyleBackColor = true;
             // 
             // chkMerge
             // 
@@ -226,7 +238,7 @@
             // 
             this.label6.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.label6.AutoSize = true;
-            this.label6.Location = new System.Drawing.Point(6, 111);
+            this.label6.Location = new System.Drawing.Point(6, 122);
             this.label6.Name = "label6";
             this.label6.Size = new System.Drawing.Size(65, 12);
             this.label6.TabIndex = 15;
@@ -234,10 +246,11 @@
             // 
             // txtDefaultLayer
             // 
-            this.txtDefaultLayer.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.txtDefaultLayer.Location = new System.Drawing.Point(77, 108);
+            this.txtDefaultLayer.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.txtDefaultLayer.Location = new System.Drawing.Point(77, 119);
             this.txtDefaultLayer.Name = "txtDefaultLayer";
-            this.txtDefaultLayer.Size = new System.Drawing.Size(241, 21);
+            this.txtDefaultLayer.Size = new System.Drawing.Size(304, 21);
             this.txtDefaultLayer.TabIndex = 14;
             // 
             // chkOriginMaterial
@@ -253,7 +266,7 @@
             // btnSaveFile
             // 
             this.btnSaveFile.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnSaveFile.Location = new System.Drawing.Point(277, 135);
+            this.btnSaveFile.Location = new System.Drawing.Point(325, 146);
             this.btnSaveFile.Name = "btnSaveFile";
             this.btnSaveFile.Size = new System.Drawing.Size(56, 23);
             this.btnSaveFile.TabIndex = 6;
@@ -265,17 +278,17 @@
             // 
             this.textFilePath.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.textFilePath.Location = new System.Drawing.Point(77, 135);
+            this.textFilePath.Location = new System.Drawing.Point(77, 146);
             this.textFilePath.Name = "textFilePath";
             this.textFilePath.ReadOnly = true;
-            this.textFilePath.Size = new System.Drawing.Size(194, 21);
+            this.textFilePath.Size = new System.Drawing.Size(242, 21);
             this.textFilePath.TabIndex = 5;
             // 
             // label2
             // 
             this.label2.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(6, 140);
+            this.label2.Location = new System.Drawing.Point(6, 151);
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(65, 12);
             this.label2.TabIndex = 4;
@@ -339,22 +352,22 @@
             this.label3.TabIndex = 7;
             this.label3.Text = "编号大小范围：";
             // 
-            // chkMoveBlkProps
+            // chkWallSideArea
             // 
-            this.chkMoveBlkProps.AutoSize = true;
-            this.chkMoveBlkProps.Location = new System.Drawing.Point(214, 59);
-            this.chkMoveBlkProps.Name = "chkMoveBlkProps";
-            this.chkMoveBlkProps.Size = new System.Drawing.Size(84, 16);
-            this.chkMoveBlkProps.TabIndex = 21;
-            this.chkMoveBlkProps.Text = "块属性合并";
-            this.chkMoveBlkProps.UseVisualStyleBackColor = true;
+            this.chkWallSideArea.AutoSize = true;
+            this.chkWallSideArea.Location = new System.Drawing.Point(214, 81);
+            this.chkWallSideArea.Name = "chkWallSideArea";
+            this.chkWallSideArea.Size = new System.Drawing.Size(96, 16);
+            this.chkWallSideArea.TabIndex = 22;
+            this.chkWallSideArea.Text = "墙内外侧面积";
+            this.chkWallSideArea.UseVisualStyleBackColor = true;
             // 
             // FormSettings
             // 
             this.AcceptButton = this.btnStartExport;
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(371, 245);
+            this.ClientSize = new System.Drawing.Size(419, 256);
             this.Controls.Add(this.tabControl1);
             this.Controls.Add(this.btnStartExport);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedToolWindow;
@@ -400,5 +413,6 @@
         private System.Windows.Forms.CheckBox chkRebar;
         private System.Windows.Forms.CheckBox chkMerge;
         private System.Windows.Forms.CheckBox chkMoveBlkProps;
+        private System.Windows.Forms.CheckBox chkWallSideArea;
     }
 }

@@ -68,6 +68,7 @@ namespace Exporter
             this.IsUserDefineFormat = false;
             this.IsExportTextureFile = false;
             this.IsExportRebar = false;
+            this.IsExportWallSideArea = false;
             this.IsMergeFace = true;
             this.IsMoveBlkXpropertyToInsert = true;
             this.ExportFilePath = string.Empty;
@@ -81,6 +82,8 @@ namespace Exporter
         public bool IsExportProperty { get; set; }
 
         public bool IsExportGrid { get; set; }
+
+        public bool IsExportWallSideArea { get; set; }
 
         public bool IsOptimizeCylinderFace { get; set; }
 

@@ -58,8 +58,6 @@ namespace Exporter
             }
         }
 
-        
-
         public bool Export(AssetSet appearanceAssetSet, View3D view, ExportSetting setting, out Exception ex)
         {
             ex = new Exception();
@@ -83,9 +81,9 @@ namespace Exporter
                         envSetting.ReadOriginUnitsAndSetNew();
 
                     ModelExportContext context = new ModelExportContext(view.Document);
+                    context.ExportSetting = setting;
                     context.BuiltInMaterialLibraryAsset = appearanceAssetSet;
                     context.IsPackageEntityToBlock = true;
-                    context.IsExportProperty = setting.SystemSetting.IsExportProperty;
                     context.ExtraMaterial = colorOverride.GetMaterials();
                     context.ExtraElementColorSetting = colorOverride.GetElementColorSetting();
                     context.IsOptimisePipeEntity = true;
@@ -99,7 +97,6 @@ namespace Exporter
                     if (setting.SystemSetting.IsModifyUnit)
                         envSetting.RecoverOriginUnits();
 
-                    converter.OptimizeTriangle = setting.SystemSetting.IsOptimizeCylinderFace;
                     converter.Materials = context.Materials;
                     converter.ModelBlock = context.ModelSpaceBlock;
                     converter.DictBlocks = context.DictBlocks;
@@ -109,7 +106,7 @@ namespace Exporter
                 }
 
                 converter.WndParent = new WindowHandle(Process.GetCurrentProcess().MainWindowHandle);
-                converter.BeginConvert(setting.SystemSetting.ExportFilePath);
+                converter.BeginConvert();
             }
             catch (Exception e)
             {

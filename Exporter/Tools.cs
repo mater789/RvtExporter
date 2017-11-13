@@ -83,6 +83,7 @@ namespace Exporter
     public static class Tools
     {
         public static double Ft2MmScale = 304.8;
+        public static double SqrFt2SqrM = 0.0929;
         public static readonly string FileExtention = ".bim";
 
         public static List<string> TextureLibPaths = new List<string>
@@ -572,6 +573,35 @@ namespace Exporter
             }
 
             return result;
+        }
+
+        public static List<Face> GetWallSideFace(Wall wall, bool isOuterFace)
+        {
+            var refs = HostObjectUtils.GetSideFaces(wall, isOuterFace ? ShellLayerType.Exterior : ShellLayerType.Interior);
+            return refs.Select(rf => wall.GetGeometryObjectFromReference(rf) as Face).Where(obj => obj != null).ToList();
+        }
+
+        public static double GetWallSideFaceArea(Wall wall, bool isOuterFace)
+        {
+            var outerFaces = Tools.GetWallSideFace(wall, isOuterFace);
+            double area = 0.0;
+            foreach (var face in outerFaces)
+            {
+                area += face.Area;
+            }
+
+            return area;
+        }
+
+        public static bool IsElementIntersect(Document doc, Element elem1, Element elem2)
+        {
+            FilteredElementCollector collector = new FilteredElementCollector(doc);
+            var elemInterSectFilter = new ElementIntersectsElementFilter(elem1, false);
+            collector.WherePasses(elemInterSectFilter);
+            var elems = collector.ToElements();
+
+            MessageBox.Show(elems.Count.ToString());
+            return elems.Contains(elem2);
         }
 
         /// <summary>

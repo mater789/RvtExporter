@@ -26,6 +26,7 @@ namespace Exporter
         public bool IsOptimisePipeEntity = true;
 
 
+        public ExportSetting ExportSetting { get; set; }
 
         /// <summary>
         /// 提前收集好的材质信息
@@ -134,23 +135,6 @@ namespace Exporter
             get
             {
                 return m_stackBlock.Count < 1 ? null : m_stackBlock.Peek();
-            }
-        }
-
-        private bool m_bIsExportProperty = true;
-        /// <summary>
-        /// 是否要导出属性信息
-        /// </summary>
-        public bool IsExportProperty
-        {
-            set
-            {
-                m_bIsExportProperty = value;
-            }
-
-            get
-            {
-                return m_bIsExportProperty;
             }
         }
 
@@ -332,7 +316,7 @@ namespace Exporter
         private Dictionary<string, List<PropertyData>> GetPropertiesAndLocationFromElement(Element elem)
         {
             Dictionary<string, List<PropertyData>> dictProperties = new Dictionary<string, List<PropertyData>>();
-            if (!m_bIsExportProperty)
+            if (!ExportSetting.SystemSetting.IsExportProperty)
                 return dictProperties;
 
             // 属性中添加族和类型信息
@@ -345,6 +329,19 @@ namespace Exporter
             if (!string.IsNullOrEmpty(fname) && !(CurrentElement is MEPCurve))
                 internalProps.Add(new PropertyData { GroupName = "#Internal", Name = "#family", Value = fname });
             dictProperties["#Internal"] = internalProps;
+
+            if (elem is Wall wall && ExportSetting.SystemSetting.IsExportWallSideArea)
+            {
+                var innerArea = Math.Round(Tools.GetWallSideFaceArea(wall, false) * Tools.SqrFt2SqrM, 3);
+                var outerArea = Math.Round(Tools.GetWallSideFaceArea(wall, true) * Tools.SqrFt2SqrM, 3);
+
+                var sideAreaProps = new List<PropertyData>
+                {
+                    new PropertyData { GroupName = "算量信息", Name = "内测面积", Value = innerArea.ToString() },
+                    new PropertyData { GroupName = "算量信息", Name = "外侧面积", Value = outerArea.ToString() }
+                };
+                dictProperties["算量信息"] = sideAreaProps;
+            }
 
             // 读取位置信息
             if (InstanceLocation == null)

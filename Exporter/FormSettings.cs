@@ -47,6 +47,7 @@ namespace Exporter
             chkExportLink.Checked = this.ExportSetting.SystemSetting.IsExportLinkModel;
             chkExportProperty.Checked = this.ExportSetting.SystemSetting.IsExportProperty;
             chkExportGrid.Checked = this.ExportSetting.SystemSetting.IsExportGrid;
+            chkWallSideArea.Checked = this.ExportSetting.SystemSetting.IsExportWallSideArea;
             chkOptimize.Checked = this.ExportSetting.SystemSetting.IsOptimizeCylinderFace;
             chkOriginMaterial.Checked = this.ExportSetting.SystemSetting.IsOriginMaterial;
             chkUserDefineFormat.Checked = this.ExportSetting.SystemSetting.IsUserDefineFormat;
@@ -74,6 +75,7 @@ namespace Exporter
             this.ExportSetting.SystemSetting.IsExportRebar = chkRebar.Checked;
             this.ExportSetting.SystemSetting.IsMergeFace = chkMerge.Checked;
             this.ExportSetting.SystemSetting.IsMoveBlkXpropertyToInsert = chkMoveBlkProps.Checked;
+            this.ExportSetting.SystemSetting.IsExportWallSideArea = chkWallSideArea.Checked;
 
             string strValue = textFilePath.Text.Trim();
             if (strValue.Length < 1)

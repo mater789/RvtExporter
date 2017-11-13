@@ -422,11 +422,11 @@ namespace ReduceTris
         */
         //可以封成一个类
 
-        public void Convert(vdDocument doc, ProgressBar pb, string outFileName)
+        public void Convert(vdDocument doc, ProgressBar pb)
         {
             this.doc = doc;
             this.progressBar1 = pb;
-            Convert(outFileName);
+            Convert();
         }
 
         void SetProgress(int Value)
@@ -437,7 +437,7 @@ namespace ReduceTris
             Application.DoEvents();
         }
 
-        public void Convert(string outFileName)
+        public void Convert()
         {
             //doc.Purge();
             SetProgress(5);

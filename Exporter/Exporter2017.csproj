@@ -87,6 +87,7 @@
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Command\SolidJoinCommand.cs" />
     <Compile Include="ConvertEntity.cs" />
     <Compile Include="CRevit2vdl.cs" />
     <Compile Include="ElementColorOverride.cs" />
