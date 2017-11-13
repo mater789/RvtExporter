@@ -104,7 +104,7 @@
     <Compile Include="Entity\TransformData.cs" />
     <Compile Include="Entity\TriangleIndexData.cs" />
     <Compile Include="Entity\PropertyData.cs" />
-    <Compile Include="Exporter.cs" />
+    <Compile Include="Command\Exporter.cs" />
     <Compile Include="Entity\ColorData.cs" />
     <Compile Include="Entity\BlockData.cs" />
     <Compile Include="Entity\MeshData.cs" />
