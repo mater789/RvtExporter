@@ -364,22 +364,4 @@ namespace Exporter
            */
         }
     }
-
-    public class WindowHandle : IWin32Window
-    {
-        IntPtr _hwnd;
-
-        public WindowHandle(IntPtr h)
-        {
-            _hwnd = h;
-        }
-
-        public IntPtr Handle
-        {
-            get
-            {
-                return _hwnd;
-            }
-        }
-    }
 }

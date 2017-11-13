@@ -9,6 +9,7 @@ using VectorDraw.Geometry;
 using VectorDraw.Professional.vdPrimaries;
 using System.IO;
 using System.Xml;
+using System.Windows.Forms;
 
 namespace Exporter
 {
@@ -58,6 +59,24 @@ namespace Exporter
 
             return (b.Max.z - b.Min.z) + (b.Max.y - b.Min.y) + (b.Max.x - b.Min.x);
 
+        }
+    }
+
+    public class WindowHandle : IWin32Window
+    {
+        IntPtr _hwnd;
+
+        public WindowHandle(IntPtr h)
+        {
+            _hwnd = h;
+        }
+
+        public IntPtr Handle
+        {
+            get
+            {
+                return _hwnd;
+            }
         }
     }
 

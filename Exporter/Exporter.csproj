@@ -104,7 +104,7 @@
     <Compile Include="Entity\TransformData.cs" />
     <Compile Include="Entity\TriangleIndexData.cs" />
     <Compile Include="Entity\PropertyData.cs" />
-    <Compile Include="Exporter.cs" />
+    <Compile Include="Command\Exporter.cs" />
     <Compile Include="Entity\ColorData.cs" />
     <Compile Include="Entity\BlockData.cs" />
     <Compile Include="Entity\MeshData.cs" />
@@ -147,6 +147,7 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
