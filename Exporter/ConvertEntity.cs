@@ -19,7 +19,7 @@ namespace Exporter
     {
         private VectorDraw.Professional.Control.VectorDrawBaseControl vDraw = new VectorDraw.Professional.Control.VectorDrawBaseControl();
         private FormProgress m_formProgress = null;
-        private bool IsZipFile = true;
+        private bool IsZipFile = false;
 
         private static string _gGridLayerName = "GRID__";
         private static string _gPropertyGroupSeparator = "--------";
