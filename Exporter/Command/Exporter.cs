@@ -73,7 +73,7 @@ namespace Exporter
                 else
                 {
                     ElementColorOverride colorOverride = new ElementColorOverride();
-                    if (!setting.SystemSetting.IsOriginMaterial)
+                    if (!setting.SystemSetting.IsOriginMaterial && !view.Document.IsFamilyDocument)
                         colorOverride.ArrangeElemlentColor(view.Document, view);
 
                     RevitEnvironmentSetting envSetting = new RevitEnvironmentSetting(view.Document);
