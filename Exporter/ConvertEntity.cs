@@ -116,10 +116,12 @@ namespace Exporter
                 if (ExportSetting.SystemSetting.IsExportTextureFile)
                     ProcessMaterialMapFile();
 
-                var ser = new ModelSerializeEntity();
-                ser.Blocks = DictBlocks;
-                ser.Materials = Materials;
-                ser.Levels = Levels;
+                var ser = new ModelSerializeEntity
+                {
+                    Blocks = DictBlocks,
+                    Materials = Materials,
+                    Levels = Levels
+                };
 
                 if (File.Exists(ExportSetting.SystemSetting.ExportFilePath))
                     File.Delete(ExportSetting.SystemSetting.ExportFilePath);
@@ -169,9 +171,11 @@ namespace Exporter
                     if (ExportSetting.SystemSetting.IsOptimizeCylinderFace)
                     {
                         m_formProgress.Text = "正在优化数据...";
-                        ReduceTris.CRevit2vdl redTri = new ReduceTris.CRevit2vdl();
-                        redTri.FamilySketchDictionary = this.FamilySketchDictionary;
-                        redTri.InstanceLocationDictionary = this.InstanceLocationCurveDictionary;
+                        ReduceTris.CRevit2vdl redTri = new ReduceTris.CRevit2vdl
+                        {
+                            FamilySketchDictionary = this.FamilySketchDictionary,
+                            InstanceLocationDictionary = this.InstanceLocationCurveDictionary
+                        };
                         redTri.Convert(vDraw.ActiveDocument, m_formProgress.progressBar);
                     }
 
@@ -203,15 +207,17 @@ namespace Exporter
 
         private void MoveProperty()
         {
-            List<string> list1 = new List<string>();
-            list1.Add("工序编码");
-            list1.Add("合约类型编码1");
-            list1.Add("合约类型编码2");
-            list1.Add("合约类型代码1");
-            list1.Add("合约类型代码2");
-            list1.Add("清单编码");
-            //list1.Add("结构材质");
-            list1.Add("类型名称");
+            List<string> list1 = new List<string>
+            {
+                "工序编码",
+                "合约类型编码1",
+                "合约类型编码2",
+                "合约类型代码1",
+                "合约类型代码2",
+                "清单编码",
+                //"结构材质",
+                "类型名称"
+            };
 
 
             foreach (vdFigure vdl in this.vDraw.ActiveDocument.ActiveLayOut.Entities)
@@ -313,9 +319,8 @@ namespace Exporter
             pf.SetUnRegisterDocument(vDraw.ActiveDocument);
             pf.setDocumentDefaults();
 
-            var circle = new vdCircle();
-            circle.Radius = diameter / 2.0;
-
+            var circle = new vdCircle { Radius = diameter / 2.0 };
+            
             vdCurve path = curvePath;
             if (curvePath.VertexList.Count == 2)
             {
@@ -361,9 +366,11 @@ namespace Exporter
 
             foreach (var lv in Levels)
             {
-                vdXProperty vdx1 = new vdXProperty();
-                vdx1.Name = lv.Name;
-                vdx1.PropValue = (Tools.Ft2MmScale * lv.Height).ToString();
+                vdXProperty vdx1 = new vdXProperty
+                {
+                    Name = lv.Name,
+                    PropValue = (Tools.Ft2MmScale * lv.Height).ToString()
+                };
                 layer.XProperties.AddItem(vdx1);
             }
         }
@@ -475,11 +482,13 @@ namespace Exporter
         {
             foreach (MaterialData material in Materials)
             {
-                vdColor color = new vdColor();
-                color.Red = material.Color.Red;
-                color.Green = material.Color.Green;
-                color.Blue = material.Color.Blue;
-                color.AlphaBlending = (byte)(255.0 * (1 - material.Transparency / 100.0));
+                vdColor color = new vdColor
+                {
+                    Red = material.Color.Red,
+                    Green = material.Color.Green,
+                    Blue = material.Color.Blue,
+                    AlphaBlending = (byte)(255.0 * (1 - material.Transparency / 100.0))
+                };
                 vdLayer layer = new vdLayer(vDraw.ActiveDocument, material.Name, color);
                 vDraw.ActiveDocument.Layers.AddItem(layer);
             }
@@ -576,8 +585,10 @@ namespace Exporter
             pf.setDocumentDefaults();
 
             var line = new vdLine(ptStart, ptEnd);
-            var circle = new vdCircle();
-            circle.Radius = diameter / 2.0;
+            var circle = new vdCircle
+            {
+                Radius = diameter / 2.0
+            };
 
             pf.Generate3dPathSection(line, circle, new gPoint(0, 0, 0), 10, 1);
             pf.Layer = vDraw.ActiveDocument.Layers.FindName(layerName);
@@ -587,28 +598,29 @@ namespace Exporter
 
         private Matrix ChangeTransMatrix(TransformData trans)
         {
-            Matrix mtx = new Matrix();
+            Matrix mtx = new Matrix
+            {
+                A00 = trans.BasisX.X,
+                A10 = trans.BasisX.Y,
+                A20 = trans.BasisX.Z,
 
-            mtx.A00 = trans.BasisX.X;
-            mtx.A10 = trans.BasisX.Y;
-            mtx.A20 = trans.BasisX.Z;
+                A01 = trans.BasisY.X,
+                A11 = trans.BasisY.Y,
+                A21 = trans.BasisY.Z,
 
-            mtx.A01 = trans.BasisY.X;
-            mtx.A11 = trans.BasisY.Y;
-            mtx.A21 = trans.BasisY.Z;
+                A02 = trans.BasisZ.X,
+                A12 = trans.BasisZ.Y,
+                A22 = trans.BasisZ.Z,
 
-            mtx.A02 = trans.BasisZ.X;
-            mtx.A12 = trans.BasisZ.Y;
-            mtx.A22 = trans.BasisZ.Z;
+                A03 = trans.Origin.X,
+                A13 = trans.Origin.Y,
+                A23 = trans.Origin.Z,
 
-            mtx.A03 = trans.Origin.X;
-            mtx.A13 = trans.Origin.Y;
-            mtx.A23 = trans.Origin.Z;
-
-            mtx.A30 = 0;
-            mtx.A31 = 0;
-            mtx.A32 = 0;
-            mtx.A33 = 1;
+                A30 = 0,
+                A31 = 0,
+                A32 = 0,
+                A33 = 1
+            };
 
             return mtx;
         }
@@ -623,8 +635,7 @@ namespace Exporter
                 return null;
             }
 
-            vdInsert insEntity = new vdInsert(vDraw.ActiveDocument);
-            insEntity.Block = blk;
+            vdInsert insEntity = new vdInsert(vDraw.ActiveDocument) { Block = blk };
             AddXProperties(insEntity, ins);
 
             Matrix mtx = ChangeTransMatrix(ins.TransMatrix);

@@ -43,12 +43,14 @@ namespace AddinProcesser
                     return false;
                 }
 
-                var node = nodes[0];
+                foreach (XmlNode node in nodes)
+                {
 #if _2016
-                node.InnerText = Path.GetDirectoryName(Application.ExecutablePath) + "\\Exporter.dll";
+                    node.InnerText = Path.GetDirectoryName(Application.ExecutablePath) + "\\Exporter.dll";
 #elif _2017
-                node.InnerText = Path.GetDirectoryName(Application.ExecutablePath) + "\\Exporter2017.dll";
+                    node.InnerText = Path.GetDirectoryName(Application.ExecutablePath) + "\\Exporter2017.dll";
 #endif
+                }
 
                 doc.Save(_destFolderPath + "\\" + _addinFileName);
             }
