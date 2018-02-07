@@ -127,7 +127,7 @@ namespace Exporter
                     File.Delete(ExportSetting.SystemSetting.ExportFilePath);
 
 
-                if (ExportSetting.SystemSetting.FileType == SystemSetting.FileTypeEnum.wfa)
+                if (ExportSetting.SystemSetting.FileType == SystemSetting.FileTypeEnum.bfa)
                 {
                     var str = JsonConvert.SerializeObject(ser);
                     File.WriteAllText(ExportSetting.SystemSetting.ExportFilePath, str);

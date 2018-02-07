@@ -45,7 +45,7 @@ namespace Exporter
         {
             comboFileType.Items.Add(".bim");
             comboFileType.Items.Add(".sdp");
-            comboFileType.Items.Add(".wfa");
+            comboFileType.Items.Add(".bfa");
 
             comboFileType.SelectedIndex = 0;
         }
@@ -159,6 +159,23 @@ namespace Exporter
 
         private void comboFileType_SelectedIndexChanged(object sender, EventArgs e)
         {
+            switch (comboFileType.SelectedIndex)
+            {
+                case 0:
+                    this.ExportSetting.SystemSetting.FileType = SystemSetting.FileTypeEnum.bim;
+                    break;
+                case 1:
+                    this.ExportSetting.SystemSetting.FileType = SystemSetting.FileTypeEnum.sdp;
+                    break;
+                case 2:
+                    this.ExportSetting.SystemSetting.FileType = SystemSetting.FileTypeEnum.bfa;
+                    break;
+                default:
+                    this.ExportSetting.SystemSetting.FileType = SystemSetting.FileTypeEnum.bim;
+                    break;
+            }
+
+
             var file = textFilePath.Text.Trim();
             if (string.IsNullOrEmpty(file))
                 return;

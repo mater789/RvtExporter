@@ -81,7 +81,7 @@ namespace Exporter
         {
             bim = 0,
             sdp,
-            wfa
+            bfa
         }
 
         public bool IsModifyUnit { get; set; }
@@ -134,13 +134,10 @@ namespace Exporter
             {
                 case FileTypeEnum.bim:
                     return ".bim";
-                    break;
                 case FileTypeEnum.sdp:
                     return ".sdp";
-                    break;
-                case FileTypeEnum.wfa:
-                    return ".wfa";
-                    break;
+                case FileTypeEnum.bfa:
+                    return ".bfa";
                 default:
                     return ".bim";
             }
