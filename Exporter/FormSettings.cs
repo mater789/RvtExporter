@@ -41,8 +41,19 @@ namespace Exporter
             Setting2UI();
         }
 
+        private void InitFileTypeCombo()
+        {
+            comboFileType.Items.Add(".bim");
+            comboFileType.Items.Add(".sdp");
+            comboFileType.Items.Add(".wfa");
+
+            comboFileType.SelectedIndex = 0;
+        }
+
         private void Setting2UI()
         {
+            InitFileTypeCombo();
+
             chkUnit.Checked = this.ExportSetting.SystemSetting.IsModifyUnit;
             chkExportLink.Checked = this.ExportSetting.SystemSetting.IsExportLinkModel;
             chkExportProperty.Checked = this.ExportSetting.SystemSetting.IsExportProperty;
@@ -50,7 +61,7 @@ namespace Exporter
             chkWallSideArea.Checked = this.ExportSetting.SystemSetting.IsExportWallSideArea;
             chkOptimize.Checked = this.ExportSetting.SystemSetting.IsOptimizeCylinderFace;
             chkOriginMaterial.Checked = this.ExportSetting.SystemSetting.IsOriginMaterial;
-            chkUserDefineFormat.Checked = this.ExportSetting.SystemSetting.IsUserDefineFormat;
+            //chkUserDefineFormat.Checked = this.ExportSetting.SystemSetting.IsUserDefineFormat;
             chkTextureFile.Checked = this.ExportSetting.SystemSetting.IsExportTextureFile;
             chkRebar.Checked = this.ExportSetting.SystemSetting.IsExportRebar;
             chkMerge.Checked = this.ExportSetting.SystemSetting.IsMergeFace;
@@ -60,6 +71,9 @@ namespace Exporter
             textPropertyName.Text = this.ExportSetting.ParkingExportSetting.PropertyName;
             textWidth.Text = this.ExportSetting.ParkingExportSetting.Width.ToString();
             textHeight.Text = this.ExportSetting.ParkingExportSetting.Height.ToString();
+
+            var fileExt = this.ExportSetting.SystemSetting.GetFileExtension();
+            comboFileType.SelectedIndex = comboFileType.Items.IndexOf(fileExt);
         }
 
         private bool UI2Setting(ref string message)
@@ -70,7 +84,7 @@ namespace Exporter
             this.ExportSetting.SystemSetting.IsExportGrid = chkExportGrid.Checked;
             this.ExportSetting.SystemSetting.IsOptimizeCylinderFace = chkOptimize.Checked;
             this.ExportSetting.SystemSetting.IsOriginMaterial = chkOriginMaterial.Checked;
-            this.ExportSetting.SystemSetting.IsUserDefineFormat = chkUserDefineFormat.Checked;
+            //this.ExportSetting.SystemSetting.IsUserDefineFormat = chkUserDefineFormat.Checked;
             this.ExportSetting.SystemSetting.IsExportTextureFile = chkTextureFile.Checked;
             this.ExportSetting.SystemSetting.IsExportRebar = chkRebar.Checked;
             this.ExportSetting.SystemSetting.IsMergeFace = chkMerge.Checked;
@@ -81,12 +95,6 @@ namespace Exporter
             if (strValue.Length < 1)
             {
                 message = "请先设置要到导出的文件路径";
-                return false;
-            }
-
-            if (!strValue.EndsWith(Tools.FileExtention, StringComparison.OrdinalIgnoreCase) && !strValue.EndsWith(".sdp", StringComparison.OrdinalIgnoreCase))
-            {
-                message = "输出的路径不正确！";
                 return false;
             }
 
@@ -135,36 +143,33 @@ namespace Exporter
         {
             SaveFileDialog dlg = new SaveFileDialog();
 
-            dlg.Filter = chkUserDefineFormat.Checked ? "自定义文件(*.sdp)|*.sdp" : "模型文件(*" + Tools.FileExtention + ")|*" + Tools.FileExtention;
+            dlg.Filter = $"模型文件(*{this.ExportSetting.SystemSetting.GetFileExtension()})|*{this.ExportSetting.SystemSetting.GetFileExtension()}";
             if (dlg.ShowDialog(this) != DialogResult.OK)
                 return;
 
             textFilePath.Text = dlg.FileName;
         }
+        
 
-        private void chkUserDefineFormat_CheckedChanged(object sender, EventArgs e)
+        private void chkRebar_CheckedChanged(object sender, EventArgs e)
+        {
+            if (chkRebar.Checked && this.ExportSetting.SystemSetting.FileType != SystemSetting.FileTypeEnum.bim)
+                chkRebar.Checked = false;
+        }
+
+        private void comboFileType_SelectedIndexChanged(object sender, EventArgs e)
         {
             var file = textFilePath.Text.Trim();
             if (string.IsNullOrEmpty(file))
                 return;
 
-            if (chkUserDefineFormat.Checked)
+            if (comboFileType.SelectedIndex != 0)
                 chkRebar.Checked = false;
 
-            string fileDir = Path.GetDirectoryName(file);
-            string fileName = Path.GetFileNameWithoutExtension(file);
-            string externsion = chkUserDefineFormat.Checked ? ".sdp" : Tools.FileExtention;
+            var fileDir = Path.GetDirectoryName(file);
+            var fileName = Path.GetFileNameWithoutExtension(file);
 
-            textFilePath.Text = fileDir + "\\" + fileName + externsion;
-        }
-
-        private void chkRebar_CheckedChanged(object sender, EventArgs e)
-        {
-            if (chkUserDefineFormat.Checked && chkRebar.Checked)
-            {
-                chkRebar.Checked = false;
-            }
-                
+            textFilePath.Text = fileDir + "\\" + fileName + this.ExportSetting.SystemSetting.GetFileExtension();
         }
     }
 }

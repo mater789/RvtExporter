@@ -37,25 +37,26 @@
             this.label1 = new System.Windows.Forms.Label();
             this.tabControl1 = new System.Windows.Forms.TabControl();
             this.tabPageSystem = new System.Windows.Forms.TabPage();
+            this.comboFileType = new System.Windows.Forms.ComboBox();
+            this.label7 = new System.Windows.Forms.Label();
+            this.chkWallSideArea = new System.Windows.Forms.CheckBox();
             this.chkMoveBlkProps = new System.Windows.Forms.CheckBox();
             this.chkMerge = new System.Windows.Forms.CheckBox();
             this.chkRebar = new System.Windows.Forms.CheckBox();
             this.chkTextureFile = new System.Windows.Forms.CheckBox();
-            this.chkUserDefineFormat = new System.Windows.Forms.CheckBox();
             this.chkExportGrid = new System.Windows.Forms.CheckBox();
-            this.label6 = new System.Windows.Forms.Label();
-            this.txtDefaultLayer = new System.Windows.Forms.TextBox();
             this.chkOriginMaterial = new System.Windows.Forms.CheckBox();
             this.btnSaveFile = new System.Windows.Forms.Button();
             this.textFilePath = new System.Windows.Forms.TextBox();
             this.label2 = new System.Windows.Forms.Label();
             this.tabPageParking = new System.Windows.Forms.TabPage();
+            this.label6 = new System.Windows.Forms.Label();
+            this.txtDefaultLayer = new System.Windows.Forms.TextBox();
             this.label5 = new System.Windows.Forms.Label();
             this.textHeight = new System.Windows.Forms.TextBox();
             this.label4 = new System.Windows.Forms.Label();
             this.textWidth = new System.Windows.Forms.TextBox();
             this.label3 = new System.Windows.Forms.Label();
-            this.chkWallSideArea = new System.Windows.Forms.CheckBox();
             this.tabControl1.SuspendLayout();
             this.tabPageSystem.SuspendLayout();
             this.tabPageParking.SuspendLayout();
@@ -108,7 +109,7 @@
             // btnStartExport
             // 
             this.btnStartExport.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnStartExport.Location = new System.Drawing.Point(297, 221);
+            this.btnStartExport.Location = new System.Drawing.Point(294, 241);
             this.btnStartExport.Name = "btnStartExport";
             this.btnStartExport.Size = new System.Drawing.Size(110, 23);
             this.btnStartExport.TabIndex = 4;
@@ -142,20 +143,19 @@
             this.tabControl1.Location = new System.Drawing.Point(12, 12);
             this.tabControl1.Name = "tabControl1";
             this.tabControl1.SelectedIndex = 0;
-            this.tabControl1.Size = new System.Drawing.Size(395, 203);
+            this.tabControl1.Size = new System.Drawing.Size(392, 223);
             this.tabControl1.TabIndex = 8;
             // 
             // tabPageSystem
             // 
+            this.tabPageSystem.Controls.Add(this.comboFileType);
+            this.tabPageSystem.Controls.Add(this.label7);
             this.tabPageSystem.Controls.Add(this.chkWallSideArea);
             this.tabPageSystem.Controls.Add(this.chkMoveBlkProps);
             this.tabPageSystem.Controls.Add(this.chkMerge);
             this.tabPageSystem.Controls.Add(this.chkRebar);
             this.tabPageSystem.Controls.Add(this.chkTextureFile);
-            this.tabPageSystem.Controls.Add(this.chkUserDefineFormat);
             this.tabPageSystem.Controls.Add(this.chkExportGrid);
-            this.tabPageSystem.Controls.Add(this.label6);
-            this.tabPageSystem.Controls.Add(this.txtDefaultLayer);
             this.tabPageSystem.Controls.Add(this.chkOriginMaterial);
             this.tabPageSystem.Controls.Add(this.btnSaveFile);
             this.tabPageSystem.Controls.Add(this.textFilePath);
@@ -167,10 +167,40 @@
             this.tabPageSystem.Location = new System.Drawing.Point(4, 22);
             this.tabPageSystem.Name = "tabPageSystem";
             this.tabPageSystem.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPageSystem.Size = new System.Drawing.Size(387, 177);
+            this.tabPageSystem.Size = new System.Drawing.Size(384, 197);
             this.tabPageSystem.TabIndex = 0;
             this.tabPageSystem.Text = "系统";
             this.tabPageSystem.UseVisualStyleBackColor = true;
+            // 
+            // comboFileType
+            // 
+            this.comboFileType.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.comboFileType.FormattingEnabled = true;
+            this.comboFileType.Location = new System.Drawing.Point(77, 140);
+            this.comboFileType.Name = "comboFileType";
+            this.comboFileType.Size = new System.Drawing.Size(239, 20);
+            this.comboFileType.TabIndex = 24;
+            this.comboFileType.SelectedIndexChanged += new System.EventHandler(this.comboFileType_SelectedIndexChanged);
+            // 
+            // label7
+            // 
+            this.label7.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.label7.AutoSize = true;
+            this.label7.Location = new System.Drawing.Point(6, 144);
+            this.label7.Name = "label7";
+            this.label7.Size = new System.Drawing.Size(65, 12);
+            this.label7.TabIndex = 23;
+            this.label7.Text = "文件格式：";
+            // 
+            // chkWallSideArea
+            // 
+            this.chkWallSideArea.AutoSize = true;
+            this.chkWallSideArea.Location = new System.Drawing.Point(110, 59);
+            this.chkWallSideArea.Name = "chkWallSideArea";
+            this.chkWallSideArea.Size = new System.Drawing.Size(96, 16);
+            this.chkWallSideArea.TabIndex = 22;
+            this.chkWallSideArea.Text = "墙内外侧面积";
+            this.chkWallSideArea.UseVisualStyleBackColor = true;
             // 
             // chkMoveBlkProps
             // 
@@ -213,17 +243,6 @@
             this.chkTextureFile.Text = "导出材质贴图";
             this.chkTextureFile.UseVisualStyleBackColor = true;
             // 
-            // chkUserDefineFormat
-            // 
-            this.chkUserDefineFormat.AutoSize = true;
-            this.chkUserDefineFormat.Location = new System.Drawing.Point(110, 59);
-            this.chkUserDefineFormat.Name = "chkUserDefineFormat";
-            this.chkUserDefineFormat.Size = new System.Drawing.Size(84, 16);
-            this.chkUserDefineFormat.TabIndex = 17;
-            this.chkUserDefineFormat.Text = "自定义格式";
-            this.chkUserDefineFormat.UseVisualStyleBackColor = true;
-            this.chkUserDefineFormat.CheckedChanged += new System.EventHandler(this.chkUserDefineFormat_CheckedChanged);
-            // 
             // chkExportGrid
             // 
             this.chkExportGrid.AutoSize = true;
@@ -233,25 +252,6 @@
             this.chkExportGrid.TabIndex = 16;
             this.chkExportGrid.Text = "导出轴网信息";
             this.chkExportGrid.UseVisualStyleBackColor = true;
-            // 
-            // label6
-            // 
-            this.label6.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.label6.AutoSize = true;
-            this.label6.Location = new System.Drawing.Point(6, 122);
-            this.label6.Name = "label6";
-            this.label6.Size = new System.Drawing.Size(65, 12);
-            this.label6.TabIndex = 15;
-            this.label6.Text = "默认图层：";
-            // 
-            // txtDefaultLayer
-            // 
-            this.txtDefaultLayer.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.txtDefaultLayer.Location = new System.Drawing.Point(77, 119);
-            this.txtDefaultLayer.Name = "txtDefaultLayer";
-            this.txtDefaultLayer.Size = new System.Drawing.Size(304, 21);
-            this.txtDefaultLayer.TabIndex = 14;
             // 
             // chkOriginMaterial
             // 
@@ -266,7 +266,7 @@
             // btnSaveFile
             // 
             this.btnSaveFile.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnSaveFile.Location = new System.Drawing.Point(325, 146);
+            this.btnSaveFile.Location = new System.Drawing.Point(322, 166);
             this.btnSaveFile.Name = "btnSaveFile";
             this.btnSaveFile.Size = new System.Drawing.Size(56, 23);
             this.btnSaveFile.TabIndex = 6;
@@ -278,17 +278,17 @@
             // 
             this.textFilePath.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.textFilePath.Location = new System.Drawing.Point(77, 146);
+            this.textFilePath.Location = new System.Drawing.Point(77, 166);
             this.textFilePath.Name = "textFilePath";
             this.textFilePath.ReadOnly = true;
-            this.textFilePath.Size = new System.Drawing.Size(242, 21);
+            this.textFilePath.Size = new System.Drawing.Size(239, 21);
             this.textFilePath.TabIndex = 5;
             // 
             // label2
             // 
             this.label2.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(6, 151);
+            this.label2.Location = new System.Drawing.Point(6, 171);
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(65, 12);
             this.label2.TabIndex = 4;
@@ -296,6 +296,8 @@
             // 
             // tabPageParking
             // 
+            this.tabPageParking.Controls.Add(this.label6);
+            this.tabPageParking.Controls.Add(this.txtDefaultLayer);
             this.tabPageParking.Controls.Add(this.label5);
             this.tabPageParking.Controls.Add(this.textHeight);
             this.tabPageParking.Controls.Add(this.label4);
@@ -306,10 +308,26 @@
             this.tabPageParking.Location = new System.Drawing.Point(4, 22);
             this.tabPageParking.Name = "tabPageParking";
             this.tabPageParking.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPageParking.Size = new System.Drawing.Size(339, 166);
+            this.tabPageParking.Size = new System.Drawing.Size(384, 197);
             this.tabPageParking.TabIndex = 1;
             this.tabPageParking.Text = "车位优化";
             this.tabPageParking.UseVisualStyleBackColor = true;
+            // 
+            // label6
+            // 
+            this.label6.AutoSize = true;
+            this.label6.Location = new System.Drawing.Point(6, 71);
+            this.label6.Name = "label6";
+            this.label6.Size = new System.Drawing.Size(65, 12);
+            this.label6.TabIndex = 17;
+            this.label6.Text = "默认图层：";
+            // 
+            // txtDefaultLayer
+            // 
+            this.txtDefaultLayer.Location = new System.Drawing.Point(98, 68);
+            this.txtDefaultLayer.Name = "txtDefaultLayer";
+            this.txtDefaultLayer.Size = new System.Drawing.Size(240, 21);
+            this.txtDefaultLayer.TabIndex = 16;
             // 
             // label5
             // 
@@ -352,22 +370,12 @@
             this.label3.TabIndex = 7;
             this.label3.Text = "编号大小范围：";
             // 
-            // chkWallSideArea
-            // 
-            this.chkWallSideArea.AutoSize = true;
-            this.chkWallSideArea.Location = new System.Drawing.Point(214, 81);
-            this.chkWallSideArea.Name = "chkWallSideArea";
-            this.chkWallSideArea.Size = new System.Drawing.Size(96, 16);
-            this.chkWallSideArea.TabIndex = 22;
-            this.chkWallSideArea.Text = "墙内外侧面积";
-            this.chkWallSideArea.UseVisualStyleBackColor = true;
-            // 
             // FormSettings
             // 
             this.AcceptButton = this.btnStartExport;
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(419, 256);
+            this.ClientSize = new System.Drawing.Size(416, 276);
             this.Controls.Add(this.tabControl1);
             this.Controls.Add(this.btnStartExport);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedToolWindow;
@@ -405,14 +413,15 @@
         private System.Windows.Forms.TextBox textWidth;
         private System.Windows.Forms.Label label3;
         private System.Windows.Forms.CheckBox chkOriginMaterial;
-        private System.Windows.Forms.Label label6;
-        private System.Windows.Forms.TextBox txtDefaultLayer;
         private System.Windows.Forms.CheckBox chkExportGrid;
-        private System.Windows.Forms.CheckBox chkUserDefineFormat;
         private System.Windows.Forms.CheckBox chkTextureFile;
         private System.Windows.Forms.CheckBox chkRebar;
         private System.Windows.Forms.CheckBox chkMerge;
         private System.Windows.Forms.CheckBox chkMoveBlkProps;
         private System.Windows.Forms.CheckBox chkWallSideArea;
+        private System.Windows.Forms.Label label6;
+        private System.Windows.Forms.TextBox txtDefaultLayer;
+        private System.Windows.Forms.ComboBox comboFileType;
+        private System.Windows.Forms.Label label7;
     }
 }

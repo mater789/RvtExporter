@@ -37,7 +37,7 @@ namespace Exporter
             string fileName = Path.GetFileNameWithoutExtension(doc.PathName);
 
             FormSettings dlg = new FormSettings();
-            dlg.ExportSetting.SystemSetting.ExportFilePath = filePath + "\\" + fileName + Tools.FileExtention;
+            dlg.ExportSetting.SystemSetting.ExportFilePath = filePath + "\\" + fileName + dlg.ExportSetting.SystemSetting.GetFileExtension();
             DialogResult dr = dlg.ShowDialog(new WindowHandle(Process.GetCurrentProcess().MainWindowHandle));
             if (dr != DialogResult.OK)
                 return Result.Cancelled;

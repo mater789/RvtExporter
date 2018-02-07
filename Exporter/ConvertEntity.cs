@@ -12,6 +12,7 @@ using VectorDraw.Professional.vdCollections;
 using VectorDraw.Geometry;
 //using Autodesk.Revit.DB;
 using VectorDraw.Professional.vdObjects;
+using Newtonsoft.Json;
 
 namespace Exporter
 {
@@ -112,7 +113,6 @@ namespace Exporter
         {
             if (ExportSetting.SystemSetting.IsUserDefineFormat)
             {
-
                 if (ExportSetting.SystemSetting.IsExportTextureFile)
                     ProcessMaterialMapFile();
 
@@ -126,27 +126,32 @@ namespace Exporter
                 if (File.Exists(ExportSetting.SystemSetting.ExportFilePath))
                     File.Delete(ExportSetting.SystemSetting.ExportFilePath);
 
-                using (FileStream fs = File.OpenWrite(ExportSetting.SystemSetting.ExportFilePath))
-                {
-                    if (IsZipFile)
-                    {
-                        MemoryStream ms = new MemoryStream();
-                        ProtoBuf.Serializer.Serialize<ModelSerializeEntity>(ms, ser);
 
-                        var buffer = ms.ToArray();
-                        var compressedzipStream = new DeflateStream(fs, CompressionMode.Compress, true);
-                        compressedzipStream.Write(buffer, 0, buffer.Length);
-                        compressedzipStream.Close();
-                    }
-                    else
+                if (ExportSetting.SystemSetting.FileType == SystemSetting.FileTypeEnum.wfa)
+                {
+                    var str = JsonConvert.SerializeObject(ser);
+                    File.WriteAllText(ExportSetting.SystemSetting.ExportFilePath, str);
+                }
+                else
+                {
+                    using (FileStream fs = File.OpenWrite(ExportSetting.SystemSetting.ExportFilePath))
                     {
-                        ProtoBuf.Serializer.Serialize<ModelSerializeEntity>(fs, ser);
+                        if (IsZipFile)
+                        {
+                            MemoryStream ms = new MemoryStream();
+                            ProtoBuf.Serializer.Serialize<ModelSerializeEntity>(ms, ser);
+
+                            var buffer = ms.ToArray();
+                            var compressedzipStream = new DeflateStream(fs, CompressionMode.Compress, true);
+                            compressedzipStream.Write(buffer, 0, buffer.Length);
+                            compressedzipStream.Close();
+                        }
+                        else
+                        {
+                            ProtoBuf.Serializer.Serialize<ModelSerializeEntity>(fs, ser);
+                        }
                     }
                 }
-
-                //var str = JsonConvert.SerializeObject(ser);
-                //using (var objWriter = new StreamWriter(ExportSetting.SystemSetting.ExportFilePath))
-                //    objWriter.Write(str);
             }
             else
             {

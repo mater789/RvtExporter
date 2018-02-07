@@ -84,7 +84,7 @@ namespace Exporter
     {
         public static double Ft2MmScale = 304.8;
         public static double SqrFt2SqrM = 0.0929;
-        public static readonly string FileExtention = ".bim";
+        //public static readonly string FileExtention = ".bim";
 
         public static List<string> TextureLibPaths = new List<string>
         {

@@ -7,6 +7,8 @@ namespace Exporter
 {
     public class ExportSetting
     {
+
+
         public ExportSetting()
         {
             this.SystemSetting = new SystemSetting();
@@ -65,7 +67,6 @@ namespace Exporter
             this.IsExportGrid = false;
             this.IsOptimizeCylinderFace = true;
             this.IsOriginMaterial = false;
-            this.IsUserDefineFormat = false;
             this.IsExportTextureFile = false;
             this.IsExportRebar = false;
             this.IsExportWallSideArea = false;
@@ -73,6 +74,14 @@ namespace Exporter
             this.IsMoveBlkXpropertyToInsert = true;
             this.ExportFilePath = string.Empty;
             this.DefaultLayerName = string.Empty;
+            _fileType = FileTypeEnum.bim;
+        }
+
+        public enum FileTypeEnum
+        {
+            bim = 0,
+            sdp,
+            wfa
         }
 
         public bool IsModifyUnit { get; set; }
@@ -89,7 +98,7 @@ namespace Exporter
 
         public bool IsOriginMaterial { get; set; }
 
-        public bool IsUserDefineFormat { get; set; }
+        public bool IsUserDefineFormat => this.FileType != FileTypeEnum.bim;
 
         public bool IsExportTextureFile { get; set; }
 
@@ -102,5 +111,39 @@ namespace Exporter
         public string ExportFilePath { get; set; }
 
         public bool IsExportRebar { get; set; }
+
+        private FileTypeEnum _fileType;
+        public FileTypeEnum FileType
+        {
+            get
+            {
+                return _fileType;
+            }
+
+            set
+            {
+                _fileType = value;
+                if (FileType != FileTypeEnum.bim)
+                    IsExportRebar = false;
+            }
+        }
+
+        public string GetFileExtension()
+        {
+            switch (this.FileType)
+            {
+                case FileTypeEnum.bim:
+                    return ".bim";
+                    break;
+                case FileTypeEnum.sdp:
+                    return ".sdp";
+                    break;
+                case FileTypeEnum.wfa:
+                    return ".wfa";
+                    break;
+                default:
+                    return ".bim";
+            }
+        }
     }
 }
