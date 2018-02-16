@@ -139,7 +139,7 @@ namespace Exporter
                         if (IsZipFile)
                         {
                             MemoryStream ms = new MemoryStream();
-                            ProtoBuf.Serializer.Serialize<ModelSerializeEntity>(ms, ser);
+                            ProtoBuf.Serializer.Serialize(ms, ser);
 
                             var buffer = ms.ToArray();
                             var compressedzipStream = new DeflateStream(fs, CompressionMode.Compress, true);
@@ -148,7 +148,7 @@ namespace Exporter
                         }
                         else
                         {
-                            ProtoBuf.Serializer.Serialize<ModelSerializeEntity>(fs, ser);
+                            ProtoBuf.Serializer.Serialize(fs, ser);
                         }
                     }
                 }
