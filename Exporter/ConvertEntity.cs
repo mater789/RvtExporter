@@ -595,7 +595,7 @@ namespace Exporter
                 Radius = diameter / 2.0
             };
 
-            pf.Generate3dPathSection(line, circle, new gPoint(0, 0, 0), 10, 1);
+            pf.Generate3dPathSection(line, circle, new gPoint(0, 0, 0), 6, 1);
             pf.Layer = vDraw.ActiveDocument.Layers.FindName(layerName);
             pf.SmoothAngle = 45;
             entities.Add(pf);

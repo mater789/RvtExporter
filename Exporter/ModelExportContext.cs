@@ -253,11 +253,13 @@ namespace Exporter
 
         private MeshData GetMeshDataFromPolymesh(PolymeshTopology polymesh)
         {
-            var mesh = new MeshData();
-            mesh.TriangleIndexes = new List<TriangleIndexData>();
-            mesh.Vertexes = new List<PointData>();
-            mesh.Normals = new List<PointData>();
-            mesh.TextureUVs = new List<TextureUV>();
+            var mesh = new MeshData
+            {
+                TriangleIndexes = new List<TriangleIndexData>(),
+                Vertexes = new List<PointData>(),
+                Normals = new List<PointData>(),
+                TextureUVs = new List<TextureUV>()
+            };
 
             for (int i = 0; i < polymesh.NumberOfFacets; i++)
             {
@@ -297,13 +299,8 @@ namespace Exporter
                 return string.Empty;
 
             var fname = string.Empty;
-            try
-            {
-                if (elem is FamilyInstance)
-                    fname = (elem as FamilyInstance).Symbol.Family.Name;
-            }
-            catch
-            { }
+            if (elem is FamilyInstance fi)
+                fname = fi.Symbol.Family.Name;
 
             return fname;
         }
@@ -320,8 +317,7 @@ namespace Exporter
                 return dictProperties;
 
             // 属性中添加族和类型信息
-            var internalProps = new List<PropertyData>();
-            internalProps.Add(new PropertyData { GroupName = "#Internal", Name = "#name", Value = CurrentElement.Name });
+            var internalProps = new List<PropertyData> {new PropertyData { GroupName = "#Internal", Name = "#name", Value = CurrentElement.Name }};
             if (CurrentElement.Category != null)
                 internalProps.Add(new PropertyData { GroupName = "#Internal", Name = "#category", Value = CurrentElement.Category.Name });
             internalProps.Add(new PropertyData { GroupName = "#Internal", Name = "#guid", Value = CurrentElement.UniqueId });
@@ -352,9 +348,8 @@ namespace Exporter
                 var curve = (elem.Location as LocationCurve).Curve;
                 var fi = (elem as FamilyInstance);
                 var curvedata = new CurveData();
-                if (curve is Arc)
+                if (curve is Arc arc)
                 {
-                    var arc = (Arc)curve;
                     curvedata.IsArc = true;
                     curvedata.Center = new PointData(arc.Center.X, arc.Center.Y, arc.Center.Z);
                     curvedata.Normal = new PointData(arc.Normal.X, arc.Normal.Y, arc.Normal.Z);
@@ -389,10 +384,12 @@ namespace Exporter
                     if (string.IsNullOrEmpty(groupName))
                         groupName = param.Definition.ParameterGroup.ToString();
 
-                    PropertyData proData = new PropertyData();
-                    proData.Name = param.Definition.Name;
-                    proData.GroupName = groupName;
-                    proData.Value = param.StorageType == StorageType.String ? param.AsString() : param.AsValueString();
+                    PropertyData proData = new PropertyData
+                    {
+                        Name = param.Definition.Name,
+                        GroupName = groupName,
+                        Value = param.StorageType == StorageType.String ? param.AsString() : param.AsValueString()
+                    };
 
                     // 去掉多余的属性
                     if (proData.Name.Contains("Extensions."))
@@ -404,8 +401,7 @@ namespace Exporter
                     }
                     else
                     {
-                        List<PropertyData> listTmp = new List<PropertyData>();
-                        listTmp.Add(proData);
+                        var listTmp = new List<PropertyData> { proData };
                         dictProperties.Add(groupName, listTmp);
                     }
                 }
@@ -439,10 +435,12 @@ namespace Exporter
                 {
                     result.Add(str);
 
-                    PropertyData proData = new PropertyData();
-                    proData.Name = "POINTVECTOR" + nCount.ToString();
-                    proData.GroupName = "CylinderFaceData";
-                    proData.Value = str;
+                    var proData = new PropertyData
+                    {
+                        Name = "POINTVECTOR" + nCount.ToString(),
+                        GroupName = "CylinderFaceData",
+                        Value = str
+                    };
 
                     listProp.Add(proData);
                     nCount++;
@@ -471,8 +469,7 @@ namespace Exporter
 
                 var diffuserMap = string.Empty;
                 var bumpMap = string.Empty;
-                double scaleX, scaleY, metallic, smoothness;
-                Tools.GetMaterialTexture(material, BuiltInMaterialLibraryAsset, out diffuserMap, out bumpMap, out scaleX, out scaleY, out metallic, out smoothness);
+                Tools.GetMaterialTexture(material, BuiltInMaterialLibraryAsset, out diffuserMap, out bumpMap, out double scaleX, out double scaleY, out double metallic, out double smoothness);
                 AddMaterial(material.Name, material.Color, material.Transparency, diffuserMap, bumpMap, scaleX, scaleY, metallic, smoothness);
             }
         }
@@ -481,7 +478,7 @@ namespace Exporter
         {
             if (m_listMaterial.Any(mtl => mtl.Name == name))
                 return;
-
+ 
             MaterialData matdata = new MaterialData();
             matdata.Transparency = transparency;
             matdata.Name = name;
@@ -535,23 +532,38 @@ namespace Exporter
             if (!IsOptimisePipeEntity)
                 return false;
 
-            MEPCurve curve = elem as MEPCurve;
-            if (curve == null)
+            LocationCurve locationCurve = null;
+            double diameter = 0.0;
+            if (elem is MEPCurve curve)
+            {
+                locationCurve = curve.Location as LocationCurve;
+                if (locationCurve == null)
+                    return false;
+
+                try
+                {
+                    diameter = curve.Diameter;
+                }
+                catch (Exception ex)
+                {
+                    return false;
+                }
+            }
+            // 特殊处理“结构框架 圆钢管”
+            else if (elem is FamilyInstance fi 
+                && elem.Category.Id.IntegerValue == (int)BuiltInCategory.OST_StructuralFraming
+                && fi.Symbol.Family.Name == "圆钢管")
+            {
+                locationCurve = fi.Location as LocationCurve;
+                if (!Tools.GetElementDoublePropertyFromElementByName(fi.Symbol, "d", out diameter))
+                    return false;
+            }
+            else
                 return false;
 
-            LocationCurve locationCurve = curve.Location as LocationCurve;
             if (locationCurve == null)
                 return false;
 
-            double diameter = 0.0;
-            try
-            {
-                diameter = curve.Diameter;
-            }
-            catch (System.Exception)
-            {
-                return false;
-            }
 
             Line line = locationCurve.Curve as Line;
             if (line == null)
@@ -815,6 +827,7 @@ namespace Exporter
                 insert.DictProperties = GetPropertiesAndLocationFromElement(CurrentElement);
                 CurrentBlockData.Inserts.Add(insert);
 
+
                 m_stackBlock.Push(blk);
                 _insertStack.Push(insert);
 
@@ -827,6 +840,19 @@ namespace Exporter
                     if (ExtraElementColorSetting.ContainsKey(elementId))
                         m_curElementMaterialData = ExtraMaterial.Find(mat => mat.Name == ExtraElementColorSetting[elementId]);
                 }
+
+                // 特殊处理圆钢管
+                if (CurrentElement is FamilyInstance fi
+                    && CurrentElement.Category.Id.IntegerValue == (int)BuiltInCategory.OST_StructuralFraming
+                    && fi.Symbol.Family.Name == "圆钢管")
+                {
+                    MaterialData md = new MaterialData();
+                    md.Name = "圆钢管";
+                    AddMaterial(md);
+                    ProcessRoundedPipeEntity(CurrentElement, blk, md.Name);
+                    return RenderNodeAction.Skip;
+                }
+
 
                 return RenderNodeAction.Proceed;
             }
@@ -856,7 +882,9 @@ namespace Exporter
         {
             try
             {
+
                 m_stackTrans.Push(m_stackTrans.Peek().Multiply(node.GetTransform()));
+                var curTrans = node.GetTransform();
 
                 FamilySymbol fs = m_doc.GetElement(node.GetSymbolId()) as FamilySymbol;
                 //string name = fs == null ? "null" : fs.Name;
@@ -880,7 +908,7 @@ namespace Exporter
                     {
                         InsertData insData = new InsertData();
                         insData.BlockName = blk.Name;
-                        insData.TransMatrix = GetTransData(node.GetTransform());
+                        insData.TransMatrix = GetTransData(curTrans);
                         if (CurrentBlockData == ModelSpaceBlock)
                         {
                             insData.DictProperties = GetPropertiesAndLocationFromElement(CurrentElement);
@@ -910,7 +938,7 @@ namespace Exporter
 
                 InsertData insertData = new InsertData();
                 insertData.BlockName = blk.Name;
-                insertData.TransMatrix = GetTransData(node.GetTransform());
+                insertData.TransMatrix = GetTransData(curTrans);
                 if (CurrentBlockData == ModelSpaceBlock)
                 {
                     insertData.DictProperties = GetPropertiesAndLocationFromElement(CurrentElement);

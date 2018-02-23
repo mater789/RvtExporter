@@ -501,6 +501,21 @@ namespace Exporter
             return dictProperties;
         }
 
+        public static bool GetElementDoublePropertyFromElementByName(Element elem, string propertyName, out double dValue)
+        {
+            dValue = 0.0;
+            foreach (Parameter param in elem.Parameters)
+            {
+                if (param.Definition.Name == propertyName && param.StorageType == StorageType.Double)
+                {
+                    dValue = param.AsDouble();
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
         private static string GetFamilyName(Element elem)
         {
             if (elem == null)
