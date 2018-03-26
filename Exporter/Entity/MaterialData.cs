@@ -87,5 +87,13 @@ namespace Exporter
             get { return _smoothness; }
             set { _smoothness = value; }
         }
+
+        public string GetValidMapFile()
+        {
+            if (!string.IsNullOrEmpty(DiffuseMap))
+                return DiffuseMap;
+            else
+                return BumpMap;
+        }
     }
 }

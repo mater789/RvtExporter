@@ -608,6 +608,52 @@ namespace Exporter
             return area;
         }
 
+        public static List<DecalData> GetDecalsFromDocument(Document doc)
+        {
+            var ids = ExternalFileUtils.GetAllExternalFileReferences(doc);
+            var decalIds = (from id in ids
+                            let ext = ExternalFileUtils.GetExternalFileReference(doc, id)
+                            where ext != null && ext.ExternalFileReferenceType == ExternalFileReferenceType.Decal
+                            select id);
+
+            var collector = new FilteredElementCollector(doc);
+            var elems = collector.OfCategory(BuiltInCategory.OST_GenericModel)
+                .WhereElementIsNotElementType().ToElements();
+            var decals = elems.Where(e => decalIds.Contains(e.GetTypeId())).ToList();
+
+            var result = new List<DecalData>();
+            var op = new Options();
+            op.DetailLevel = ViewDetailLevel.Medium;
+            foreach (var decal in decals)
+            {
+                var points = new List<PointData>();
+                var geoElement = decal.get_Geometry(op);
+                foreach (GeometryObject go in geoElement)
+                {
+                    if (go is Line line)
+                    {
+                        var ptStart = line.GetEndPoint(0);
+                        points.Add(new PointData(ptStart.X, ptStart.Y, ptStart.Z));
+                    }
+                }
+                if (points.Count != 4)
+                    continue;
+
+                var ext = ExternalFileUtils.GetExternalFileReference(doc, decal.GetTypeId());
+                if (ext == null)
+                    continue;
+
+                result.Add(new DecalData
+                {
+                    Points = points,
+                    MapFileName = ModelPathUtils.ConvertModelPathToUserVisiblePath(ext.GetPath())
+                });
+            }
+
+            return result;
+        }
+
+
         public static bool IsElementIntersect(Document doc, Element elem1, Element elem2)
         {
             FilteredElementCollector collector = new FilteredElementCollector(doc);
@@ -683,6 +729,18 @@ namespace Exporter
             var levElems = collector.WherePasses(classFilter).ToElements();
 
             return levElems.Cast<T>().ToList();
+        }
+
+        public static List<T> GetElementInDocument<T>(Document doc, BuiltInCategory category)
+        {
+            if (doc == null)
+                throw new ArgumentNullException(nameof(doc));
+
+            var classFilter = new ElementClassFilter(typeof(T));
+            var collector = new FilteredElementCollector(doc);
+            var elems = collector.WherePasses(classFilter).OfCategory(category).WhereElementIsNotElementType().ToElements();
+
+            return elems?.Cast<T>().ToList();
         }
 
         public static List<T> GetNotNativeElementInDocument<T>(Document doc)

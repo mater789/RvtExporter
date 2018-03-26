@@ -74,6 +74,7 @@ namespace Exporter
             this.IsMoveBlkXpropertyToInsert = true;
             this.ExportFilePath = string.Empty;
             this.DefaultLayerName = string.Empty;
+            this.IsExportDecal = false;
             _fileType = FileTypeEnum.bim;
         }
 
@@ -97,6 +98,8 @@ namespace Exporter
         public bool IsOptimizeCylinderFace { get; set; }
 
         public bool IsOriginMaterial { get; set; }
+
+        public bool IsExportDecal { get; set; }
 
         public bool IsUserDefineFormat => this.FileType != FileTypeEnum.bim;
 

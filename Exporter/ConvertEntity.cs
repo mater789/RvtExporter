@@ -13,6 +13,7 @@ using VectorDraw.Geometry;
 //using Autodesk.Revit.DB;
 using VectorDraw.Professional.vdObjects;
 using Newtonsoft.Json;
+using System.Drawing;
 
 namespace Exporter
 {
@@ -111,10 +112,11 @@ namespace Exporter
 
         public void BeginConvert()
         {
+            if (ExportSetting.SystemSetting.IsExportTextureFile)
+                ProcessMaterialMapFile();
+
             if (ExportSetting.SystemSetting.IsUserDefineFormat)
             {
-                if (ExportSetting.SystemSetting.IsExportTextureFile)
-                    ProcessMaterialMapFile();
 
                 var ser = new ModelSerializeEntity
                 {
@@ -168,7 +170,7 @@ namespace Exporter
                 }
                 else
                 {
-                    InitMaterialLayers();
+                    InitMaterialLayersAandImages();
                     InitEntityInModelBlock();
                     AddGridPolyline();
                     AddLevelData();
@@ -483,7 +485,7 @@ namespace Exporter
             vDraw.ActiveDocument.ActiveLayOut.RenderMode = VectorDraw.Render.vdRender.Mode.Shade;
         }
 
-        private void InitMaterialLayers()
+        private void InitMaterialLayersAandImages()
         {
             foreach (MaterialData material in Materials)
             {
@@ -496,7 +498,38 @@ namespace Exporter
                 };
                 vdLayer layer = new vdLayer(vDraw.ActiveDocument, material.Name, color);
                 vDraw.ActiveDocument.Layers.AddItem(layer);
+
+                if (string.IsNullOrEmpty(material.GetValidMapFile()))
+                    continue;
+
+                var fileName = Path.GetFileNameWithoutExtension(ExportSetting.SystemSetting.ExportFilePath);
+                var folderName = Path.GetDirectoryName(ExportSetting.SystemSetting.ExportFilePath);
+                var imageFilePath = folderName + "\\" + fileName + "_texture\\" + material.GetValidMapFile();
+                AddImage(imageFilePath);
             }
+        }
+
+        private vdImageDef AddImage(string imageFilePath)
+        {
+            if (!File.Exists(imageFilePath))
+                return null;
+
+            var imageName = Path.GetFileNameWithoutExtension(imageFilePath);
+            var imgDef = vDraw.ActiveDocument.Images.FindName(imageName);
+            if (imgDef == null)
+            {
+                var img = Image.FromFile(imageFilePath);
+                if (img == null)
+                    return null;
+
+                imgDef = new vdImageDef(vDraw.ActiveDocument, imageName);
+                vDraw.ActiveDocument.Images.AddItem(imgDef);
+                imgDef.Image.SelectImage(img);
+                imgDef.EmbedImage();
+                imgDef.Update();
+            }
+
+            return imgDef;
         }
 
         private void InitEntityInModelBlock()
@@ -693,6 +726,26 @@ namespace Exporter
             onepolyface.SmoothAngle = 45;
             onepolyface.Layer = vDraw.ActiveDocument.Layers.FindName(mesh.MaterialName);
             entities.Add(onepolyface);
+
+            if (ExportSetting.SystemSetting.IsExportTextureFile)
+            {
+                var material = Materials.Find(m => m.Name == mesh.MaterialName);
+                if (material != null && !string.IsNullOrEmpty(material.GetValidMapFile()))
+                {
+                    var img = vDraw.ActiveDocument.Images.FindName(Path.GetFileNameWithoutExtension(material.GetValidMapFile()));
+                    if (img != null)
+                    {
+                        onepolyface.PenColor.SystemColor = Color.Gray;
+                        onepolyface.PenColor.MaterialImage = img;
+
+                        Matrix mtx = new Matrix();
+                        mtx.IdentityMatrix();
+                        mtx.ScaleMatrix(0.001, 0.001, 1);
+                        onepolyface.PenColor.MaterialMatrix = mtx;
+                    }
+                }
+            }
+
             onepolyface.Invalidate();
             onepolyface.Update();
 
