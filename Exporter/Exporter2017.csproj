@@ -96,6 +96,7 @@
     <Compile Include="CRevit2vdl.cs" />
     <Compile Include="ElementColorOverride.cs" />
     <Compile Include="Entity\CurveData.cs" />
+    <Compile Include="Entity\DecalData.cs" />
     <Compile Include="Entity\GridData.cs" />
     <Compile Include="Entity\InsertData.cs" />
     <Compile Include="Entity\LevelData.cs" />
