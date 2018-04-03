@@ -2,19 +2,9 @@
 <RevitAddIns>
    <AddIn Type="Command">
       <Assembly>E:\WorkProject\Debug\Exporter.dll</Assembly>
-      <ClientId>8C0A9E25-B7C7-422D-A2AB-702F73FA552F</ClientId>
+      <ClientId>8C0A9E25-B8C8-422D-A2AB-702F73FA552F</ClientId>
       <FullClassName>Exporter.ExportCommand</FullClassName>
       <Text>导出轻量化模型</Text>
-      <VisibilityMode>AlwaysVisible</VisibilityMode>
-      <LanguageType>Unknown</LanguageType>
-      <VendorId>www.BimEx.com.cn</VendorId>
-      <VendorDescription>www.BimEx.com.cn</VendorDescription>
-  </AddIn>
-   <AddIn Type="Command">
-      <Assembly>E:\WorkProject\Debug\Exporter.dll</Assembly>
-      <ClientId>8C0B9E25-B7C7-432D-A2AB-702F73FA553F</ClientId>
-      <FullClassName>Exporter.SolidJoinCommand</FullClassName>
-      <Text>处理墙面相交</Text>
       <VisibilityMode>AlwaysVisible</VisibilityMode>
       <LanguageType>Unknown</LanguageType>
       <VendorId>www.BimEx.com.cn</VendorId>
