@@ -38,6 +38,7 @@ namespace Exporter
 
         private void FormSettings_Load(object sender, EventArgs e)
         {
+            this.tabPageParking.Parent = null;
             Setting2UI();
         }
 
