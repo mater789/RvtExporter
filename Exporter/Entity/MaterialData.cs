@@ -93,7 +93,7 @@ namespace Exporter
             if (!string.IsNullOrEmpty(DiffuseMap))
                 return DiffuseMap;
             else
-                return BumpMap;
+                return "";
         }
     }
 }

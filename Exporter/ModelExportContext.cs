@@ -880,8 +880,8 @@ namespace Exporter
 
         public RenderNodeAction OnInstanceBegin(InstanceNode node)
         {
-            try
-            {
+            //try
+            //{
 
                 m_stackTrans.Push(m_stackTrans.Peek().Multiply(node.GetTransform()));
                 var curTrans = node.GetTransform();
@@ -957,11 +957,11 @@ namespace Exporter
                 m_stackBlock.Push(blk);
 
                 return RenderNodeAction.Proceed;
-            }
-            catch (Exception e)
-            {
-                throw new Exception("throw from OnInstanceBegin", e);
-            }
+            //}
+            //catch (Exception e)
+            //{
+            //    throw new Exception("throw from OnInstanceBegin", e);
+            //}
         }
 
         public void OnInstanceEnd(InstanceNode node)

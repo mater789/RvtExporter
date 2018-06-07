@@ -151,6 +151,7 @@
   <ItemGroup>
     <Content Include="BimExporter.addin">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <SubType>Designer</SubType>
     </Content>
   </ItemGroup>
   <ItemGroup />

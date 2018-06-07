@@ -349,7 +349,11 @@ namespace Exporter
                 }
             }
             string n = "";
+#if _Revit2016
             string path = GetProteinLibraryPath() + "2016\\assetlibrary_base.fbm\\" + str;
+#elif _Revit2017
+            string path = GetProteinLibraryPath() + "2017\\assetlibrary_base.fbm\\" + str;
+#endif
             if (File.Exists(path))
             {
                 XmlDocument xmlDocument = new XmlDocument();
