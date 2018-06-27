@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <RevitAddIns>
    <AddIn Type="Command">
-      <Assembly>E:\WorkProject\Debug\Exporter.dll</Assembly>
+      <Assembly>G:\WorkProject\Exporter\Exporter\bin\Debug\Exporter.dll</Assembly>
       <ClientId>8C0A9E25-B8C8-422D-A2AB-702F73FA552F</ClientId>
       <FullClassName>Exporter.ExportCommand</FullClassName>
       <Text>JYHT_导出轻量化模型</Text>
