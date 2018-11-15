@@ -9,13 +9,19 @@ using System.IO;
 using Autodesk.Revit.DB.Architecture;
 using Autodesk.Revit.DB.Plumbing;
 using Autodesk.Revit.UI;
+
+#if _Revit2018
+using Autodesk.Revit.DB.Visual;
+#else
 using Autodesk.Revit.Utility;
+#endif
+
 
 namespace Exporter
 {
     public class ModelExportContext : IExportContext
     {
-        #region 属性
+#region 属性
 
         private Document m_doc = null;
         private bool m_bIsCanceled = false;
@@ -177,7 +183,7 @@ namespace Exporter
 
         public Dictionary<string, LocationData> InstanceLocation { get; set; }
 
-        #endregion
+#endregion
 
 
         /// <summary>
@@ -672,7 +678,7 @@ namespace Exporter
             return faces;
         }
 
-        #region IExportContext 接口实现
+#region IExportContext 接口实现
 
         public bool Start()
         {
@@ -1095,6 +1101,6 @@ namespace Exporter
             */
         }
 
-        #endregion
+#endregion
     }
 }

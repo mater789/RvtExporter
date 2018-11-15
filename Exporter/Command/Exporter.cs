@@ -6,8 +6,17 @@ using System.Windows.Forms;
 using Autodesk.Revit.Attributes;
 using Autodesk.Revit.DB;
 using Autodesk.Revit.UI;
-using Autodesk.Revit.Utility;
 using System.Linq;
+
+
+#if _Revit2016
+using Autodesk.Revit.Utility;
+#elif _Revit2017 
+using Autodesk.Revit.DB.Visual;
+#elif _Revit2018
+using Autodesk.Revit.DB.Visual;
+#else
+#endif
 
 namespace Exporter
 {
@@ -140,46 +149,82 @@ namespace Exporter
             {
                 // Retrieve the value from simple type property is easy.
                 // for example, retrieve bool property value.
+#if _Revit2018
+                case AssetPropertyType.Integer:
+#else
                 case AssetPropertyType.APT_Integer:
+#endif
                     var AssetPropertyInt = prop as AssetPropertyInteger;
                     objWriter.WriteLine(_priexFix + AssetPropertyInt.Name + "= " + AssetPropertyInt.Value);
                     break;
-
+#if _Revit2018
+                case AssetPropertyType.Distance:
+#else
                 case AssetPropertyType.APT_Distance:
+#endif
                     var AssetPropertyDistance = prop as AssetPropertyDistance;
                     objWriter.WriteLine(_priexFix + AssetPropertyDistance.Name + "= " + AssetPropertyDistance.Value);
                     break;
+#if _Revit2018
+                case AssetPropertyType.Float:
+#else
                 case AssetPropertyType.APT_Float:
+#endif
                     var assFlot = prop as AssetPropertyFloat;
                     objWriter.WriteLine(_priexFix + assFlot.Name + "= " + assFlot.Value);
                     break;
+#if _Revit2018
+                case AssetPropertyType.Double1:
+#else
                 case AssetPropertyType.APT_Double:
+#endif
                     var AssetPropertyDouble = prop as AssetPropertyDouble;
                     objWriter.WriteLine(_priexFix + AssetPropertyDouble.Name + "= " + AssetPropertyDouble.Value);
                     break;
-
+#if _Revit2018
+                case AssetPropertyType.Double2:
+#else
                 case AssetPropertyType.APT_DoubleArray2d:
+#endif
                     var AssetPropertyDoubleArray2d = prop as AssetPropertyDoubleArray2d;
                     string msg = AssetPropertyDoubleArray2d.Value.Cast<double>().Aggregate(string.Empty, (current, v) => current + (v + ", "));
                     objWriter.WriteLine(_priexFix + AssetPropertyDoubleArray2d.Name + "= " + msg);
                     break;
+#if _Revit2018
+                case AssetPropertyType.Double3:
+                    var arr3d = prop as AssetPropertyDoubleArray3d;
+                    msg = arr3d.GetValueAsDoubles().Cast<double>().Aggregate(string.Empty, (current, v) => current + (v + ", "));
+#else
                 case AssetPropertyType.APT_DoubleArray3d:
                     var arr3d = prop as AssetPropertyDoubleArray3d;
                     msg = arr3d.Value.Cast<double>().Aggregate(string.Empty, (current, v) => current + (v + ", "));
+#endif
                     objWriter.WriteLine(_priexFix + arr3d.Name + "= " + msg);
                     break;
+#if _Revit2018
+                case AssetPropertyType.Double4:
+                    var arr4d = prop as AssetPropertyDoubleArray4d;
+                    msg = arr4d.GetValueAsDoubles().Cast<double>().Aggregate(string.Empty, (current, v) => current + (v + ", "));
+#else
                 case AssetPropertyType.APT_DoubleArray4d:
-                    var AssetPropertyDoubleArray4d = prop as AssetPropertyDoubleArray4d;
-                    msg = AssetPropertyDoubleArray4d.Value.Cast<double>().Aggregate(string.Empty, (current, v) => current + (v + ", "));
-                    objWriter.WriteLine(_priexFix + AssetPropertyDoubleArray4d.Name + "= " + msg);
+                    var arr4d = prop as AssetPropertyDoubleArray4d;
+                    msg = arr4d.Value.Cast<double>().Aggregate(string.Empty, (current, v) => current + (v + ", "));
+#endif
+                    objWriter.WriteLine(_priexFix + arr4d.Name + "= " + msg);
                     break;
-
+#if _Revit2018
+                case AssetPropertyType.String:
+#else
                 case AssetPropertyType.APT_String:
+#endif
                     AssetPropertyString val = prop as AssetPropertyString;
-
                     objWriter.WriteLine(_priexFix + val.Name + "= " + val.Value);
                     break;
+#if _Revit2018
+                case AssetPropertyType.Boolean:
+#else
                 case AssetPropertyType.APT_Boolean:
+#endif
                     AssetPropertyBoolean boolProp = prop as AssetPropertyBoolean;
                     objWriter.WriteLine(_priexFix + boolProp.Name + "= " + boolProp.Value);
                     break;
@@ -187,13 +232,21 @@ namespace Exporter
                 // When you retrieve the value from the data array property,
                 // you may need to get which value the property stands for.
                 // for example, the APT_Double44 may be a transform data.
+#if _Revit2018
+                case AssetPropertyType.Double44:
+#else
                 case AssetPropertyType.APT_Double44:
+#endif
                     AssetPropertyDoubleArray4d transformProp = prop as AssetPropertyDoubleArray4d;
                     objWriter.WriteLine(_priexFix + transformProp.Name + "= " + transformProp.Value);
                     break;
 
                 // The APT_List contains a list of sub asset properties with same type.
+#if _Revit2018
+                case AssetPropertyType.List:
+#else
                 case AssetPropertyType.APT_List:
+#endif
                     AssetPropertyList propList = prop as AssetPropertyList;
                     IList<AssetProperty> subProps = propList.GetValue();
                     if (subProps.Count == 0)
@@ -208,18 +261,28 @@ namespace Exporter
                     _priexFix = _priexFix.Substring(0, _priexFix.Length - 1);
 
                     break;
-
+#if _Revit2018
+                case AssetPropertyType.Asset:
+#else
                 case AssetPropertyType.APT_Asset:
+#endif
                     Asset propAsset = prop as Asset;
                     objWriter.WriteLine(_priexFix + propAsset.Name + " as Asset");
                     ReadAsset(propAsset, objWriter);
                     break;
+#if _Revit2018
+                case AssetPropertyType.Enumeration:
+#else
                 case AssetPropertyType.APT_Enum:
+#endif
                     var propEnum = prop as AssetPropertyEnum;
                     objWriter.WriteLine(_priexFix + propEnum.Name + "= " + propEnum.Value);
                     break;
-
+#if _Revit2018
+                case AssetPropertyType.Reference:
+#else
                 case AssetPropertyType.APT_Reference:
+#endif
                     var propRef = prop as AssetPropertyReference;
                     objWriter.WriteLine(_priexFix + prop.Name + " as propReference");
                     break;

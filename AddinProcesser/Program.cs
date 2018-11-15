@@ -14,6 +14,8 @@ namespace AddinProcesser
         private static string _destFolderPath = @"c:\ProgramData\Autodesk\Revit\Addins\2016";
 #elif _2017
         private static string _destFolderPath = @"c:\ProgramData\Autodesk\Revit\Addins\2017";
+#elif _2018
+        private static string _destFolderPath = @"c:\ProgramData\Autodesk\Revit\Addins\2018";
 #endif
 
         private static string _addinFileName = @"BimExporter.addin";
@@ -49,6 +51,8 @@ namespace AddinProcesser
                     node.InnerText = Path.GetDirectoryName(Application.ExecutablePath) + "\\Exporter.dll";
 #elif _2017
                     node.InnerText = Path.GetDirectoryName(Application.ExecutablePath) + "\\Exporter2017.dll";
+#elif _2018
+                    node.InnerText = Path.GetDirectoryName(Application.ExecutablePath) + "\\Exporter2018.dll";
 #endif
                 }
 

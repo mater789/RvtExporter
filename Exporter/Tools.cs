@@ -4,12 +4,17 @@ using System.Linq;
 using System.Text;
 using Autodesk.Revit.DB;
 using Autodesk.Revit.DB.Structure;
-using Autodesk.Revit.Utility;
 using VectorDraw.Geometry;
 using VectorDraw.Professional.vdPrimaries;
 using System.IO;
 using System.Xml;
 using System.Windows.Forms;
+
+#if _Revit2018
+using Autodesk.Revit.DB.Visual;
+#else
+using Autodesk.Revit.Utility;
+#endif
 
 namespace Exporter
 {
@@ -353,6 +358,8 @@ namespace Exporter
             string path = GetProteinLibraryPath() + "2016\\assetlibrary_base.fbm\\" + str;
 #elif _Revit2017
             string path = GetProteinLibraryPath() + "2017\\assetlibrary_base.fbm\\" + str;
+#elif _Revit2018
+            string path = GetProteinLibraryPath() + "2018\\assetlibrary_base.fbm\\" + str;
 #endif
             if (File.Exists(path))
             {
@@ -699,6 +706,8 @@ namespace Exporter
                 var curves = rb.GetCenterlineCurves(false, false, false);
 #elif _Revit2017
                 var curves = rb.GetCenterlineCurves(false, false, false);
+#elif _Revit2018
+                var curves = rb.GetCenterlineCurves(false, false, false, MultiplanarOption.IncludeOnlyPlanarCurves, 0);
 #endif
                 foreach (var curve in curves)
                 {
