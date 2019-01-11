@@ -115,6 +115,7 @@ namespace Exporter
             if (ExportSetting.SystemSetting.IsExportTextureFile)
                 ProcessMaterialMapFile();
 
+            // 特别指非bim格式
             if (ExportSetting.SystemSetting.IsUserDefineFormat)
             {
 
@@ -155,6 +156,7 @@ namespace Exporter
                     }
                 }
             }
+            // 指bim格式
             else
             {
                 InitRenderProperty();
@@ -204,12 +206,27 @@ namespace Exporter
                 if (this.ExportSetting.SystemSetting.IsMoveBlkXpropertyToInsert)
                     MoveProperty();
 
+                RemoveEmptyFigure();
+
                 vDraw.Progress += vDraw_Progress;
                 m_formProgress.Text = "正在保存";
                 bool bResult = vDraw.ActiveDocument.SaveAs(ExportSetting.SystemSetting.ExportFilePath);
                 m_formProgress?.Close();
                 vDraw.Progress -= vDraw_Progress;
             }
+        }
+
+        private void RemoveEmptyFigure()
+        {
+            (from vdFigure vdf in vDraw.ActiveDocument.ActiveLayOut.Entities
+             where vdf.BoundingBox == null || vdf.BoundingBox.IsEmpty
+             select vdf)
+            .ToList()
+            .ForEach(f =>
+            {
+                vDraw.ActiveDocument.ActiveLayOut.Entities.RemoveItem(f);
+                f.Deleted = true;
+            });
         }
 
         private void MoveProperty()
